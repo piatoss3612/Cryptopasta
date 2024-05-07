@@ -19,8 +19,18 @@ import {
 
 /// @author Matter Labs
 /// @notice This smart contract pays the gas fees on behalf of users that are the owner of a specific NFT asset
-contract ERC721GatedPaymaster is IPaymaster, Ownable {
+contract AgentPaymaster is IPaymaster, Ownable {
+    error AgentPaymaster__InvalidPaymasterFlow();
+    error AgentPaymaster__UserDoesNotHoldNFTAsset();
+    error AgentPaymaster__TransactionLimitReached();
+    error AgentPaymaster__FundsTransferFailed();
+
+    uint256 public constant MAX_TRANSACTIONS_PER_DAY = 5;
+
     IERC721 private immutable nft_asset;
+
+    mapping(address => uint256) public dailyTransactionCount;
+    mapping(address => uint256) public lastTransactionTimestamp;
 
     modifier onlyBootloader() {
         require(msg.sender == BOOTLOADER_FORMAL_ADDRESS, "Only bootloader can call this method");
@@ -42,23 +52,29 @@ contract ERC721GatedPaymaster is IPaymaster, Ownable {
         returns (bytes4 magic, bytes memory context)
     {
         magic = PAYMASTER_VALIDATION_SUCCESS_MAGIC;
-        require(_transaction.paymasterInput.length >= 4, "The standard paymaster input must be at least 4 bytes long");
+        if (_transaction.paymasterInput.length < 4) {
+            revert AgentPaymaster__InvalidPaymasterFlow();
+        }
 
         bytes4 paymasterInputSelector = bytes4(_transaction.paymasterInput[0:4]);
 
         if (paymasterInputSelector == IPaymasterFlow.general.selector) {
             address userAddress = address(uint160(_transaction.from));
 
-            require(
-                nft_asset.balanceOf(userAddress) > 0,
-                "User does not hold the required NFT asset and therefore must pay for their own gas!"
-            );
+            if (nft_asset.balanceOf(userAddress) == 0) {
+                revert AgentPaymaster__UserDoesNotHoldNFTAsset();
+            }
+
+            _validateTransactionLimit(userAddress);
 
             uint256 requiredETH = _transaction.gasLimit * _transaction.maxFeePerGas;
 
             (bool success,) = payable(BOOTLOADER_FORMAL_ADDRESS).call{value: requiredETH}("");
+            if (!success) {
+                revert AgentPaymaster__FundsTransferFailed();
+            }
         } else {
-            revert("Invalid paymaster flow");
+            revert AgentPaymaster__InvalidPaymasterFlow();
         }
     }
 
@@ -76,6 +92,24 @@ contract ERC721GatedPaymaster is IPaymaster, Ownable {
         uint256 balance = address(this).balance;
         (bool success,) = _to.call{value: balance}("");
         require(success, "Failed to withdraw funds from paymaster.");
+    }
+
+    function _validateTransactionLimit(address _user) internal {
+        uint256 currentTimestamp = block.timestamp;
+        uint256 today6AM = (currentTimestamp / 86400) * 86400 + 21600;
+
+        // Reset daily transaction count if the last transaction was made before 6AM (utc) today
+        // and the current transaction is made after 6AM today.
+        if (lastTransactionTimestamp[_user] < today6AM && currentTimestamp >= today6AM) {
+            dailyTransactionCount[_user] = 0;
+        }
+
+        if (dailyTransactionCount[_user] >= MAX_TRANSACTIONS_PER_DAY) {
+            revert AgentPaymaster__TransactionLimitReached();
+        }
+
+        dailyTransactionCount[_user]++;
+        lastTransactionTimestamp[_user] = currentTimestamp;
     }
 
     receive() external payable {}
