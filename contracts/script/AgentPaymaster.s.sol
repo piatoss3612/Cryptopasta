@@ -8,7 +8,7 @@ contract AgentRegistryScript is Script {
     function run() public {
         vm.startBroadcast();
 
-        AgentPaymaster paymaster = new AgentPaymaster(0xD120fE2C504Cb1e3600e9768bAcd96F8520C661D);
+        AgentPaymaster paymaster = new AgentPaymaster(0x65dcD3047bA46e2926CC4C077A8F8477B91F333b);
 
         vm.stopBroadcast();
 

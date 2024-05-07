@@ -2,14 +2,13 @@
 pragma solidity ^0.8.24;
 
 import {AgentAccount} from "./AgentAccount.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract AgentAccountFactory is Ownable {
+contract AgentAccountFactory {
     bytes32 public aaBytecodeHash;
 
-    constructor() Ownable(msg.sender) {}
+    constructor() {}
 
-    function deployAccount(bytes32 salt, address owner) external returns (address accountAddress) {
-        accountAddress = address(new AgentAccount{salt: salt}(owner));
+    function deployAccount(address owner) external returns (address accountAddress) {
+        accountAddress = address(new AgentAccount(owner));
     }
 }

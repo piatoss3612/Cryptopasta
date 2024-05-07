@@ -13,9 +13,10 @@ contract AgentRegistry is IAgentRegistry, Ownable {
 
     string[] private _portraits;
 
-    mapping(address => bool) private _registeredAgents;
-    mapping(address => bool) private _registeredAccounts;
+    mapping(address => address) private _agentToAccount;
+    mapping(address => address) private _accountToAgent;
     mapping(uint256 => address) private _tokenIdToAccount;
+    mapping(address => uint256) private _accountToTokenId;
 
     constructor(AgentAccountFactory _factory, string[] memory portraits) Ownable(msg.sender) {
         FACTORY = _factory;
@@ -27,12 +28,28 @@ contract AgentRegistry is IAgentRegistry, Ownable {
         return interfaceId == type(IAgentRegistry).interfaceId || interfaceId == type(IERC165).interfaceId;
     }
 
+    function agentToAccount(address agent) public view override returns (address account) {
+        account = _agentToAccount[agent];
+    }
+
+    function accountToAgent(address account) public view override returns (address agent) {
+        agent = _accountToAgent[account];
+    }
+
+    function accountToTokenId(address account) public view returns (uint256 tokenId) {
+        tokenId = _accountToTokenId[account];
+    }
+
+    function tokenIdToAccount(uint256 tokenId) public view returns (address account) {
+        account = _tokenIdToAccount[tokenId];
+    }
+
     function isRegisteredAgent(address agent) public view override returns (bool) {
-        return _registeredAgents[agent];
+        return _agentToAccount[agent] != address(0);
     }
 
     function isRegisteredAccount(address account) public view returns (bool) {
-        return _registeredAccounts[account];
+        return _accountToAgent[account] != address(0);
     }
 
     function portraitCount() public view override returns (uint256) {
@@ -69,16 +86,15 @@ contract AgentRegistry is IAgentRegistry, Ownable {
             revert AgentRegistry__PortraitIndexOutOfBounds(portraitId);
         }
 
-        bytes32 salt = keccak256(abi.encodePacked(agent, portraitId));
-
-        account = FACTORY.deployAccount(salt, agent);
+        account = FACTORY.deployAccount(agent);
 
         string memory selected = portrait(portraitId);
         tokenId = AGENT_TOKEN.mint(account, selected);
 
-        _registeredAgents[agent] = true;
-        _registeredAccounts[account] = true;
+        _agentToAccount[agent] = account;
+        _accountToAgent[account] = agent;
         _tokenIdToAccount[tokenId] = account;
+        _accountToTokenId[account] = tokenId;
 
         emit AgentRegistered(agent, account, tokenId);
     }
