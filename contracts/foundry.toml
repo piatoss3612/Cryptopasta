@@ -8,6 +8,4 @@ remappings = [
 viaIR = true
 
 [rpc_endpoints]
-zksync_sepolia = "https://sepolia.era.zksync.dev"
-
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+zksync-sepolia = "https://sepolia.era.zksync.dev"

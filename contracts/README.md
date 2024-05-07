@@ -1,66 +1,32 @@
-## Foundry
+# Cryptopasta Contracts
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+## Requirements
 
-Foundry consists of:
+- [foundry-zksync](https://github.com/matter-labs/foundry-zksync)
+- [node.js](https://nodejs.org/en/download/)
+- [yarn](https://yarnpkg.com/getting-started/install)
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+## Install
 
-## Documentation
-
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
-```shell
-$ forge build
+```bash
+$ forge install
 ```
 
-### Test
+## Build
 
-```shell
-$ forge test
+```bash
+$ forge build --zksync
 ```
 
-### Format
+## Deploy
 
-```shell
-$ forge fmt
-```
+```bash
+$ forge script script/AgentRegistry.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast --verify -vvvv
 
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+== Logs ==
+  AgentRegistry created at address:  0xC9300a9b5171b41fEE74978Ac88C5AdD528Ce286
+  AgentAccountFactory created at address:  0x609c70bf6766cDaC87120B52C86A8adaA26f6408
+  Agent Token:  0xD120fE2C504Cb1e3600e9768bAcd96F8520C661D
+  Agent Account:  0xE4A052076df2d57D3304443DAA64FD947aA9C883
+  Token ID:  0
 ```
