@@ -31,7 +31,7 @@ var (
 
 // AgentRegistryMetaData contains all meta data concerning the AgentRegistry contract.
 var AgentRegistryMetaData = &bind.MetaData{
-	ABI: "[{\"type\":\"constructor\",\"inputs\":[{\"name\":\"_factory\",\"type\":\"address\",\"internalType\":\"contractAgentAccountFactory\"},{\"name\":\"portraits\",\"type\":\"string[]\",\"internalType\":\"string[]\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"AGENT_TOKEN\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractAgent\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"FACTORY\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractAgentAccountFactory\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"addPortrait\",\"inputs\":[{\"name\":\"_portrait\",\"type\":\"string\",\"internalType\":\"string\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"isRegisteredAccount\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"isRegisteredAgent\",\"inputs\":[{\"name\":\"agent\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"owner\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"portrait\",\"inputs\":[{\"name\":\"index\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"portraitCount\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"register\",\"inputs\":[{\"name\":\"agent\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"portraitId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"renounceOwnership\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"supportsInterface\",\"inputs\":[{\"name\":\"interfaceId\",\"type\":\"bytes4\",\"internalType\":\"bytes4\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"pure\"},{\"type\":\"function\",\"name\":\"transferOwnership\",\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"AgentRegistered\",\"inputs\":[{\"name\":\"agent\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"account\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OwnershipTransferred\",\"inputs\":[{\"name\":\"previousOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"PortraitAdded\",\"inputs\":[{\"name\":\"portraitId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"portrait\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"AgentRegistry__AccountNotAllowed\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"AgentRegistry__AccountNotRegistered\",\"inputs\":[{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"AgentRegistry__AlreadyRegistered\",\"inputs\":[{\"name\":\"agent\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"AgentRegistry__InsufficientFunds\",\"inputs\":[{\"name\":\"amount\",\"type\":\"uint256\",\"internalType\":\"uint256\"},{\"name\":\"fee\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"AgentRegistry__NotComputedAddress\",\"inputs\":[{\"name\":\"computed\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"actual\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"AgentRegistry__NotERC6551Account\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"AgentRegistry__PortraitIndexOutOfBounds\",\"inputs\":[{\"name\":\"index\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"OwnableInvalidOwner\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"OwnableUnauthorizedAccount\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]}]",
+	ABI: "[{\"type\":\"constructor\",\"inputs\":[{\"name\":\"_factory\",\"type\":\"address\",\"internalType\":\"contractAgentAccountFactory\"},{\"name\":\"portraits\",\"type\":\"string[]\",\"internalType\":\"string[]\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"AGENT_TOKEN\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractAgent\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"FACTORY\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"contractAgentAccountFactory\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"accountToAgent\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"agent\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"accountToTokenId\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"addPortrait\",\"inputs\":[{\"name\":\"_portrait\",\"type\":\"string\",\"internalType\":\"string\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"agentToAccount\",\"inputs\":[{\"name\":\"agent\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"isRegisteredAccount\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"isRegisteredAgent\",\"inputs\":[{\"name\":\"agent\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"owner\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"portrait\",\"inputs\":[{\"name\":\"index\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"\",\"type\":\"string\",\"internalType\":\"string\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"portraitCount\",\"inputs\":[],\"outputs\":[{\"name\":\"\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"register\",\"inputs\":[{\"name\":\"agent\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"portraitId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"renounceOwnership\",\"inputs\":[],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"function\",\"name\":\"supportsInterface\",\"inputs\":[{\"name\":\"interfaceId\",\"type\":\"bytes4\",\"internalType\":\"bytes4\"}],\"outputs\":[{\"name\":\"\",\"type\":\"bool\",\"internalType\":\"bool\"}],\"stateMutability\":\"pure\"},{\"type\":\"function\",\"name\":\"tokenIdToAccount\",\"inputs\":[{\"name\":\"tokenId\",\"type\":\"uint256\",\"internalType\":\"uint256\"}],\"outputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}],\"stateMutability\":\"view\"},{\"type\":\"function\",\"name\":\"transferOwnership\",\"inputs\":[{\"name\":\"newOwner\",\"type\":\"address\",\"internalType\":\"address\"}],\"outputs\":[],\"stateMutability\":\"nonpayable\"},{\"type\":\"event\",\"name\":\"AgentRegistered\",\"inputs\":[{\"name\":\"agent\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"account\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"tokenId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"OwnershipTransferred\",\"inputs\":[{\"name\":\"previousOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"},{\"name\":\"newOwner\",\"type\":\"address\",\"indexed\":true,\"internalType\":\"address\"}],\"anonymous\":false},{\"type\":\"event\",\"name\":\"PortraitAdded\",\"inputs\":[{\"name\":\"portraitId\",\"type\":\"uint256\",\"indexed\":true,\"internalType\":\"uint256\"},{\"name\":\"portrait\",\"type\":\"string\",\"indexed\":false,\"internalType\":\"string\"}],\"anonymous\":false},{\"type\":\"error\",\"name\":\"AgentRegistry__AccountNotAllowed\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"AgentRegistry__AlreadyRegistered\",\"inputs\":[{\"name\":\"agent\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"AgentRegistry__PortraitIndexOutOfBounds\",\"inputs\":[{\"name\":\"index\",\"type\":\"uint256\",\"internalType\":\"uint256\"}]},{\"type\":\"error\",\"name\":\"OwnableInvalidOwner\",\"inputs\":[{\"name\":\"owner\",\"type\":\"address\",\"internalType\":\"address\"}]},{\"type\":\"error\",\"name\":\"OwnableUnauthorizedAccount\",\"inputs\":[{\"name\":\"account\",\"type\":\"address\",\"internalType\":\"address\"}]}]",
 }
 
 // AgentRegistryABI is the input ABI used to generate the binding from.
@@ -242,6 +242,99 @@ func (_AgentRegistry *AgentRegistryCallerSession) FACTORY() (common.Address, err
 	return _AgentRegistry.Contract.FACTORY(&_AgentRegistry.CallOpts)
 }
 
+// AccountToAgent is a free data retrieval call binding the contract method 0xec9223c5.
+//
+// Solidity: function accountToAgent(address account) view returns(address agent)
+func (_AgentRegistry *AgentRegistryCaller) AccountToAgent(opts *bind.CallOpts, account common.Address) (common.Address, error) {
+	var out []interface{}
+	err := _AgentRegistry.contract.Call(opts, &out, "accountToAgent", account)
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// AccountToAgent is a free data retrieval call binding the contract method 0xec9223c5.
+//
+// Solidity: function accountToAgent(address account) view returns(address agent)
+func (_AgentRegistry *AgentRegistrySession) AccountToAgent(account common.Address) (common.Address, error) {
+	return _AgentRegistry.Contract.AccountToAgent(&_AgentRegistry.CallOpts, account)
+}
+
+// AccountToAgent is a free data retrieval call binding the contract method 0xec9223c5.
+//
+// Solidity: function accountToAgent(address account) view returns(address agent)
+func (_AgentRegistry *AgentRegistryCallerSession) AccountToAgent(account common.Address) (common.Address, error) {
+	return _AgentRegistry.Contract.AccountToAgent(&_AgentRegistry.CallOpts, account)
+}
+
+// AccountToTokenId is a free data retrieval call binding the contract method 0xde21a489.
+//
+// Solidity: function accountToTokenId(address account) view returns(uint256 tokenId)
+func (_AgentRegistry *AgentRegistryCaller) AccountToTokenId(opts *bind.CallOpts, account common.Address) (*big.Int, error) {
+	var out []interface{}
+	err := _AgentRegistry.contract.Call(opts, &out, "accountToTokenId", account)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// AccountToTokenId is a free data retrieval call binding the contract method 0xde21a489.
+//
+// Solidity: function accountToTokenId(address account) view returns(uint256 tokenId)
+func (_AgentRegistry *AgentRegistrySession) AccountToTokenId(account common.Address) (*big.Int, error) {
+	return _AgentRegistry.Contract.AccountToTokenId(&_AgentRegistry.CallOpts, account)
+}
+
+// AccountToTokenId is a free data retrieval call binding the contract method 0xde21a489.
+//
+// Solidity: function accountToTokenId(address account) view returns(uint256 tokenId)
+func (_AgentRegistry *AgentRegistryCallerSession) AccountToTokenId(account common.Address) (*big.Int, error) {
+	return _AgentRegistry.Contract.AccountToTokenId(&_AgentRegistry.CallOpts, account)
+}
+
+// AgentToAccount is a free data retrieval call binding the contract method 0x1090f368.
+//
+// Solidity: function agentToAccount(address agent) view returns(address account)
+func (_AgentRegistry *AgentRegistryCaller) AgentToAccount(opts *bind.CallOpts, agent common.Address) (common.Address, error) {
+	var out []interface{}
+	err := _AgentRegistry.contract.Call(opts, &out, "agentToAccount", agent)
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// AgentToAccount is a free data retrieval call binding the contract method 0x1090f368.
+//
+// Solidity: function agentToAccount(address agent) view returns(address account)
+func (_AgentRegistry *AgentRegistrySession) AgentToAccount(agent common.Address) (common.Address, error) {
+	return _AgentRegistry.Contract.AgentToAccount(&_AgentRegistry.CallOpts, agent)
+}
+
+// AgentToAccount is a free data retrieval call binding the contract method 0x1090f368.
+//
+// Solidity: function agentToAccount(address agent) view returns(address account)
+func (_AgentRegistry *AgentRegistryCallerSession) AgentToAccount(agent common.Address) (common.Address, error) {
+	return _AgentRegistry.Contract.AgentToAccount(&_AgentRegistry.CallOpts, agent)
+}
+
 // IsRegisteredAccount is a free data retrieval call binding the contract method 0xc86ae798.
 //
 // Solidity: function isRegisteredAccount(address account) view returns(bool)
@@ -426,6 +519,37 @@ func (_AgentRegistry *AgentRegistrySession) SupportsInterface(interfaceId [4]byt
 // Solidity: function supportsInterface(bytes4 interfaceId) pure returns(bool)
 func (_AgentRegistry *AgentRegistryCallerSession) SupportsInterface(interfaceId [4]byte) (bool, error) {
 	return _AgentRegistry.Contract.SupportsInterface(&_AgentRegistry.CallOpts, interfaceId)
+}
+
+// TokenIdToAccount is a free data retrieval call binding the contract method 0xb5eff1fb.
+//
+// Solidity: function tokenIdToAccount(uint256 tokenId) view returns(address account)
+func (_AgentRegistry *AgentRegistryCaller) TokenIdToAccount(opts *bind.CallOpts, tokenId *big.Int) (common.Address, error) {
+	var out []interface{}
+	err := _AgentRegistry.contract.Call(opts, &out, "tokenIdToAccount", tokenId)
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// TokenIdToAccount is a free data retrieval call binding the contract method 0xb5eff1fb.
+//
+// Solidity: function tokenIdToAccount(uint256 tokenId) view returns(address account)
+func (_AgentRegistry *AgentRegistrySession) TokenIdToAccount(tokenId *big.Int) (common.Address, error) {
+	return _AgentRegistry.Contract.TokenIdToAccount(&_AgentRegistry.CallOpts, tokenId)
+}
+
+// TokenIdToAccount is a free data retrieval call binding the contract method 0xb5eff1fb.
+//
+// Solidity: function tokenIdToAccount(uint256 tokenId) view returns(address account)
+func (_AgentRegistry *AgentRegistryCallerSession) TokenIdToAccount(tokenId *big.Int) (common.Address, error) {
+	return _AgentRegistry.Contract.TokenIdToAccount(&_AgentRegistry.CallOpts, tokenId)
 }
 
 // AddPortrait is a paid mutator transaction binding the contract method 0x395c6f49.

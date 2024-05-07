@@ -39,3 +39,11 @@ $ forge script script/AgentPaymaster.s.sol --zksync --rpc-url zksync-sepolia --a
 == Logs ==
   AgentPaymaster:  0xc35D29721aa5Aca7321AFd26FF4E24BA9915dEF6
 ```
+
+```bash
+$ forge script script/PriceConverter.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
+
+== Logs ==
+  PriceConverter:  0x9b12Bcf86fAdd8f207C20ECCFc1f5b28F87bd585
+  5 USD to ETH:  1625000000000000
+```

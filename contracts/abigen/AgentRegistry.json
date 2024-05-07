@@ -43,6 +43,44 @@
     },
     {
         "type": "function",
+        "name": "accountToAgent",
+        "inputs": [
+            {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "agent",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "accountToTokenId",
+        "inputs": [
+            {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "tokenId",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
         "name": "addPortrait",
         "inputs": [
             {
@@ -53,6 +91,25 @@
         ],
         "outputs": [],
         "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "agentToAccount",
+        "inputs": [
+            {
+                "name": "agent",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
     },
     {
         "type": "function",
@@ -194,6 +251,25 @@
     },
     {
         "type": "function",
+        "name": "tokenIdToAccount",
+        "inputs": [
+            {
+                "name": "tokenId",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "account",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
         "name": "transferOwnership",
         "inputs": [
             {
@@ -281,64 +357,10 @@
     },
     {
         "type": "error",
-        "name": "AgentRegistry__AccountNotRegistered",
-        "inputs": [
-            {
-                "name": "tokenId",
-                "type": "uint256",
-                "internalType": "uint256"
-            }
-        ]
-    },
-    {
-        "type": "error",
         "name": "AgentRegistry__AlreadyRegistered",
         "inputs": [
             {
                 "name": "agent",
-                "type": "address",
-                "internalType": "address"
-            }
-        ]
-    },
-    {
-        "type": "error",
-        "name": "AgentRegistry__InsufficientFunds",
-        "inputs": [
-            {
-                "name": "amount",
-                "type": "uint256",
-                "internalType": "uint256"
-            },
-            {
-                "name": "fee",
-                "type": "uint256",
-                "internalType": "uint256"
-            }
-        ]
-    },
-    {
-        "type": "error",
-        "name": "AgentRegistry__NotComputedAddress",
-        "inputs": [
-            {
-                "name": "computed",
-                "type": "address",
-                "internalType": "address"
-            },
-            {
-                "name": "actual",
-                "type": "address",
-                "internalType": "address"
-            }
-        ]
-    },
-    {
-        "type": "error",
-        "name": "AgentRegistry__NotERC6551Account",
-        "inputs": [
-            {
-                "name": "account",
                 "type": "address",
                 "internalType": "address"
             }
