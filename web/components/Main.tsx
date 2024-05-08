@@ -11,7 +11,7 @@ const Main = () => {
 
   const sendRequest = async () => {
     const token = await getAccessToken();
-    const response = await axios.get("http://localhost:8080", {
+    const response = await axios.get("http://localhost:8080/v1/temp", {
       headers: {
         Authorization: `Bearer ${token}`,
       },

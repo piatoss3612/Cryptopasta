@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"log"
@@ -7,6 +7,8 @@ import (
 )
 
 type Config struct {
+	PrivateKey           string `json:"privateKey"`
+	AgentRegistryAddr    string `json:"agentRegistryAddr"`
 	PrivyAppID           string `json:"privyAppId"`
 	PrivyVerificationKey string `json:"privyVerificationKey"`
 }
