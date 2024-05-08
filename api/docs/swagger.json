@@ -1,0 +1,27 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for Cryptopasta DApp",
+        "title": "Cryptopasta API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "piatoss",
+            "url": "https://piatoss.xyz",
+            "email": "piatoss3612@gmail.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "http://opensource.org/licenses/MIT"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "paths": {},
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

@@ -1,0 +1,51 @@
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ReportDiscovery @entity(immutable: true) {
+  id: Bytes!
+  reportId: BigInt! # uint256
+  reporter: Bytes! # address
+  priceInUSD: BigInt! # uint128
+  title: String! # string
+  contentURI: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ReportRated @entity(immutable: true) {
+  id: Bytes!
+  reportId: BigInt! # uint256
+  rater: Bytes! # address
+  rating: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ReportTaken @entity(immutable: true) {
+  id: Bytes!
+  reportId: BigInt! # uint256
+  buyer: Bytes! # address
+  paymentMethod: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SalesClaimed @entity(immutable: true) {
+  id: Bytes!
+  reportId: BigInt! # uint256
+  caller: Bytes! # address
+  amountInETH: BigInt! # uint256
+  amountInUSDT: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

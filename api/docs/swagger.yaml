@@ -1,0 +1,20 @@
+host: localhost:8080
+info:
+  contact:
+    email: piatoss3612@gmail.com
+    name: piatoss
+    url: https://piatoss.xyz
+  description: API for Cryptopasta DApp
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Cryptopasta API
+  version: "1.0"
+paths: {}
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

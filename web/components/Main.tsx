@@ -2,9 +2,25 @@
 
 import { Button, Stack, Text } from "@chakra-ui/react";
 import { usePrivy } from "@privy-io/react-auth";
+import axios from "axios";
+import { useState } from "react";
 
 const Main = () => {
-  const { ready, authenticated, login, logout } = usePrivy();
+  const { ready, authenticated, getAccessToken, login, logout } = usePrivy();
+  const [resp, setResp] = useState("");
+
+  const sendRequest = async () => {
+    const token = await getAccessToken();
+    const response = await axios.get("http://localhost:8080", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.status === 200) {
+      setResp(response.data);
+    }
+  };
 
   if (!authenticated) {
     return (
@@ -24,6 +40,8 @@ const Main = () => {
       <Button onClick={logout} isLoading={!ready}>
         Logout
       </Button>
+      <Button onClick={sendRequest}>Request</Button>
+      {resp && <Text>{resp}</Text>}
     </Stack>
   );
 };
