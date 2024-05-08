@@ -1,0 +1,32 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: agent_registry
+    network: zksync-era-sepolia
+    source:
+      address: "0x01592110A91cdA4AD3D229a66a51A4FEeb0Db922"
+      abi: agent_registry
+      startBlock: 2162578
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - AgentRegistered
+        - OwnershipTransferred
+        - PortraitAdded
+      abis:
+        - name: agent_registry
+          file: agent_registry/abis/agent_registry.json
+      eventHandlers:
+        - event: AgentRegistered(indexed address,indexed address,indexed uint256)
+          handler: handleAgentRegistered
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: PortraitAdded(indexed uint256,string)
+          handler: handlePortraitAdded
+      file: agent_registry/agent_registry.wasm
