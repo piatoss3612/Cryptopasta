@@ -3,9 +3,8 @@ package app
 import (
 	"context"
 	"log"
+	"log/slog"
 	"net/http"
-	"os"
-	"os/signal"
 	"syscall"
 	"time"
 )
@@ -25,7 +24,13 @@ func NewApp(addr string, handler http.Handler) *App {
 	}
 }
 
-func (a *App) Run() error {
+func (a *App) Run(shutdownFuncs ...func()) error {
+	if len(shutdownFuncs) > 0 {
+		a.RegisterOnShutdown(shutdownFuncs[0])
+	}
+
+	slog.Info("Starting the server...", "addr", a.Addr)
+
 	go func() {
 		if err := a.ListenAndServe(); err != http.ErrServerClosed {
 			log.Fatalf("ListenAndServe(): %v", err)
@@ -36,39 +41,14 @@ func (a *App) Run() error {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		log.Println("Shutting down the server...")
+		slog.Info("Shutting down the server...")
 
 		if err := a.Shutdown(ctx); err != nil {
 			log.Fatalf("Shutdown(): %v", err)
 		}
 
-		log.Println("Gracefully shutdown the server")
+		slog.Info("Server is down")
 	}, syscall.SIGINT, syscall.SIGTERM)
 
 	return nil
-}
-
-func GracefulShutdown(callback func(), sig ...os.Signal) <-chan struct{} {
-	stop := make(chan struct{})
-	sigChan := make(chan os.Signal, 1)
-
-	sigs := sig
-	if len(sigs) == 0 {
-		sigs = []os.Signal{os.Interrupt}
-	}
-
-	signal.Notify(sigChan, sigs...)
-
-	go func() {
-		<-sigChan
-
-		signal.Stop(sigChan)
-
-		callback()
-
-		close(sigChan)
-		close(stop)
-	}()
-
-	return stop
 }

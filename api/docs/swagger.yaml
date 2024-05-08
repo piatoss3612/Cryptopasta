@@ -11,7 +11,83 @@ info:
   termsOfService: http://swagger.io/terms/
   title: Cryptopasta API
   version: "1.0"
-paths: {}
+paths:
+  /agent:
+    post:
+      consumes:
+      - application/json
+      description: Register a new agent to the system
+      parameters:
+      - description: Session ID
+        in: query
+        name: sessionId
+        required: true
+        type: string
+      - description: Agent Address
+        in: body
+        name: agent_address
+        required: true
+        schema:
+          type: string
+      - description: Portrait ID
+        in: body
+        name: portrait_id
+        required: true
+        schema:
+          type: string
+      produces:
+      - text/plain
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Agent Register
+      tags:
+      - agent
+  /ping:
+    get:
+      consumes:
+      - text/plain
+      description: Ping
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Ping
+      tags:
+      - common
+  /temp:
+    get:
+      consumes:
+      - text/plain
+      description: Temporary route for testing JWT middleware
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+      summary: Temp
+      tags:
+      - common
+  /ws:
+    get:
+      description: returns websocket connection
+      responses: {}
+      summary: Serve websocket
+      tags:
+      - websocket
 securityDefinitions:
   BearerAuth:
     in: header

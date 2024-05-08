@@ -3,7 +3,6 @@ package rest
 import (
 	"cryptopasta-api/internal/rest/middleware"
 	"cryptopasta-api/internal/rest/websocket"
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -16,11 +15,10 @@ type Route interface {
 }
 
 type Router struct {
-	version string
 	*chi.Mux
 }
 
-func NewRouter(version string, routes ...Route) *Router {
+func NewRouter(routes ...Route) *Router {
 	r := chi.NewRouter()
 
 	// middlewares
@@ -31,15 +29,13 @@ func NewRouter(version string, routes ...Route) *Router {
 	r.Use(middleware.NewCors())
 	r.Use(middleware.NewHttpRateLimit())
 
-	r.Route(fmt.Sprintf("/%s", version), func(r chi.Router) {
-		for _, route := range routes {
-			r.Mount(route.Pattern(), route.Handler())
-		}
-	})
+	for _, route := range routes {
+		r.Mount(route.Pattern(), route.Handler())
+	}
+
 	r.Handle("/ws", websocket.Serve())
 
 	return &Router{
-		version: version,
-		Mux:     r,
+		Mux: r,
 	}
 }

@@ -1,11 +1,12 @@
 package main
 
 import (
+	"context"
 	"cryptopasta-api/internal/app"
 	"cryptopasta-api/internal/config"
 	"cryptopasta-api/internal/rest"
-	"cryptopasta-api/internal/rest/route/ping"
-	"cryptopasta-api/internal/rest/route/temp"
+	"cryptopasta-api/internal/rest/route"
+	"cryptopasta-api/internal/service/agent"
 	"cryptopasta-api/internal/service/jwt"
 	"log/slog"
 )
@@ -37,12 +38,13 @@ func main() {
 	cfg := config.LoadConfig()
 
 	jwtSvc := jwt.NewJwtService(cfg.PrivyAppID, cfg.PrivyVerificationKey)
-	// agentSvc := agent.NewAgentService(context.Background(), cfg.AgentRegistryAddr, cfg.PrivateKey)
+	agentSvc := agent.NewAgentService(context.Background(), cfg.AgentRegistryAddr, cfg.PrivateKey)
 
-	pingRoute := ping.NewPingRoute()
-	tempRoute := temp.NewTempRoute(jwtSvc)
+	pingRoute := route.NewPingRoute()
+	tempRoute := route.NewTempRoute(jwtSvc)
+	agentRoute := route.NewAgentRoute(jwtSvc, agentSvc)
 
-	r := rest.NewRouter("v1", pingRoute, tempRoute)
+	r := rest.NewRouter(pingRoute, tempRoute, agentRoute)
 
 	app.NewApp(":8080", r).Run()
 }

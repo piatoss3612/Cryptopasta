@@ -2,7 +2,8 @@ package middleware
 
 import (
 	"cryptopasta-api/internal/service/jwt"
-	"fmt"
+	"cryptopasta-api/internal/utils"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -38,7 +39,7 @@ func JwtTokenRequired(j *jwt.JwtService) func(next http.Handler) http.Handler {
 			authHeader := r.Header.Get("Authorization")
 
 			if authHeader == "" {
-				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				utils.WriteError(w, http.StatusUnauthorized, "authorization header is required")
 				return
 			}
 
@@ -47,29 +48,29 @@ func JwtTokenRequired(j *jwt.JwtService) func(next http.Handler) http.Handler {
 			// The second part is the token itself
 			parts := strings.Split(authHeader, " ")
 			if len(parts) != 2 {
-				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				utils.WriteError(w, http.StatusUnauthorized, "authorization header is formatted incorrectly")
 				return
 			}
 
 			// Check if the token type is Bearer
 			if parts[0] != "Bearer" {
-				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				utils.WriteError(w, http.StatusUnauthorized, "authorization header must be a Bearer token")
 				return
 			}
 
 			// Parse the token
 			token, err := j.ParseToken(parts[1])
 			if err != nil {
-				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				slog.Error("error while parsing token", "error", err)
+				utils.WriteError(w, http.StatusUnauthorized, "invalid token")
 				return
 			}
-
-			fmt.Println(token.Claims)
 
 			// Check if the token is valid
 			claims, err := j.ValidateClaims(token)
 			if err != nil {
-				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				slog.Error("error while validating token", "error", err)
+				utils.WriteError(w, http.StatusUnauthorized, "invalid token")
 				return
 			}
 
