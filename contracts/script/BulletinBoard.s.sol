@@ -12,10 +12,11 @@ contract BulletinBoardScript is Script {
 
         vm.startBroadcast();
 
-        BulletinBoard board = new BulletinBoard(agentToken, usdt, priceConverter);
+        BulletinBoard board = BulletinBoard(payable(0x07F10e3ae7fA3CaCb0EDfAC6dC4ef7d96F4B7E00));
 
         vm.stopBroadcast();
 
         console.log("BulletinBoard: ", address(board));
+        console.log("Cryptopasta: ", address(board.CP()));
     }
 }

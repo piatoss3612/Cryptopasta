@@ -70,6 +70,7 @@ $ forge script script/BulletinBoard.s.sol --zksync --rpc-url zksync-sepolia --ac
 
 == Logs ==
   BulletinBoard:  0x07F10e3ae7fA3CaCb0EDfAC6dC4ef7d96F4B7E00
+  Cryptopasta:  0x51b8d774C640D22416e2dF068A05F5C9C8Cf606d
 ```
 
 ### MissionLog
