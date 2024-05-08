@@ -9,6 +9,11 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
+/// @title BulletinBoard
+/// @author piatoss
+/// @notice A contract to report and rate discoveries
+/// @dev The contract is used to report discoveries and rate them
+/// The contract also supports sales and claims
 contract BulletinBoard is IBulletinBoard, Ownable {
     uint8 private constant _RATING_DECIMALS = 6;
     uint256 private constant MIN_FEE = 1000;
@@ -39,46 +44,79 @@ contract BulletinBoard is IBulletinBoard, Ownable {
         return interfaceId == type(IBulletinBoard).interfaceId || interfaceId == type(IERC165).interfaceId;
     }
 
+    /// @notice Returns the cost of reporting in USD
+    /// @return cost The cost in USD
+    /// @return decimals The decimals of the cost
     function reportingCostInUSD() external view override returns (uint256, uint8) {
         return (_reportingCostInUSD, PRICE_CONVERTER.USD_DECIMALS());
     }
 
+    /// @notice Returns the cost of reporting in ETH
+    /// @return cost The cost in ETH
+    /// @return decimals The decimals of the cost
     function reportingCostInETH() external view override returns (uint256, uint8) {
         return (PRICE_CONVERTER.convertUSDToNativeAsset(_reportingCostInUSD), PRICE_CONVERTER.NATIVE_ASSET_DECIMALS());
     }
 
+    /// @notice Returns the cost of reporting in USDT
+    /// @return cost The cost in USDT
+    /// @return decimals The decimals of the cost
     function reportingCostInUSDT() external view override returns (uint256, uint8) {
         return (PRICE_CONVERTER.convertUSDToUSDT(_reportingCostInUSD), PRICE_CONVERTER.USDT_DECIMALS());
     }
 
+    /// @notice Returns the decimals of the rating
+    /// @return decimals The decimals of the rating
     function ratingDecimals() external pure override returns (uint8) {
         return _RATING_DECIMALS;
     }
 
+    /// @notice Returns the decimals of the USD price
+    /// @return decimals The decimals of the USD price
     function usdPriceDecimals() external view override returns (uint8) {
         return PRICE_CONVERTER.USD_DECIMALS();
     }
 
+    /// @notice Returns the discovery report
+    /// @param reportId The report ID
+    /// @return report The discovery report
     function getDiscoveryReport(uint256 reportId) public view override returns (DiscoveryReport memory) {
         _reportExists(reportId);
         return _reports[reportId];
     }
 
+    /// @notice Returns the rating stats
+    /// @param reportId The report ID
+    /// @return stats The rating stats
+    /// @return decimals The decimals of the rating
     function getRating(uint256 reportId) external view override returns (RatingStats memory, uint8) {
         _reportExists(reportId);
         return (_ratings[reportId], _RATING_DECIMALS);
     }
 
+    /// @notice Returns the sales stats
+    /// @param reportId The report ID
+    /// @return stats The sales stats
+    /// @return decimals The decimals of the price
     function getSales(uint256 reportId) external view override returns (SalesStats memory, uint8) {
         _reportExists(reportId);
         return (_sales[reportId], PRICE_CONVERTER.USD_DECIMALS());
     }
 
+    /// @notice Returns if the rater has rated the report
+    /// @param rater The rater address
+    /// @param reportId The report ID
+    /// @return rated True if the rater has rated the report
     function hasRated(address rater, uint256 reportId) public view returns (bool) {
         _reportExists(reportId);
         return _hasRated[rater][reportId];
     }
 
+    /// @notice Creates a discovery report
+    /// @param title The title of the discovery
+    /// @param contentURI The URI of the content
+    /// @param priceInUSD The price in USD
+    /// @param paymentMethod The payment method
     function reportDiscovery(
         string memory title,
         string memory contentURI,
@@ -113,6 +151,9 @@ contract BulletinBoard is IBulletinBoard, Ownable {
         emit ReportDiscovery(reportId, reporter, priceInUSD, title, contentURI);
     }
 
+    /// @notice Takes(purchases) a discovery report
+    /// @param reportId The report ID
+    /// @param paymentMethod The payment method
     function takeReport(uint256 reportId, PaymentMethod paymentMethod) external payable {
         address buyer = msg.sender;
 
@@ -166,6 +207,9 @@ contract BulletinBoard is IBulletinBoard, Ownable {
         }
     }
 
+    /// @notice Rates a discovery report
+    /// @param reportId The report ID
+    /// @param rating The rating
     function rateReport(uint256 reportId, Rating rating) external {
         address rater = msg.sender;
 
@@ -193,6 +237,8 @@ contract BulletinBoard is IBulletinBoard, Ownable {
         emit ReportRated(reportId, rater, rating);
     }
 
+    /// @notice Claims the sales of a discovery report
+    /// @param reportId The report ID
     function claimSales(uint256 reportId) external {
         _reportExists(reportId);
 
@@ -247,6 +293,10 @@ contract BulletinBoard is IBulletinBoard, Ownable {
         emit SalesClaimed(reportId, caller, claimableInETH, claimableInUSDT);
     }
 
+    /// @notice Withdraws the balance
+    /// @param to The receiver address
+    /// @param amount The amount to withdraw
+    /// @param paymentMethod The payment method
     function withdraw(address to, uint256 amount, PaymentMethod paymentMethod) external {
         if (paymentMethod == PaymentMethod.ETHER) {
             // Check if there is enough balance

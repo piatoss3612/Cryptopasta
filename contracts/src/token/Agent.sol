@@ -7,6 +7,10 @@ import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
+/// @title Agent
+/// @author piatoss
+/// @notice This contract is an ERC721 token contract for Agents.
+/// @dev This contract implements ERC-6454 for soulbinding.
 contract Agent is IAgent, ERC721, ERC721URIStorage, Ownable {
     uint256 private _nextTokenId;
 
@@ -26,13 +30,14 @@ contract Agent is IAgent, ERC721, ERC721URIStorage, Ownable {
         override(IERC165, ERC721, ERC721URIStorage)
         returns (bool)
     {
-        return super.supportsInterface(interfaceId);
+        return interfaceId == type(IAgent).interfaceId || super.supportsInterface(interfaceId);
     }
 
     function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
 
+    // ERC-6454
     function isTransferable(uint256 tokenId, address from, address to) public view returns (bool) {
         if (from == address(0x0) && to == address(0x0)) {
             return false;

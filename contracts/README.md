@@ -71,3 +71,12 @@ $ forge script script/BulletinBoard.s.sol --zksync --rpc-url zksync-sepolia --ac
 == Logs ==
   BulletinBoard:  0x07F10e3ae7fA3CaCb0EDfAC6dC4ef7d96F4B7E00
 ```
+
+### MissionLog
+
+```bash
+$ forge script script/MissionLog.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
+
+== Logs ==
+  MissionLog:  0xcc63Ea58832beaeA0867f1182759F6CCEeC42301
+```

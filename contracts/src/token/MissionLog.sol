@@ -8,6 +8,9 @@ import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
+/// @title MissionLog
+/// @author piatoss
+/// @notice This contract is an ERC721 token contract for Mission Logs.
 contract MissionLog is IMissionLog, ERC721, ERC721URIStorage, Ownable {
     IERC721 public immutable AGENT;
 

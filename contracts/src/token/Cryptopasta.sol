@@ -8,6 +8,9 @@ import {ERC1155Burnable} from "@openzeppelin/contracts/token/ERC1155/extensions/
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
+/// @title Cryptopasta
+/// @author piatoss
+/// @notice This contract is an ERC1155 token contract for Cryptopasta.
 contract Cryptopasta is ICryptopasta, ERC1155, ERC1155URIStorage, ERC1155Burnable, Ownable {
     string public name = "Cryptopasta";
     string public symbol = "CPASTA";
