@@ -7,7 +7,7 @@ import {
   MetadataUpdate,
   OwnershipTransferred,
   Transfer
-} from "../generated/mission-log/mission-log"
+} from "../generated/mission_log/mission_log"
 
 export function createApprovalEvent(
   owner: Address,

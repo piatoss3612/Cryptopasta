@@ -5,11 +5,11 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: mission-log
+    name: mission_log
     network: zksync-era-sepolia
     source:
       address: "0xcc63Ea58832beaeA0867f1182759F6CCEeC42301"
-      abi: mission-log
+      abi: mission_log
       startBlock: 2179774
     mapping:
       kind: ethereum/events
@@ -23,8 +23,8 @@ dataSources:
         - OwnershipTransferred
         - Transfer
       abis:
-        - name: mission-log
-          file: ./abis/mission-log.json
+        - name: mission_log
+          file: ./abis/mission_log.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval

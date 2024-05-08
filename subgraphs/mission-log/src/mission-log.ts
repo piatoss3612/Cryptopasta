@@ -5,7 +5,7 @@ import {
   MetadataUpdate as MetadataUpdateEvent,
   OwnershipTransferred as OwnershipTransferredEvent,
   Transfer as TransferEvent
-} from "../generated/mission-log/mission-log"
+} from "../generated/mission_log/mission_log"
 import {
   Approval,
   ApprovalForAll,
