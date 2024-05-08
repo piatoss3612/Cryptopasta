@@ -22,6 +22,8 @@ $ forge build --zksync
 
 - Several transactions at the same time may cause the transaction to fail. Please deploy one by one.
 
+### AgentRegistry
+
 ```bash
 $ forge script script/AgentRegistry.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
 
@@ -33,6 +35,8 @@ $ forge script script/AgentRegistry.s.sol --zksync --rpc-url zksync-sepolia --ac
   Token ID:  0
 ```
 
+### AgentPaymaster
+
 ```bash
 $ forge script script/AgentPaymaster.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
 
@@ -40,10 +44,30 @@ $ forge script script/AgentPaymaster.s.sol --zksync --rpc-url zksync-sepolia --a
   AgentPaymaster:  0xc35D29721aa5Aca7321AFd26FF4E24BA9915dEF6
 ```
 
+### PriceConverter
+
 ```bash
 $ forge script script/PriceConverter.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
 
 == Logs ==
   PriceConverter:  0x9b12Bcf86fAdd8f207C20ECCFc1f5b28F87bd585
   5 USD to ETH:  1625000000000000
+```
+
+### MockUSDT
+
+```bash
+$ forge script script/MockUSDT.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
+
+== Logs ==
+  MockUSDT:  0xe4b95df5D50F8ACa7b5Dd282922D1632c868d252
+```
+
+### BulletinBoard
+
+```bash
+$ forge script script/BulletinBoard.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
+
+== Logs ==
+  BulletinBoard:  0x07F10e3ae7fA3CaCb0EDfAC6dC4ef7d96F4B7E00
 ```

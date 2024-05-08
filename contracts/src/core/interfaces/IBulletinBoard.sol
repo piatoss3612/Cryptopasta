@@ -11,6 +11,8 @@ interface IBulletinBoard is IERC165 {
     error BulletinBoard__AlreadyRated(address rater, uint256 reportId);
     error BulletinBoard__NotReportOwner(address caller, uint256 reportId);
     error BulletinBoard__InsufficientBalance(address caller, uint256 amount, PaymentMethod paymentMethod);
+    error BulletinBoard__InsufficientSalesForClaim(uint256 reportId);
+    error BulletinBoard__TransferFailed();
 
     enum Rating {
         F,
