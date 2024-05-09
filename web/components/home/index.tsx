@@ -5,12 +5,14 @@ import { Button, Spinner, Stack, Text } from "@chakra-ui/react";
 import axios from "axios";
 import { useState } from "react";
 import Login from "./Login";
-import Register from "./Register";
+import Register from "../register";
 import { isZeroAddress } from "@/libs/utils";
+import { useRouter } from "next/navigation";
 
 const Main = () => {
   const { ready, isLoading, authenticated, getAccessToken, account } =
     useAgent();
+  const navigator = useRouter();
   const [resp, setResp] = useState("");
 
   const sendRequest = async () => {
@@ -26,7 +28,7 @@ const Main = () => {
     }
   };
 
-  if (!ready || isLoading || !account) {
+  if (!ready || isLoading) {
     return <Spinner thickness="4px" size="xl" />;
   }
 
@@ -35,7 +37,7 @@ const Main = () => {
   }
 
   if (account && isZeroAddress(account)) {
-    return <Register />;
+    navigator.push("/register");
   }
 
   return (

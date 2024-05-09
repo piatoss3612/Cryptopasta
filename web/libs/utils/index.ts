@@ -4,12 +4,12 @@ const isZeroAddress = (address: string): boolean => {
   return address === zeroAddress;
 };
 
-const abbreviateAddress = (address: string | undefined, length = 6): string => {
+const abbreviateAddress = (address: string | undefined, length = 4): string => {
   if (!address) {
     address = zeroAddress;
   }
 
-  return `${address.slice(0, length)}...${address.slice(-length)}`;
+  return `${address.slice(0, length + 2)}...${address.slice(-length)}`;
 };
 
 export { isZeroAddress, abbreviateAddress };

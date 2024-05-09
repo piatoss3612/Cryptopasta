@@ -1,6 +1,7 @@
 import { useViem } from "@/hooks";
 import { AgentRegistryAbi } from "@/libs/abis";
 import { AGENT_REGISTRY } from "@/libs/constant";
+import { isZeroAddress } from "@/libs/utils";
 import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -15,7 +16,7 @@ interface AgentContextType {
   logout: () => Promise<void>;
   wallet: ConnectedWallet | null;
   account: `0x${string}` | undefined;
-  register: (sessionId: string, portraitId: BigInt) => Promise<void>;
+  register: (sessionId: string, portraitId: bigint) => Promise<void>;
 }
 
 const AgentContext = createContext({} as AgentContextType);
@@ -51,7 +52,7 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const register = useCallback(
-    async (sessionId: string, portraitId: BigInt) => {
+    async (sessionId: string, portraitId: bigint) => {
       if (!client) {
         throw new Error("Client not found");
       }
@@ -60,9 +61,11 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error("Wallet not found");
       }
 
-      if (account) {
-        return;
+      if (account && !isZeroAddress(account)) {
+        throw new Error("Agent already registered");
       }
+
+      const token = await getAccessToken();
 
       // request to backend to register
       const requestBody = {
@@ -75,8 +78,8 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
         requestBody,
         {
           headers: {
-            Authorization: `Bearer ${sessionId}`,
-            ContentType: "application/json",
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
           params: {
             sessionId: sessionId,
