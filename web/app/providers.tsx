@@ -1,11 +1,39 @@
 "use client";
 
 import * as React from "react";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { AgentProvider } from "@/context/AgentProvider";
 
 const queryClient = new QueryClient();
+
+/**
+ * 
+--rich-black: #000019ff;
+--cadet-gray: #989DA7ff;
+--rich-black-2: #00001Cff;
+--rich-black-3: #000119ff;
+--charcoal: #37394Bff;
+--antiflash-white: #E2E8ECff;
+ */
+const theme = extendTheme({
+  colors: {
+    richBlack: {
+      300: "#060718e4",
+      500: "#000019ff",
+    },
+    cadetGray: {
+      500: "#989DA7ff",
+    },
+    charcoal: {
+      500: "#37394Bff",
+    },
+    antiFlashWhite: {
+      500: "#E2E8ECff",
+    },
+  },
+});
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = React.useState(false);
@@ -25,9 +53,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         },
       }}
     >
-      <ChakraProvider>
+      <ChakraProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
-          {mounted && children}
+          <AgentProvider>{mounted && children}</AgentProvider>
         </QueryClientProvider>
       </ChakraProvider>
     </PrivyProvider>

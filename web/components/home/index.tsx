@@ -1,12 +1,16 @@
 "use client";
 
-import { Button, Stack, Text } from "@chakra-ui/react";
-import { usePrivy } from "@privy-io/react-auth";
+import { useAgent } from "@/hooks";
+import { Button, Spinner, Stack, Text } from "@chakra-ui/react";
 import axios from "axios";
 import { useState } from "react";
+import Login from "./Login";
+import Register from "./Register";
+import { isZeroAddress } from "@/libs/utils";
 
 const Main = () => {
-  const { ready, authenticated, getAccessToken, login, logout } = usePrivy();
+  const { ready, isLoading, authenticated, getAccessToken, account } =
+    useAgent();
   const [resp, setResp] = useState("");
 
   const sendRequest = async () => {
@@ -22,12 +26,16 @@ const Main = () => {
     }
   };
 
+  if (!ready || isLoading || !account) {
+    return <Spinner thickness="4px" size="xl" />;
+  }
+
   if (!authenticated) {
-    return (
-      <Button onClick={login} isLoading={!ready}>
-        Login
-      </Button>
-    );
+    return <Login />;
+  }
+
+  if (account && isZeroAddress(account)) {
+    return <Register />;
   }
 
   return (
@@ -37,9 +45,6 @@ const Main = () => {
       alignItems="center"
       justifyContent="center"
     >
-      <Button onClick={logout} isLoading={!ready}>
-        Logout
-      </Button>
       <Button onClick={sendRequest}>Request</Button>
       {resp && <Text>{resp}</Text>}
     </Stack>

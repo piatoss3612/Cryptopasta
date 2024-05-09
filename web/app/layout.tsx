@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Pixelify_Sans } from "next/font/google";
 import { Providers } from "./providers";
+import Main from "@/components/layout";
 
-const inter = Inter({ subsets: ["latin"] });
+const pixel = Pixelify_Sans({ weight: "400", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Cryptopasta",
@@ -16,8 +17,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <Providers>{children}</Providers>
+      <body className={pixel.className}>
+        <Providers>
+          <Main>{children}</Main>
+        </Providers>
       </body>
     </html>
   );
