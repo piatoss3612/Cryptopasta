@@ -28,11 +28,9 @@ $ forge build --zksync
 $ forge script script/AgentRegistry.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
 
 == Logs ==
-  AgentRegistry created at address:  0x01592110A91cdA4AD3D229a66a51A4FEeb0Db922
+  AgentRegistry created at address:  0xef02B6e0380d241EF3512a7Bd5476b0A0B7d37f3
   AgentAccountFactory created at address:  0xff964183D5FEAfE1F194939aB00d423348277f6d
-  Agent Token:  0x65dcD3047bA46e2926CC4C077A8F8477B91F333b
-  Agent Account:  0x6788514dD11790c0F860dbC6F9b89D05582e3251
-  Token ID:  0
+  Agent Token:  0xfaE076ACc8bc7FC70a8C9137FB1Bf07983D62A9A
 ```
 
 ### AgentPaymaster
@@ -41,7 +39,7 @@ $ forge script script/AgentRegistry.s.sol --zksync --rpc-url zksync-sepolia --ac
 $ forge script script/AgentPaymaster.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
 
 == Logs ==
-  AgentPaymaster:  0xc35D29721aa5Aca7321AFd26FF4E24BA9915dEF6
+  AgentPaymaster:  0xE85E63D8aF5fcE8ec83F55cE242b60003E61C3B1
 ```
 
 ### PriceConverter
@@ -69,8 +67,8 @@ $ forge script script/MockUSDT.s.sol --zksync --rpc-url zksync-sepolia --account
 $ forge script script/BulletinBoard.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
 
 == Logs ==
-  BulletinBoard:  0x07F10e3ae7fA3CaCb0EDfAC6dC4ef7d96F4B7E00
-  Cryptopasta:  0x51b8d774C640D22416e2dF068A05F5C9C8Cf606d
+  BulletinBoard:  0xCB7C3397B32a33527a98Dc8a72F842aD57c077fD
+  Cryptopasta:  0xeD2A2A78fE1c7D2A6E1AB8Bf47C12E92FCdedFb9
 ```
 
 ### MissionLog
@@ -79,5 +77,5 @@ $ forge script script/BulletinBoard.s.sol --zksync --rpc-url zksync-sepolia --ac
 $ forge script script/MissionLog.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
 
 == Logs ==
-  MissionLog:  0xcc63Ea58832beaeA0867f1182759F6CCEeC42301
+  MissionLog:  0xaE231EEc46ec4500B7c88378c07d5918FB5ea586
 ```

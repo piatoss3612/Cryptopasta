@@ -8,9 +8,9 @@ dataSources:
     name: mission_log
     network: zksync-era-sepolia
     source:
-      address: "0xcc63Ea58832beaeA0867f1182759F6CCEeC42301"
+      address: "0xaE231EEc46ec4500B7c88378c07d5918FB5ea586"
       abi: mission_log
-      startBlock: 2179774
+      startBlock: 2203526
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

@@ -41,6 +41,7 @@ func (t *TempRoute) Handler() http.Handler {
 //	@Success		200	{string}	string	"OK"
 //	@Failure		401	{string}	string	"Unauthorized"
 //	@Router			/temp [get]
+//	@Security		BearerAuth
 func (t *TempRoute) temp(w http.ResponseWriter, r *http.Request) {
 	claims, ok := t.j.FromContext(r.Context())
 	if !ok {

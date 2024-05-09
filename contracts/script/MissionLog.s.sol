@@ -8,7 +8,7 @@ contract MissionLogScript is Script {
     function run() public {
         vm.startBroadcast();
 
-        MissionLog log = new MissionLog(0x65dcD3047bA46e2926CC4C077A8F8477B91F333b);
+        MissionLog log = new MissionLog(0xfaE076ACc8bc7FC70a8C9137FB1Bf07983D62A9A);
 
         vm.stopBroadcast();
 

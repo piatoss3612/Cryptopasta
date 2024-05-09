@@ -115,6 +115,10 @@ func (a *AgentService) RegisterAgent(ctx context.Context, agentAddr string, port
 	return account, tokenId, nil
 }
 
+func (a *AgentService) Close() {
+	a.client.Close()
+}
+
 func (a *AgentService) callOpts(ctx context.Context) *bind.CallOpts {
 	return &bind.CallOpts{
 		Context: ctx,

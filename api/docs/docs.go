@@ -104,6 +104,11 @@ const docTemplate = `{
         },
         "/temp": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Temporary route for testing JWT middleware",
                 "consumes": [
                     "text/plain"

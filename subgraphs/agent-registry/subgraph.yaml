@@ -8,9 +8,9 @@ dataSources:
     name: agent_registry
     network: zksync-era-sepolia
     source:
-      address: "0x01592110A91cdA4AD3D229a66a51A4FEeb0Db922"
+      address: "0xef02B6e0380d241EF3512a7Bd5476b0A0B7d37f3"
       abi: agent_registry
-      startBlock: 2162578
+      startBlock: 2203459
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

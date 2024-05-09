@@ -78,6 +78,8 @@ paths:
           description: Unauthorized
           schema:
             type: string
+      security:
+      - BearerAuth: []
       summary: Temp
       tags:
       - common

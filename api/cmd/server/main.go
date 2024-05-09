@@ -46,5 +46,8 @@ func main() {
 
 	r := rest.NewRouter(pingRoute, tempRoute, agentRoute)
 
-	app.NewApp(":8080", r).Run()
+	app.NewApp(":8080", r).Run(func() {
+		// cleanup
+		agentSvc.Close()
+	})
 }
