@@ -6,6 +6,8 @@ import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import React, { createContext, useCallback, useEffect, useState } from "react";
+import { WalletClient, createWalletClient, custom } from "viem";
+import { zkSyncSepoliaTestnet } from "viem/zksync";
 
 interface AgentContextType {
   ready: boolean;
@@ -15,6 +17,7 @@ interface AgentContextType {
   login: () => void;
   logout: () => Promise<void>;
   wallet: ConnectedWallet | null;
+  walletClient: WalletClient | null;
   account: `0x${string}` | undefined;
   register: (sessionId: string, portraitId: bigint) => Promise<void>;
 }
@@ -26,6 +29,7 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
   const { ready, authenticated, getAccessToken, login, logout } = usePrivy();
   const { wallets } = useWallets();
   const [wallet, setWallet] = useState<ConnectedWallet | null>(null);
+  const [walletClient, setWalletClient] = useState<WalletClient | null>(null);
 
   const getAccountAddress = useCallback(async (): Promise<`0x${string}`> => {
     if (!client) {
@@ -101,7 +105,16 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
         (wallet) => wallet.walletClientType === "privy"
       );
       if (embeddedWallet) {
-        setWallet(embeddedWallet);
+        embeddedWallet.getEthereumProvider().then((provider) => {
+          // Create wallet client with custom transport (provider from privy embedded wallet)
+          const walletClient = createWalletClient({
+            account: embeddedWallet.address as `0x${string}`,
+            chain: zkSyncSepoliaTestnet,
+            transport: custom(provider),
+          });
+          setWallet(embeddedWallet);
+          setWalletClient(walletClient);
+        });
       }
     }
   }, [wallets]);
@@ -116,6 +129,7 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
         logout,
         isLoading: isAccountQuerying,
         wallet,
+        walletClient,
         account,
         register,
       }}

@@ -17,13 +17,15 @@
     "@tanstack/react-query": "^5.35.1",
     "@types/react-typist": "^2.0.6",
     "axios": "^1.6.8",
+    "ethers": "^6.12.1",
     "framer-motion": "^11.1.9",
     "next": "14.2.3",
     "react": "^18",
     "react-dom": "^18",
     "react-icons": "^5.2.1",
     "react-typist": "^2.0.5",
-    "viem": "2.x"
+    "viem": "2.x",
+    "zksync-ethers": "^6.7.0"
   },
   "devDependencies": {
     "@types/node": "^20",

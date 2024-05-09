@@ -14,4 +14,25 @@ contract AgentRegistryScript is Script {
 
         console.log("AgentPaymaster: ", address(paymaster));
     }
+
+    function fund(address paymaster) public {
+        vm.startBroadcast();
+
+        console.log("Sender balance: ", msg.sender.balance);
+
+        (bool success,) = paymaster.call{value: 1 ether}("");
+        if (!success) {
+            revert("AgentPaymaster funding failed");
+        }
+
+        console.log("AgentPaymaster balance: ", paymaster.balance);
+
+        vm.stopBroadcast();
+    }
+
+    function checkBalance(address paymaster) public {
+        vm.startBroadcast();
+        console.log("AgentPaymaster balance: ", paymaster.balance);
+        vm.stopBroadcast();
+    }
 }

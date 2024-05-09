@@ -79,3 +79,11 @@ $ forge script script/MissionLog.s.sol --zksync --rpc-url zksync-sepolia --accou
 == Logs ==
   MissionLog:  0xaE231EEc46ec4500B7c88378c07d5918FB5ea586
 ```
+
+### Fund to Paymaster
+
+```bash
+$ forge script script/AgentPaymaster.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv --sig "fund(address)" -- 0xE85E63D8aF5fcE8ec83F55cE242b60003E61C3B1
+```
+
+> Sending ETH in foundry just not working. Used `metamask` wallet to send ETH to the paymaster.

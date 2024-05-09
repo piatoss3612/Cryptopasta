@@ -5,6 +5,7 @@ import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { PrivyProvider } from "@privy-io/react-auth";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { AgentProvider } from "@/context/AgentProvider";
+import { PaymasterProvider } from "@/context/PaymasterProvider";
 
 const queryClient = new QueryClient();
 
@@ -55,7 +56,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     >
       <ChakraProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
-          <AgentProvider>{mounted && children}</AgentProvider>
+          <AgentProvider>
+            <PaymasterProvider>{mounted && children}</PaymasterProvider>
+          </AgentProvider>
         </QueryClientProvider>
       </ChakraProvider>
     </PrivyProvider>
