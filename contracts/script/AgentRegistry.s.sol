@@ -19,7 +19,7 @@ contract AgentRegistryScript is Script {
 
         vm.startBroadcast();
 
-        AgentAccountFactory aaFactory = AgentAccountFactory(0xff964183D5FEAfE1F194939aB00d423348277f6d);
+        AgentAccountFactory aaFactory = AgentAccountFactory(0xd2Edb65F2Be809B76Da1A88eb04F76a8b419FA14);
         AgentRegistry agentRegistry = new AgentRegistry(aaFactory, portraits);
 
         vm.stopBroadcast();

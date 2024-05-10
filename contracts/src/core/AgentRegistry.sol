@@ -122,7 +122,9 @@ contract AgentRegistry is IAgentRegistry, Ownable {
             revert AgentRegistry__PortraitIndexOutOfBounds(portraitId);
         }
 
-        account = FACTORY.deployAccount(agent);
+        bytes32 salt = keccak256(abi.encode(agent, portraitId, block.number));
+
+        account = FACTORY.deployAccount(salt, agent);
 
         string memory selected = portrait(portraitId);
         tokenId = AGENT_TOKEN.mint(account, selected);

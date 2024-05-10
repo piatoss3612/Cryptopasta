@@ -1,8 +1,0 @@
-{
-  "zksync-era-sepolia": {
-    "agent_registry": {
-      "address": "0xef02B6e0380d241EF3512a7Bd5476b0A0B7d37f3",
-      "startBlock": 2203459
-    }
-  }
-}

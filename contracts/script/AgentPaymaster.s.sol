@@ -8,11 +8,14 @@ contract AgentRegistryScript is Script {
     function run() public {
         vm.startBroadcast();
 
-        AgentPaymaster paymaster = new AgentPaymaster(0xfaE076ACc8bc7FC70a8C9137FB1Bf07983D62A9A);
+        AgentPaymaster paymaster = new AgentPaymaster(0xC16A43E63fa3D48797025dE4d3e838A9fb9C358c);
+
+        payable(address(paymaster)).transfer(1 ether);
 
         vm.stopBroadcast();
 
         console.log("AgentPaymaster: ", address(paymaster));
+        console.log("AgentPaymaster balance: ", address(paymaster).balance);
     }
 
     function fund(address paymaster) public {
@@ -28,6 +31,13 @@ contract AgentRegistryScript is Script {
         console.log("AgentPaymaster balance: ", paymaster.balance);
 
         vm.stopBroadcast();
+    }
+
+    function withdraw(address payable paymaster) public {
+        vm.startBroadcast();
+
+        AgentPaymaster instance = AgentPaymaster(paymaster);
+        instance.withdraw(payable(msg.sender));
     }
 
     function checkBalance(address paymaster) public {

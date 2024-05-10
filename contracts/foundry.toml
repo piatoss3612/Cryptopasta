@@ -6,6 +6,7 @@ remappings = [
     '@matterlabs/zksync-contracts/=lib/zksync-contracts/zksync-contracts/',
 ]
 viaIR = true
+is_system = true
 
 [rpc_endpoints]
 zksync-sepolia = "https://sepolia.era.zksync.dev"
