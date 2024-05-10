@@ -1,8 +1,8 @@
 {
   "zksync-era-sepolia": {
     "mission_log": {
-      "address": "0x9691012fE3C14F4F075650D71262D31C842b6d2D",
-      "startBlock": 2221659
+      "address": "0x273464a1C2213E05Ef4F75342Ee0691f8Bc2dB87",
+      "startBlock": 2223145
     }
   }
 }

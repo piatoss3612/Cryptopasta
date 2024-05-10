@@ -1,104 +1,122 @@
-# Cryptopasta Contracts
+# zkSync Hardhat project template
 
 ## Requirements
 
-- [foundry-zksync](https://github.com/matter-labs/foundry-zksync)
 - [node.js](https://nodejs.org/en/download/)
 - [yarn](https://yarnpkg.com/getting-started/install)
+- [zksync-cli](https://github.com/matter-labs/zksync-cli)
 
 ## Install
 
 ```bash
-$ forge install
+$ yarn install
 ```
 
-## Build
+## Compile
 
 ```bash
-$ forge build --zksync
+$ yarn hardhat compile
 ```
 
-## Deploy
+## Deploy and Verify
 
-- Several transactions at the same time may cause the transaction to fail. Please deploy one by one.
-
-### AgentAccountFactory
-
-> I used separate hardhat project to deploy factory with the system flag. It's not working with foundry.
+### Deploy Factory
 
 ```bash
-AA factory address: 0xd2Edb65F2Be809B76Da1A88eb04F76a8b419FA14
+$ yarn hardhat deploy-zksync --script deployFactory.ts
+yarn run v1.22.21
+
+AA factory address: 0x4d7068BaA2fB745Ff606778a946394986D91c246
+SC Account owner pk:
+SC Account deployed on address 0x371A1F490DAaF578f4a93016e90adC8A83348853
+Your verification ID is: 12837
+Contract successfully verified on zkSync block explorer!
+Your verification ID is: 12838
+Contract successfully verified on zkSync block explorer!
+Done!
+Done in 23.18s.
 ```
 
-### AgentRegistry
+### Deploy AgentRegistry
 
 ```bash
-$ forge script script/AgentRegistry.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
+$ yarn hardhat deploy-zksync --script deployAgentRegistry.ts
+yarn run v1.22.21
 
-== Logs ==
-  AgentRegistry created at address:  0xE30CC547776E79519b437dC08592c5A9b82e81B4
-  AgentAccountFactory created at address:  0xd2Edb65F2Be809B76Da1A88eb04F76a8b419FA14
-  Agent Token:  0xC16A43E63fa3D48797025dE4d3e838A9fb9C358c
+Agent registry address: 0x3DdfCC2188E7C7595BeC8e132B1b1BE29d6F26d5
+Agent token address: 0xF4A5e929a0B725fDe9D4e3eCC5F6108DD6207A4A
+Your verification ID is: 12846
+Contract successfully verified on zkSync block explorer!
+Done!
+Done in 17.54s.
 ```
 
-### AgentPaymaster
+### Deploy Paymaster
 
 ```bash
-$ forge script script/AgentPaymaster.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
+$ yarn hardhat deploy-zksync --script deployPaymaster.ts
+yarn run v1.22.21
 
-== Logs ==
-  AgentPaymaster:  0x71D5Fbc99fD33c1957BaC29D68AB38B989cE3ac7
-  AgentPaymaster balance:  1000000000000000000
+AA paymaster address: 0x286B1A1bE286A8dD58115122Ba711bfBB99C51Ed
+Your verification ID is: 12847
+Contract successfully verified on zkSync block explorer!
+Done!
+Done in 16.76s.
 ```
 
-### PriceConverter
+### Deploy PriceConverter
 
 ```bash
-$ forge script script/PriceConverter.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
+$ yarn hardhat deploy-zksync --script deployPriceConverter.ts
+yarn run v1.22.21
 
-== Logs ==
-  PriceConverter:  0x9b12Bcf86fAdd8f207C20ECCFc1f5b28F87bd585
-  5 USD to ETH:  1625000000000000
+PriceConverter address: 0x308B8b1522AC9D555aa66a8d5153610b11668987
+Your verification ID is: 12848
+Contract successfully verified on zkSync block explorer!
+Done!
+Done in 14.30s.
 ```
 
-### MockUSDT
+### Deploy Tokens
 
 ```bash
-$ forge script script/MockUSDT.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
+$ yarn hardhat deploy-zksync --script deployTokens.ts
+yarn run v1.22.21
 
-== Logs ==
-  MockUSDT:  0xe4b95df5D50F8ACa7b5Dd282922D1632c868d252
+MockUSDT address: 0x2e80b44fdE217F523B82f728ceDE09F58db8f786
+MissionLog address: 0x273464a1C2213E05Ef4F75342Ee0691f8Bc2dB87
+Your verification ID is: 12849
+Contract successfully verified on zkSync block explorer!
+Your verification ID is: 12850
+Contract successfully verified on zkSync block explorer!
+Done!
+Done in 23.70s.
 ```
 
-### BulletinBoard
+### Deploy BulletinBoard
 
 ```bash
-$ forge script script/BulletinBoard.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
+$ yarn hardhat deploy-zksync --script deployBulletinBoard.ts
+yarn run v1.22.21
 
-== Logs ==
-  BulletinBoard:  0x027110596dB91a693a15eF4F6b132b886797E4D4
-  Cryptopasta:  0xF255b2B30e1c8958bb01d51066169F68252488f7
+BulletinBoard address: 0x78Aaef8FF303E85aF06e5AA46543Da3DAE349A7a
+Cryptopasta address: 0xA12066f1D83B8b00dF0a7f08bfAF47B3Fcd1aF95
+Your verification ID is: 12851
+Contract successfully verified on zkSync block explorer!
+Done!
+Done in 17.68s.
 ```
 
-### MissionLog
+## Contract Addresses
 
-```bash
-$ forge script script/MissionLog.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv
-
-== Logs ==
-  MissionLog:  0x9691012fE3C14F4F075650D71262D31C842b6d2D
-```
-
-### Fund to Paymaster
-
-```bash
-$ forge script script/AgentPaymaster.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv --sig "fund(address)" -- 0xE85E63D8aF5fcE8ec83F55cE242b60003E61C3B1
-```
-
-> Sending ETH in foundry just not working. Used `metamask` wallet to send ETH to the paymaster.
-
-### Withdraw from Paymaster
-
-```bash
-$ forge script script/AgentPaymaster.s.sol --zksync --rpc-url zksync-sepolia --account piatoss --sender 0x965B0E63e00E7805569ee3B428Cf96330DFc57EF --legacy --broadcast -vvvv --sig "withdraw(address)" -- 0xE85E63D8aF5fcE8ec83F55cE242b60003E61C3B1
-```
+| Contract Name  | Address                                    |
+| -------------- | ------------------------------------------ |
+| Factory        | 0x4d7068BaA2fB745Ff606778a946394986D91c246 |
+| AgentRegistry  | 0x3DdfCC2188E7C7595BeC8e132B1b1BE29d6F26d5 |
+| AgentToken     | 0xF4A5e929a0B725fDe9D4e3eCC5F6108DD6207A4A |
+| Paymaster      | 0x286B1A1bE286A8dD58115122Ba711bfBB99C51Ed |
+| PriceConverter | 0x308B8b1522AC9D555aa66a8d5153610b11668987 |
+| MockUSDT       | 0x2e80b44fdE217F523B82f728ceDE09F58db8f786 |
+| MissionLog     | 0x273464a1C2213E05Ef4F75342Ee0691f8Bc2dB87 |
+| BulletinBoard  | 0x78Aaef8FF303E85aF06e5AA46543Da3DAE349A7a |
+| Cryptopasta    | 0xA12066f1D83B8b00dF0a7f08bfAF47B3Fcd1aF95 |

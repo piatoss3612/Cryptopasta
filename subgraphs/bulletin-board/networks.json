@@ -1,8 +1,8 @@
 {
   "zksync-era-sepolia": {
     "bulletin_board": {
-      "address": "0x027110596dB91a693a15eF4F6b132b886797E4D4",
-      "startBlock": 2221639
+      "address": "0x78Aaef8FF303E85aF06e5AA46543Da3DAE349A7a",
+      "startBlock": 2223215
     }
   }
 }
