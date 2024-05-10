@@ -16,7 +16,7 @@ const Login = () => {
           Cryptopasta
         </Heading>
       </Typist>
-      <Button onClick={login} mt={4}>
+      <Button onClick={login} mt={8}>
         Login
       </Button>
     </Center>

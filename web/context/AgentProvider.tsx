@@ -105,15 +105,20 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
         (wallet) => wallet.walletClientType === "privy"
       );
       if (embeddedWallet) {
-        embeddedWallet.getEthereumProvider().then((provider) => {
-          // Create wallet client with custom transport (provider from privy embedded wallet)
-          const walletClient = createWalletClient({
-            account: embeddedWallet.address as `0x${string}`,
-            chain: zkSyncSepoliaTestnet,
-            transport: custom(provider),
+        // embeddedWallet.switchChain(zkSyncSepoliaTestnet.id); -> zkSync Sepolia is not supported by Privy!
+
+        embeddedWallet.switchChain(zkSyncSepoliaTestnet.id).then(() => {
+          console.log("Switched to zkSync Sepolia");
+          embeddedWallet.getEthereumProvider().then((provider) => {
+            // Create wallet client with custom transport (provider from privy embedded wallet)
+            const walletClient = createWalletClient({
+              account: embeddedWallet.address as `0x${string}`,
+              chain: zkSyncSepoliaTestnet,
+              transport: custom(provider),
+            });
+            setWallet(embeddedWallet);
+            setWalletClient(walletClient);
           });
-          setWallet(embeddedWallet);
-          setWalletClient(walletClient);
         });
       }
     }

@@ -14,14 +14,10 @@ import { FaFaucetDrip } from "react-icons/fa6";
 import { PiSignOut } from "react-icons/pi";
 
 const AccountMenu = () => {
-  const { ready, authenticated, login, logout, account } = useAgent();
+  const { authenticated, logout, account } = useAgent();
 
   if (!authenticated) {
-    return (
-      <Button onClick={login} bg={"antiFlashWhite.500"}>
-        Login
-      </Button>
-    );
+    return <></>;
   }
 
   return (

@@ -2,10 +2,11 @@
 
 import * as React from "react";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
-import { PrivyProvider } from "@privy-io/react-auth";
+import { PrivyProvider, addRpcUrlOverrideToChain } from "@privy-io/react-auth";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { AgentProvider } from "@/context/AgentProvider";
 import { PaymasterProvider } from "@/context/PaymasterProvider";
+import { zkSyncSepoliaTestnet } from "viem/chains";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,11 @@ const theme = extendTheme({
   },
 });
 
+const zkSyncSepoliaOverride = addRpcUrlOverrideToChain(
+  zkSyncSepoliaTestnet,
+  process.env.NEXT_PUBLIC_ZKSYNC_SEPOLIA_RPC_URL || ""
+);
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
@@ -52,6 +58,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
         embeddedWallets: {
           createOnLogin: "users-without-wallets",
         },
+        defaultChain: zkSyncSepoliaOverride,
+        supportedChains: [zkSyncSepoliaOverride],
       }}
     >
       <ChakraProvider theme={theme}>

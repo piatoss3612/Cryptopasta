@@ -6,19 +6,14 @@ import RegisterModal from "./RegisterModal";
 import Portraits from "./Portraits";
 import { useAgent } from "@/hooks";
 import { useRouter } from "next/navigation";
-import { isZeroAddress } from "@/libs/utils";
 
 const Register = () => {
-  const { authenticated, account } = useAgent();
+  const { authenticated } = useAgent();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [portraitId, setPortraitId] = useState<bigint | null>(null);
   const navigator = useRouter();
 
   if (!authenticated) {
-    navigator.push("/");
-  }
-
-  if (account && !isZeroAddress(account)) {
     navigator.push("/");
   }
 
