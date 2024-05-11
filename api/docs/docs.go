@@ -51,27 +51,139 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Agent Address",
-                        "name": "agent_address",
+                        "description": "Agent Register Request",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "description": "Portrait ID",
-                        "name": "portrait_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/route.AgentRegisterRequest"
                         }
                     }
                 ],
                 "responses": {
                     "202": {
                         "description": "Accepted",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/pinata/pinFile": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Pin file to IPFS",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ipfs"
+                ],
+                "summary": "Pin File",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "File to pin",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pinata.PinResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/pinata/pinJson": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Pin json to IPFS",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ipfs"
+                ],
+                "summary": "Pin Json",
+                "parameters": [
+                    {
+                        "description": "Metadata to pin",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/route.Metadata"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/pinata.PinResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "string"
                         }
@@ -102,40 +214,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/temp": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Temporary route for testing JWT middleware",
-                "consumes": [
-                    "text/plain"
-                ],
-                "produces": [
-                    "text/plain"
-                ],
-                "tags": [
-                    "common"
-                ],
-                "summary": "Temp",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/ws": {
             "get": {
                 "description": "returns websocket connection",
@@ -144,6 +222,47 @@ const docTemplate = `{
                 ],
                 "summary": "Serve websocket",
                 "responses": {}
+            }
+        }
+    },
+    "definitions": {
+        "pinata.PinResponse": {
+            "type": "object",
+            "properties": {
+                "IpfsHash": {
+                    "type": "string"
+                },
+                "PinSize": {
+                    "type": "integer"
+                },
+                "Timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "route.AgentRegisterRequest": {
+            "type": "object",
+            "properties": {
+                "agent_address": {
+                    "type": "string"
+                },
+                "portrait_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "route.Metadata": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
             }
         }
     },

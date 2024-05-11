@@ -1,3 +1,29 @@
+definitions:
+  pinata.PinResponse:
+    properties:
+      IpfsHash:
+        type: string
+      PinSize:
+        type: integer
+      Timestamp:
+        type: string
+    type: object
+  route.AgentRegisterRequest:
+    properties:
+      agent_address:
+        type: string
+      portrait_id:
+        type: string
+    type: object
+  route.Metadata:
+    properties:
+      description:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -23,18 +49,12 @@ paths:
         name: sessionId
         required: true
         type: string
-      - description: Agent Address
+      - description: Agent Register Request
         in: body
-        name: agent_address
+        name: request
         required: true
         schema:
-          type: string
-      - description: Portrait ID
-        in: body
-        name: portrait_id
-        required: true
-        schema:
-          type: string
+          $ref: '#/definitions/route.AgentRegisterRequest'
       produces:
       - text/plain
       responses:
@@ -42,11 +62,88 @@ paths:
           description: Accepted
           schema:
             type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
       security:
       - BearerAuth: []
       summary: Agent Register
       tags:
       - agent
+  /pinata/pinFile:
+    post:
+      description: Pin file to IPFS
+      parameters:
+      - description: File to pin
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pinata.PinResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Pin File
+      tags:
+      - ipfs
+  /pinata/pinJson:
+    post:
+      consumes:
+      - application/json
+      description: Pin json to IPFS
+      parameters:
+      - description: Metadata to pin
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/route.Metadata'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pinata.PinResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Pin Json
+      tags:
+      - ipfs
   /ping:
     get:
       consumes:
@@ -60,27 +157,6 @@ paths:
           schema:
             type: string
       summary: Ping
-      tags:
-      - common
-  /temp:
-    get:
-      consumes:
-      - text/plain
-      description: Temporary route for testing JWT middleware
-      produces:
-      - text/plain
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "401":
-          description: Unauthorized
-          schema:
-            type: string
-      security:
-      - BearerAuth: []
-      summary: Temp
       tags:
       - common
   /ws:

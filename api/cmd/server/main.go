@@ -8,6 +8,7 @@ import (
 	"cryptopasta-api/internal/rest/route"
 	"cryptopasta-api/internal/service/agent"
 	"cryptopasta-api/internal/service/jwt"
+	"cryptopasta-api/internal/service/pinata"
 	"log/slog"
 )
 
@@ -39,12 +40,15 @@ func main() {
 
 	jwtSvc := jwt.NewJwtService(cfg.PrivyAppID, cfg.PrivyVerificationKey)
 	agentSvc := agent.NewAgentService(context.Background(), cfg.AgentRegistryAddr, cfg.PrivateKey)
+	pinataSvc := pinata.NewPinataService(cfg.PinataApiKey, cfg.PinataSecretKey)
+
+	cfg = nil
 
 	pingRoute := route.NewPingRoute()
-	tempRoute := route.NewTempRoute(jwtSvc)
 	agentRoute := route.NewAgentRoute(jwtSvc, agentSvc)
+	pinataRoute := route.NewPinataRoute(jwtSvc, pinataSvc)
 
-	r := rest.NewRouter(pingRoute, tempRoute, agentRoute)
+	r := rest.NewRouter(pingRoute, agentRoute, pinataRoute)
 
 	app.NewApp(":8080", r).Run(func() {
 		// cleanup

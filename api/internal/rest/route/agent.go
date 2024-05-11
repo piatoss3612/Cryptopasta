@@ -41,10 +41,11 @@ func (a *AgentRoute) Handler() http.Handler {
 //	@Tags			agent
 //	@Accept			json
 //	@Produce		plain
-//	@Param			sessionId		query		string	true	"Session ID"
-//	@Param			agent_address	body		string	true	"Agent Address"
-//	@Param			portrait_id		body		string	true	"Portrait ID"
-//	@Success		202				{string}	string	"Accepted"
+//	@Param			sessionId	query		string					true	"Session ID"
+//	@Param			request		body		AgentRegisterRequest	true	"Agent Register Request"
+//	@Success		202			{string}	string					"Accepted"
+//	@Failure		400			{string}	string					"Bad Request"
+//	@Failure		401			{string}	string					"Unauthorized"
 //	@Router			/agent [post]
 //	@Security		BearerAuth
 func (a *AgentRoute) register(w http.ResponseWriter, r *http.Request) {

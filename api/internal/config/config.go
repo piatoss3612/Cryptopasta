@@ -11,6 +11,8 @@ type Config struct {
 	AgentRegistryAddr    string `json:"agentRegistryAddr"`
 	PrivyAppID           string `json:"privyAppId"`
 	PrivyVerificationKey string `json:"privyVerificationKey"`
+	PinataApiKey         string `json:"pinataApiKey"`
+	PinataSecretKey      string `json:"pinataSecretKey"`
 }
 
 func LoadConfig() *Config {

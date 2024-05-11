@@ -2,5 +2,7 @@
     "privateKey": "",
     "agentRegistryAddr": "",
     "privy_app_id": "",
-    "privy_verification_key": ""
+    "privy_verification_key": "",
+    "pinataApiKey": "",
+    "pinataSecretKey": ""
 }
