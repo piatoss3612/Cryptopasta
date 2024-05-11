@@ -239,7 +239,7 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
         onClose={onClose}
         isOpen={isOpen}
         motionPreset="slideInBottom"
-        size={"lg"}
+        size={{ base: "md", md: "lg" }}
       >
         <ModalOverlay />
         <ModalContent>
@@ -281,6 +281,12 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
                     }
                   />
                   <Checkbox
+                    p={2}
+                    borderRadius={"md"}
+                    bg={"blue.500"}
+                    color={"white"}
+                    fontSize={"lg"}
+                    fontWeight={"bold"}
                     isChecked={requirePaymaster}
                     isDisabled={
                       dailyTxCountValue >= maxTxsPerDayValue &&

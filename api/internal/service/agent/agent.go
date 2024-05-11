@@ -150,7 +150,7 @@ func (a *AgentService) txOpts(ctx context.Context) (*bind.TransactOpts, error) {
 
 	auth.GasPrice = gasPrice
 	auth.Nonce = big.NewInt(int64(nonce))
-	auth.GasLimit = 3000000
+	auth.GasLimit = 5000000
 
 	return auth, nil
 }

@@ -14,6 +14,9 @@ interface WriteContractParams {
   args?: any[];
   value?: bigint;
   gas?: bigint;
+  paymaster?: Account | Address;
+  paymasterInput?: `0x${string}`;
+  gasPerPubdata?: bigint;
 }
 
 interface PaymasterParams {

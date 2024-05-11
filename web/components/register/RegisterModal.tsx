@@ -93,7 +93,10 @@ const RegisterModal = ({ isOpen, onClose, portraitId }: RegisterProps) => {
             setEvents((prev) => [...prev, message.event]);
             break;
           case "error":
-            console.error(message);
+            const errMessage = event.data as string;
+            setError(true);
+            setIsRegistering(false);
+            setMessage(errMessage);
             break;
         }
       };
@@ -146,7 +149,7 @@ const RegisterModal = ({ isOpen, onClose, portraitId }: RegisterProps) => {
       onClose={handleClose}
       isOpen={isOpen}
       motionPreset="slideInBottom"
-      size={"lg"}
+      size={{ base: "md", md: "lg" }}
     >
       <ModalOverlay />
       <ModalContent>

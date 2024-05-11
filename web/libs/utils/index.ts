@@ -21,7 +21,7 @@ const getFaucetParams = (account: `0x${string}`): WriteContractParams => {
     address: MOCK_USDT as `0x${string}`,
     abi: MockUSDTAbi,
     functionName: "faucet",
-    gas: BigInt(350000), // estimateGas on aa account is just not working, so we have to set it manually
+    gas: BigInt(1000000), // estimateGas on aa account is just not working, so we have to set it manually
   } as WriteContractParams;
 
   return params;

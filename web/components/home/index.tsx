@@ -5,13 +5,13 @@ import { Spinner } from "@chakra-ui/react";
 import Login from "./Login";
 import { isZeroAddress } from "@/libs/utils";
 import { useRouter } from "next/navigation";
-import Demo from "./Demo";
+import Channels from "./Channels";
 
 const Main = () => {
-  const { ready, isLoading, authenticated, account } = useAgent();
+  const { ready, authenticated, account } = useAgent();
   const navigator = useRouter();
 
-  if (!ready || isLoading) {
+  if (!ready) {
     return <Spinner thickness="4px" size="xl" />;
   }
 
@@ -23,7 +23,7 @@ const Main = () => {
     navigator.push("/register");
   }
 
-  return <Demo />;
+  return <Channels />;
 };
 
 export default Main;
