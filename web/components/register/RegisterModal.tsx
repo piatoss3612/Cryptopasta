@@ -146,6 +146,7 @@ const RegisterModal = ({ isOpen, onClose, portraitId }: RegisterProps) => {
       onClose={handleClose}
       isOpen={isOpen}
       motionPreset="slideInBottom"
+      size={"lg"}
     >
       <ModalOverlay />
       <ModalContent>
@@ -175,7 +176,7 @@ const RegisterModal = ({ isOpen, onClose, portraitId }: RegisterProps) => {
         </ModalBody>
         {done && (
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleCloseOnRegistered}>
+            <Button colorScheme="blue" onClick={handleCloseOnRegistered}>
               Close
             </Button>
           </ModalFooter>

@@ -1,4 +1,9 @@
-import { createPublicClient, http } from "viem";
+import { WriteContractParams } from "@/libs/types";
+import {
+  PrepareTransactionRequestReturnType,
+  createPublicClient,
+  http,
+} from "viem";
 import { zkSyncSepoliaTestnet } from "viem/chains";
 
 const useViem = () => {
@@ -8,7 +13,23 @@ const useViem = () => {
     transport: http(),
   });
 
-  return { client };
+  const getGasPrice = async (): Promise<bigint> => {
+    if (!client) {
+      throw new Error("Client not initialized");
+    }
+
+    return await client.getGasPrice();
+  };
+
+  const estimateGas = async (params: WriteContractParams): Promise<bigint> => {
+    if (!client) {
+      throw new Error("Client not initialized");
+    }
+
+    return await client.estimateGas(params);
+  };
+
+  return { client, getGasPrice, estimateGas };
 };
 
 export default useViem;

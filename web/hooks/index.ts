@@ -1,5 +1,5 @@
 import useAgent from "./useAgent";
 import useViem from "./useViem";
-import usePaymaster from "./usePaymaster";
+import usePayment from "./usePayment";
 
-export { useAgent, useViem, usePaymaster };
+export { useAgent, useViem, usePayment };

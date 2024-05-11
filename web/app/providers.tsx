@@ -5,7 +5,7 @@ import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { PrivyProvider, addRpcUrlOverrideToChain } from "@privy-io/react-auth";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { AgentProvider } from "@/context/AgentProvider";
-import { PaymasterProvider } from "@/context/PaymasterProvider";
+import { PaymentProvider } from "@/context/PaymentProvider";
 import { zkSyncSepoliaTestnet } from "viem/chains";
 
 const queryClient = new QueryClient();
@@ -65,7 +65,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ChakraProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
           <AgentProvider>
-            <PaymasterProvider>{mounted && children}</PaymasterProvider>
+            <PaymentProvider>{mounted && children}</PaymentProvider>
           </AgentProvider>
         </QueryClientProvider>
       </ChakraProvider>
