@@ -25,4 +25,21 @@ interface PaymasterParams {
   gasPerPubdata: bigint;
 }
 
-export type { TokenMetadata, WriteContractParams, PaymasterParams };
+interface PinResponse {
+  IpfsHash: string;
+  PinSize: number;
+  Timestamp: string;
+}
+
+enum PaymentMethod {
+  ETH,
+  USDT,
+}
+
+export type {
+  TokenMetadata,
+  WriteContractParams,
+  PaymasterParams,
+  PaymentMethod,
+  PinResponse,
+};

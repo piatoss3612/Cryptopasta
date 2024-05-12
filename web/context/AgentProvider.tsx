@@ -1,10 +1,10 @@
+import { registerAgent } from "@/actions";
 import { useViem } from "@/hooks";
 import { AgentRegistryAbi } from "@/libs/abis";
 import { AGENT_REGISTRY } from "@/libs/constant";
 import { isZeroAddress } from "@/libs/utils";
 import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { WalletClient, createWalletClient, custom } from "viem";
 import { zkSyncSepoliaTestnet } from "viem/zksync";
@@ -71,30 +71,16 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
 
       const token = await getAccessToken();
 
-      // request to backend to register
-      const requestBody = {
-        agent_address: wallet.address,
-        portrait_id: portraitId.toString(),
-      };
-
-      const response = await axios.post(
-        "http://localhost:8080/agent",
-        requestBody,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          params: {
-            sessionId: sessionId,
-          },
-        }
-      );
-
-      // Accepted 202
-      if (response.status !== 202) {
-        throw new Error("Failed to register agent");
+      if (!token) {
+        throw new Error("Token not found");
       }
+
+      await registerAgent(
+        wallet.address as `0x${string}`,
+        portraitId,
+        sessionId,
+        token
+      );
     },
     [client, wallet, account]
   );

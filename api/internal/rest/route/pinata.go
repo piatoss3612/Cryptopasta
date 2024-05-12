@@ -1,6 +1,7 @@
 package route
 
 import (
+	"cryptopasta-api/internal/rest/middleware"
 	"cryptopasta-api/internal/service/jwt"
 	"cryptopasta-api/internal/service/pinata"
 	"cryptopasta-api/internal/utils"
@@ -25,7 +26,7 @@ func (p *PinataRoute) Pattern() string {
 
 func (p *PinataRoute) Handler() http.Handler {
 	r := chi.NewRouter()
-	// r.Use(middleware.JwtTokenRequired(p.j))
+	r.Use(middleware.JwtTokenRequired(p.j))
 	r.Post("/pinFile", p.pinFile)
 	r.Post("/pinJson", p.pinJson)
 	return r

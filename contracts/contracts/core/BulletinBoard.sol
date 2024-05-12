@@ -183,7 +183,7 @@ contract BulletinBoard is IBulletinBoard, Ownable {
             USDT.transferFrom(from, address(this), paymentAmount);
         } else if (paymentMethod == PaymentMethod.ETHER) {
             paymentAmount = PRICE_CONVERTER.convertUSDToNativeAsset(amount);
-            if (msg.value != paymentAmount) {
+            if (msg.value < paymentAmount) {
                 revert BulletinBoard__InvalidETHAmount(msg.value);
             }
         } else {

@@ -74,9 +74,9 @@ const Portrait = ({ portraitId, isSelected, setPortrait }: PortraitProps) => {
       sx={{
         position: "relative",
         animation: isSelected
-          ? "electricFlow 1.5s infinite ease-in-out"
+          ? "portraitSelected 1.5s infinite ease-in-out"
           : "none",
-        "@keyframes electricFlow": {
+        "@keyframes portraitSelected": {
           "0%, 100%": {
             boxShadow: "0 0 15px #00ff00, 0 0 5px #0000ff",
           },
