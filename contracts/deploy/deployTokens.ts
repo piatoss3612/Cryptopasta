@@ -26,7 +26,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   console.log(`MockUSDT address: ${mockUSDTAddress}`);
 
-  const agentTokenAddress = "0xF4A5e929a0B725fDe9D4e3eCC5F6108DD6207A4A";
+  const agentTokenAddress = "0xDe0052c31c6168C5A31A22A72afD9a970FaF9eE3";
 
   const missionLog = await deployer.deploy(
     missionLogArtifact,

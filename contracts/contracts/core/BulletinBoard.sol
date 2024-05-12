@@ -24,7 +24,7 @@ contract BulletinBoard is IBulletinBoard, Ownable {
     PriceConverter public immutable PRICE_CONVERTER;
 
     uint256 private _reportId;
-    uint128 private _reportingCostInUSD = 50000000; // 0.5 USD
+    uint128 private _reportingCostInUSD = 500000; // 0.5 USD
 
     mapping(uint256 => DiscoveryReport) private _reports;
     mapping(uint256 => RatingStats) private _ratings;

@@ -17,7 +17,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const deployer = new Deployer(hre, wallet);
   const paymasterArtifact = await deployer.loadArtifact("AgentPaymaster");
 
-  const erc721Address = "0xF4A5e929a0B725fDe9D4e3eCC5F6108DD6207A4A";
+  const erc721Address = "0xDe0052c31c6168C5A31A22A72afD9a970FaF9eE3";
 
   const paymaster = await deployer.deploy(
     paymasterArtifact,

@@ -11,10 +11,7 @@ import {
 } from "@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol";
 import {INonceHolder} from "@matterlabs/zksync-contracts/l2/system-contracts/interfaces/INonceHolder.sol";
 import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
-// Used for signature validation
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-// Access zkSync system contracts for nonce validation via NONCE_HOLDER_SYSTEM_CONTRACT
+import {Multicall} from "./Multicall.sol";
 import {
     BOOTLOADER_FORMAL_ADDRESS,
     NONCE_HOLDER_SYSTEM_CONTRACT,
@@ -25,19 +22,30 @@ import {
     SystemContractsCaller,
     Utils
 } from "@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol";
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract AgentAccount is IAccount, IERC1271, Ownable {
+contract AgentAccount is IAccount, IERC1271, IERC165, Multicall, Ownable {
+    error OnlyBootloaderCanCall();
+    error OnlyThisOrOwnerCanCall();
     error InvalidSignature();
 
-    // to get transaction hash
     using TransactionHelper for Transaction;
 
     bytes4 public constant EIP1271_SUCCESS_RETURN_VALUE = 0x1626ba7e;
 
     modifier onlyBootloader() {
-        require(msg.sender == BOOTLOADER_FORMAL_ADDRESS, "Only bootloader can call this method");
+        if (msg.sender != BOOTLOADER_FORMAL_ADDRESS) {
+            revert OnlyBootloaderCanCall();
+        }
         // Continue execution if called from the bootloader.
+        _;
+    }
+
+    modifier onlyThisOrOwner() {
+        if (msg.sender != address(this) && msg.sender != owner()) {
+            revert OnlyThisOrOwnerCanCall();
+        }
         _;
     }
 
@@ -89,40 +97,6 @@ contract AgentAccount is IAccount, IERC1271, Ownable {
         }
     }
 
-    function executeTransaction(bytes32, bytes32, Transaction calldata _transaction)
-        external
-        payable
-        override
-        onlyBootloader
-    {
-        _executeTransaction(_transaction);
-    }
-
-    function _executeTransaction(Transaction calldata _transaction) internal {
-        address to = address(uint160(_transaction.to));
-        uint128 value = Utils.safeCastToU128(_transaction.value);
-        bytes memory data = _transaction.data;
-
-        if (to == address(DEPLOYER_SYSTEM_CONTRACT)) {
-            uint32 gas = Utils.safeCastToU32(gasleft());
-
-            // Note, that the deployer contract can only be called
-            // with a "systemCall" flag.
-            SystemContractsCaller.systemCallWithPropagatedRevert(gas, to, value, data);
-        } else {
-            bool success;
-            assembly {
-                success := call(gas(), to, value, add(data, 0x20), mload(data), 0, 0)
-            }
-            require(success);
-        }
-    }
-
-    function executeTransactionFromOutside(Transaction calldata _transaction) external payable {
-        _validateTransaction(bytes32(0), _transaction);
-        _executeTransaction(_transaction);
-    }
-
     function isValidSignature(bytes32 _hash, bytes memory _signature) public view override returns (bytes4 magic) {
         magic = EIP1271_SUCCESS_RETURN_VALUE;
 
@@ -170,9 +144,58 @@ contract AgentAccount is IAccount, IERC1271, Ownable {
         address recoveredAddress = ecrecover(_hash, v, r, s);
 
         // Note, that we should abstain from using the require here in order to allow for fee estimation to work
-        if (recoveredAddress != owner() && recoveredAddress != address(0)) {
+        if (!_isOwner(recoveredAddress)) {
             magic = bytes4(0);
         }
+    }
+
+    function executeTransaction(bytes32, bytes32, Transaction calldata _transaction)
+        external
+        payable
+        override
+        onlyBootloader
+    {
+        _executeTransaction(_transaction);
+    }
+
+    function _executeTransaction(Transaction calldata _transaction) internal {
+        address to = address(uint160(_transaction.to));
+        uint128 value = Utils.safeCastToU128(_transaction.value);
+        bytes memory data = _transaction.data;
+
+        if (isMulticall(to, data)) {
+            multicall(data);
+        } else if (to == address(DEPLOYER_SYSTEM_CONTRACT)) {
+            uint32 gas = Utils.safeCastToU32(gasleft());
+
+            // Note, that the deployer contract can only be called
+            // with a "systemCall" flag.
+            SystemContractsCaller.systemCallWithPropagatedRevert(gas, to, value, data);
+        } else {
+            bool success;
+            assembly {
+                success := call(gas(), to, value, add(data, 0x20), mload(data), 0, 0)
+            }
+            require(success);
+        }
+    }
+
+    function executeTransactionFromOutside(Transaction calldata _transaction) external payable {
+        _validateTransaction(bytes32(0), _transaction);
+        _executeTransaction(_transaction);
+    }
+
+    function multicall(bytes memory data) internal {
+        (address[] memory targets, bytes[] memory calldatas, uint256[] memory values) = _decodeMulticall(data);
+        multicall(targets, calldatas, values);
+    }
+
+    function multicall(address[] memory targets, bytes[] memory calldatas, uint256[] memory values)
+        public
+        override
+        onlyThisOrOwner
+    {
+        super.multicall(targets, calldatas, values);
     }
 
     function payForTransaction(bytes32, bytes32, Transaction calldata _transaction)
@@ -191,6 +214,15 @@ contract AgentAccount is IAccount, IERC1271, Ownable {
         Transaction calldata _transaction
     ) external payable override onlyBootloader {
         _transaction.processPaymasterInput();
+    }
+
+    function supportsInterface(bytes4 interfaceId) public pure returns (bool) {
+        return interfaceId == type(IAccount).interfaceId || interfaceId == type(IERC1271).interfaceId
+            || interfaceId == type(IERC165).interfaceId;
+    }
+
+    function _isOwner(address account) internal view returns (bool) {
+        return account == owner();
     }
 
     fallback() external {
