@@ -65,13 +65,13 @@ interface IBulletinBoard is IERC165 {
     function getSales(uint256 reportId) external view returns (SalesStats memory, uint8);
     function hasRated(address rater, uint256 reportId) external view returns (bool);
 
-    function reportDiscovery(
+    function createReport(
         string memory title,
         string memory contentURI,
         uint128 priceInUSD,
         PaymentMethod paymentMethod
     ) external payable;
-    function takeReport(uint256 reportId, PaymentMethod paymentMethod) external payable;
+    function buyReport(uint256 reportId, PaymentMethod paymentMethod) external payable;
     function rateReport(uint256 reportId, Rating rating) external;
     function claimSales(uint256 reportId) external;
     function withdraw(address to, uint256 amount, PaymentMethod paymentMethod) external;

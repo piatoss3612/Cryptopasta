@@ -26,9 +26,10 @@ import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract AgentAccount is IAccount, IERC1271, IERC165, Multicall, Ownable {
-    error OnlyBootloaderCanCall();
-    error OnlyThisOrOwnerCanCall();
-    error InvalidSignature();
+    error AgentAccount__OnlyBootloaderCanCall();
+    error AgentAccount__OnlyThisOrOwnerCanCall();
+    error AgentAccount__NotEnoughBalanceForFeePlusValue();
+    error AgentAccount__FailedToPayTheFeeToTheOperator();
 
     using TransactionHelper for Transaction;
 
@@ -36,16 +37,9 @@ contract AgentAccount is IAccount, IERC1271, IERC165, Multicall, Ownable {
 
     modifier onlyBootloader() {
         if (msg.sender != BOOTLOADER_FORMAL_ADDRESS) {
-            revert OnlyBootloaderCanCall();
+            revert AgentAccount__OnlyBootloaderCanCall();
         }
         // Continue execution if called from the bootloader.
-        _;
-    }
-
-    modifier onlyThisOrOwner() {
-        if (msg.sender != address(this) && msg.sender != owner()) {
-            revert OnlyThisOrOwnerCanCall();
-        }
         _;
     }
 
@@ -74,21 +68,18 @@ contract AgentAccount is IAccount, IERC1271, IERC165, Multicall, Ownable {
             abi.encodeCall(INonceHolder.incrementMinNonceIfEquals, (_transaction.nonce))
         );
 
-        bytes32 txHash;
         // While the suggested signed hash is usually provided, it is generally
         // not recommended to rely on it to be present, since in the future
         // there may be tx types with no suggested signed hash.
-        if (_suggestedSignedHash == bytes32(0)) {
-            txHash = _transaction.encodeHash();
-        } else {
-            txHash = _suggestedSignedHash;
-        }
+        bytes32 txHash = _suggestedSignedHash == bytes32(0) ? _transaction.encodeHash() : _suggestedSignedHash;
 
         // The fact there is are enough balance for the account
         // should be checked explicitly to prevent user paying for fee for a
         // transaction that wouldn't be included on Ethereum.
         uint256 totalRequiredBalance = _transaction.totalRequiredBalance();
-        require(totalRequiredBalance <= address(this).balance, "Not enough balance for fee + value");
+        if (totalRequiredBalance > address(this).balance) {
+            revert AgentAccount__NotEnoughBalanceForFeePlusValue();
+        }
 
         if (isValidSignature(txHash, _transaction.signature) == EIP1271_SUCCESS_RETURN_VALUE) {
             magic = ACCOUNT_VALIDATION_SUCCESS_MAGIC;
@@ -163,8 +154,8 @@ contract AgentAccount is IAccount, IERC1271, IERC165, Multicall, Ownable {
         uint128 value = Utils.safeCastToU128(_transaction.value);
         bytes memory data = _transaction.data;
 
-        if (isMulticall(to, data)) {
-            multicall(data);
+        if (_isMulticall(to, data)) {
+            _multicall(data);
         } else if (to == address(DEPLOYER_SYSTEM_CONTRACT)) {
             uint32 gas = Utils.safeCastToU32(gasleft());
 
@@ -185,17 +176,9 @@ contract AgentAccount is IAccount, IERC1271, IERC165, Multicall, Ownable {
         _executeTransaction(_transaction);
     }
 
-    function multicall(bytes memory data) internal {
-        (address[] memory targets, bytes[] memory calldatas, uint256[] memory values) = _decodeMulticall(data);
-        multicall(targets, calldatas, values);
-    }
-
-    function multicall(address[] memory targets, bytes[] memory calldatas, uint256[] memory values)
-        public
-        override
-        onlyThisOrOwner
-    {
-        super.multicall(targets, calldatas, values);
+    function _multicall(bytes memory data) internal {
+        (address[] memory targets, bytes[] memory calldatas, uint256[] memory values) = _decodeMulticallData(data);
+        _multicall(targets, calldatas, values);
     }
 
     function payForTransaction(bytes32, bytes32, Transaction calldata _transaction)
@@ -205,7 +188,9 @@ contract AgentAccount is IAccount, IERC1271, IERC165, Multicall, Ownable {
         onlyBootloader
     {
         bool success = _transaction.payToTheBootloader();
-        require(success, "Failed to pay the fee to the operator");
+        if (!success) {
+            revert AgentAccount__FailedToPayTheFeeToTheOperator();
+        }
     }
 
     function prepareForPaymaster(

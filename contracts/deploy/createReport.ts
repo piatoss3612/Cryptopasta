@@ -15,27 +15,14 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const provider = new Provider(hre.config.networks.zkSyncSepoliaTestnet.url);
   const wallet = new Wallet(DEPLOYER_PRIVATE_KEY, provider);
   const deployer = new Deployer(hre, wallet);
-  const paymasterArtifact = await deployer.loadArtifact("AgentPaymaster");
+  const bbArtifact = await deployer.loadArtifact("BulletinBoard");
 
-  const erc721Address = "0x986bD9FCecbe530A33c53E2a4333c9ae516ab892";
+  const bbAddress = "0xaEe69d196eE2d35871cefdB8426A7b6056ca6C86";
 
-  const paymaster = await deployer.deploy(
-    paymasterArtifact,
-    [erc721Address],
-    undefined,
-    [paymasterArtifact.bytecode]
-  );
-  const paymasterAddress = await paymaster.getAddress();
-  console.log(`AA paymaster address: ${paymasterAddress}`);
+  const bb = new ethers.Contract(bbAddress, bbArtifact.abi, wallet);
 
-  const abiCoder = new ethers.AbiCoder();
-
-  await verifyContract({
-    address: paymasterAddress,
-    contract: "contracts/aa/AgentPaymaster.sol:AgentPaymaster",
-    constructorArguments: abiCoder.encode(["address"], [erc721Address]),
-    bytecode: paymasterArtifact.bytecode,
-  });
+  const tx = await bb.createReport("TEST", "TEST", 123n, 0);
+  await tx.wait();
 
   console.log(`Done!`);
 }

@@ -94,7 +94,7 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
     return await client.readContract({
       address: AGENT_PAYMASTER,
       abi: AgentPaymasterAbi,
-      functionName: "MAX_TRANSACTIONS_PER_DAY",
+      functionName: "maxTransactionsPerDay",
     });
   };
 

@@ -31,6 +31,14 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
   const [wallet, setWallet] = useState<ConnectedWallet | null>(null);
   const [walletClient, setWalletClient] = useState<WalletClient | null>(null);
 
+  // const [provider, setProvider] = useState<Provider | null>(null);
+
+  const setupProvider = async (wallet: ConnectedWallet) => {
+    await wallet.switchChain(zkSyncSepoliaTestnet.id);
+    const provider = await wallet.getEthersProvider();
+    const signer = provider.getSigner();
+  };
+
   const getAccountAddress = useCallback(async (): Promise<`0x${string}`> => {
     if (!client) {
       throw new Error("Client not found");

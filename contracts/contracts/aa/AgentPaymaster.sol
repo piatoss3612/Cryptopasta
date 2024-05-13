@@ -25,7 +25,7 @@ contract AgentPaymaster is IPaymaster, Ownable {
     error AgentPaymaster__TransactionLimitReached();
     error AgentPaymaster__FundsTransferFailed();
 
-    uint256 public constant MAX_TRANSACTIONS_PER_DAY = 5;
+    uint256 public maxTransactionsPerDay = 5;
 
     IERC721 private immutable nft_asset;
 
@@ -42,6 +42,10 @@ contract AgentPaymaster is IPaymaster, Ownable {
     // The ERC721 contract is the asset that the user must hold in order to use the paymaster.
     constructor(address _erc721) Ownable(msg.sender) {
         nft_asset = IERC721(_erc721); // Initialize the ERC721 contract
+    }
+
+    function setMaxTransactionsPerDay(uint256 _maxTransactionsPerDay) external onlyOwner {
+        maxTransactionsPerDay = _maxTransactionsPerDay;
     }
 
     // The gas fees will be paid for by the paymaster if the user is the owner of the required NFT asset.
@@ -104,7 +108,7 @@ contract AgentPaymaster is IPaymaster, Ownable {
             dailyTransactionCount[_user] = 0;
         }
 
-        if (dailyTransactionCount[_user] >= MAX_TRANSACTIONS_PER_DAY) {
+        if (dailyTransactionCount[_user] >= maxTransactionsPerDay) {
             revert AgentPaymaster__TransactionLimitReached();
         }
 

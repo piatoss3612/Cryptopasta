@@ -117,7 +117,7 @@ contract BulletinBoard is IBulletinBoard, Ownable {
     /// @param contentURI The URI of the content
     /// @param priceInUSD The price in USD
     /// @param paymentMethod The payment method
-    function reportDiscovery(
+    function createReport(
         string memory title,
         string memory contentURI,
         uint128 priceInUSD,
@@ -154,7 +154,7 @@ contract BulletinBoard is IBulletinBoard, Ownable {
     /// @notice Takes(purchases) a discovery report
     /// @param reportId The report ID
     /// @param paymentMethod The payment method
-    function takeReport(uint256 reportId, PaymentMethod paymentMethod) external payable {
+    function buyReport(uint256 reportId, PaymentMethod paymentMethod) external payable {
         address buyer = msg.sender;
 
         // Report should exist
@@ -337,5 +337,6 @@ contract BulletinBoard is IBulletinBoard, Ownable {
         }
     }
 
+    fallback() external payable {}
     receive() external payable {}
 }

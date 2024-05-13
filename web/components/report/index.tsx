@@ -21,6 +21,7 @@ import { BULLETIN_BOARD, MOCK_USDT } from "@/libs/constant";
 import { PaymentMethod, WriteContractParams } from "@/libs/types";
 import { pinFileToIPFS, pinJsonToIPFS } from "@/actions";
 import { encodeFunctionData } from "viem";
+import { eip712WalletActions, zkSyncSepoliaTestnet } from "viem/zksync";
 
 interface Form1Data {
   title: string;
@@ -37,7 +38,7 @@ const Report = () => {
   const TOTAL_STEPS = 3;
   const { client } = useViem();
   const { authenticated, account, getAccessToken, walletClient } = useAgent();
-  const { onOpenPayment } = usePayment();
+  const { onOpenPayment, getPaymasterParams } = usePayment();
   const navigator = useRouter();
   const toast = useToast();
 
@@ -230,15 +231,15 @@ const Report = () => {
 
       if (paymentMethod.valueOf() === 0) {
         // ETH
-        params = {
-          account: account as `0x${string}`,
-          address: BULLETIN_BOARD as `0x${string}`,
-          abi: BulletinBoardAbi,
-          functionName: "reportDiscovery",
-          args: [form1.title, tokenUri_, usdAmount, 0],
-          gas: BigInt(1000000),
-          value: reportingCostInETHData![0],
-        };
+        // params = {
+        //   account: account as `0x${string}`,
+        //   address: BULLETIN_BOARD as `0x${string}`,
+        //   abi: BulletinBoardAbi,
+        //   functionName: "reportDiscovery",
+        //   args: [form1.title, tokenUri_, usdAmount, 0],
+        //   gas: BigInt(1000000),
+        //   value: reportingCostInETHData![0],
+        // };
       } else if (paymentMethod.valueOf() === 1) {
         // USDT
         // 1. approve USDT
@@ -251,7 +252,7 @@ const Report = () => {
         // 2. report discovery
         const reportData = encodeFunctionData({
           abi: BulletinBoardAbi,
-          functionName: "reportDiscovery",
+          functionName: "createReport",
           args: [form1.title, tokenUri_, usdAmount, 1],
         });
 

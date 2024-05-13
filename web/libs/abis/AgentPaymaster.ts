@@ -1,412 +1,425 @@
 const AgentPaymasterAbi = [
   {
-    type: "constructor",
     inputs: [
       {
+        internalType: "address",
         name: "_erc721",
         type: "address",
-        internalType: "address",
       },
     ],
     stateMutability: "nonpayable",
+    type: "constructor",
   },
   {
-    type: "receive",
-    stateMutability: "payable",
-  },
-  {
-    type: "function",
-    name: "MAX_TRANSACTIONS_PER_DAY",
     inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "dailyTransactionCount",
-    inputs: [
-      {
-        name: "",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "lastTransactionTimestamp",
-    inputs: [
-      {
-        name: "",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [
-      {
-        name: "",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "owner",
-    inputs: [],
-    outputs: [
-      {
-        name: "",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    stateMutability: "view",
-  },
-  {
-    type: "function",
-    name: "postTransaction",
-    inputs: [
-      {
-        name: "_context",
-        type: "bytes",
-        internalType: "bytes",
-      },
-      {
-        name: "_transaction",
-        type: "tuple",
-        internalType: "struct Transaction",
-        components: [
-          {
-            name: "txType",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "from",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "to",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "gasLimit",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "gasPerPubdataByteLimit",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "maxFeePerGas",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "maxPriorityFeePerGas",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "paymaster",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "nonce",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "value",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "reserved",
-            type: "uint256[4]",
-            internalType: "uint256[4]",
-          },
-          {
-            name: "data",
-            type: "bytes",
-            internalType: "bytes",
-          },
-          {
-            name: "signature",
-            type: "bytes",
-            internalType: "bytes",
-          },
-          {
-            name: "factoryDeps",
-            type: "bytes32[]",
-            internalType: "bytes32[]",
-          },
-          {
-            name: "paymasterInput",
-            type: "bytes",
-            internalType: "bytes",
-          },
-          {
-            name: "reservedDynamic",
-            type: "bytes",
-            internalType: "bytes",
-          },
-        ],
-      },
-      {
-        name: "",
-        type: "bytes32",
-        internalType: "bytes32",
-      },
-      {
-        name: "",
-        type: "bytes32",
-        internalType: "bytes32",
-      },
-      {
-        name: "_txResult",
-        type: "uint8",
-        internalType: "enum ExecutionResult",
-      },
-      {
-        name: "_maxRefundedGas",
-        type: "uint256",
-        internalType: "uint256",
-      },
-    ],
-    outputs: [],
-    stateMutability: "payable",
-  },
-  {
-    type: "function",
-    name: "renounceOwnership",
-    inputs: [],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "transferOwnership",
-    inputs: [
-      {
-        name: "newOwner",
-        type: "address",
-        internalType: "address",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "function",
-    name: "validateAndPayForPaymasterTransaction",
-    inputs: [
-      {
-        name: "",
-        type: "bytes32",
-        internalType: "bytes32",
-      },
-      {
-        name: "",
-        type: "bytes32",
-        internalType: "bytes32",
-      },
-      {
-        name: "_transaction",
-        type: "tuple",
-        internalType: "struct Transaction",
-        components: [
-          {
-            name: "txType",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "from",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "to",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "gasLimit",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "gasPerPubdataByteLimit",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "maxFeePerGas",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "maxPriorityFeePerGas",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "paymaster",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "nonce",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "value",
-            type: "uint256",
-            internalType: "uint256",
-          },
-          {
-            name: "reserved",
-            type: "uint256[4]",
-            internalType: "uint256[4]",
-          },
-          {
-            name: "data",
-            type: "bytes",
-            internalType: "bytes",
-          },
-          {
-            name: "signature",
-            type: "bytes",
-            internalType: "bytes",
-          },
-          {
-            name: "factoryDeps",
-            type: "bytes32[]",
-            internalType: "bytes32[]",
-          },
-          {
-            name: "paymasterInput",
-            type: "bytes",
-            internalType: "bytes",
-          },
-          {
-            name: "reservedDynamic",
-            type: "bytes",
-            internalType: "bytes",
-          },
-        ],
-      },
-    ],
-    outputs: [
-      {
-        name: "magic",
-        type: "bytes4",
-        internalType: "bytes4",
-      },
-      {
-        name: "context",
-        type: "bytes",
-        internalType: "bytes",
-      },
-    ],
-    stateMutability: "payable",
-  },
-  {
-    type: "function",
-    name: "withdraw",
-    inputs: [
-      {
-        name: "_to",
-        type: "address",
-        internalType: "address payable",
-      },
-    ],
-    outputs: [],
-    stateMutability: "nonpayable",
-  },
-  {
-    type: "event",
-    name: "OwnershipTransferred",
-    inputs: [
-      {
-        name: "previousOwner",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-      {
-        name: "newOwner",
-        type: "address",
-        indexed: true,
-        internalType: "address",
-      },
-    ],
-    anonymous: false,
-  },
-  {
-    type: "error",
     name: "AgentPaymaster__FundsTransferFailed",
-    inputs: [],
+    type: "error",
   },
   {
-    type: "error",
+    inputs: [],
     name: "AgentPaymaster__InvalidPaymasterFlow",
-    inputs: [],
+    type: "error",
   },
   {
-    type: "error",
+    inputs: [],
     name: "AgentPaymaster__TransactionLimitReached",
-    inputs: [],
+    type: "error",
   },
   {
-    type: "error",
+    inputs: [],
     name: "AgentPaymaster__UserDoesNotHoldNFTAsset",
-    inputs: [],
+    type: "error",
   },
   {
-    type: "error",
-    name: "OwnableInvalidOwner",
     inputs: [
       {
+        internalType: "address",
         name: "owner",
         type: "address",
-        internalType: "address",
       },
     ],
+    name: "OwnableInvalidOwner",
+    type: "error",
   },
   {
-    type: "error",
-    name: "OwnableUnauthorizedAccount",
     inputs: [
       {
+        internalType: "address",
         name: "account",
         type: "address",
-        internalType: "address",
       },
     ],
+    name: "OwnableUnauthorizedAccount",
+    type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "OwnershipTransferred",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "dailyTransactionCount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "lastTransactionTimestamp",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "maxTransactionsPerDay",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "_context",
+        type: "bytes",
+      },
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "txType",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "from",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "to",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "gasLimit",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "gasPerPubdataByteLimit",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "maxFeePerGas",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "maxPriorityFeePerGas",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "paymaster",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "nonce",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "value",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256[4]",
+            name: "reserved",
+            type: "uint256[4]",
+          },
+          {
+            internalType: "bytes",
+            name: "data",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes",
+            name: "signature",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes32[]",
+            name: "factoryDeps",
+            type: "bytes32[]",
+          },
+          {
+            internalType: "bytes",
+            name: "paymasterInput",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes",
+            name: "reservedDynamic",
+            type: "bytes",
+          },
+        ],
+        internalType: "struct Transaction",
+        name: "_transaction",
+        type: "tuple",
+      },
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+      {
+        internalType: "enum ExecutionResult",
+        name: "_txResult",
+        type: "uint8",
+      },
+      {
+        internalType: "uint256",
+        name: "_maxRefundedGas",
+        type: "uint256",
+      },
+    ],
+    name: "postTransaction",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_maxTransactionsPerDay",
+        type: "uint256",
+      },
+    ],
+    name: "setMaxTransactionsPerDay",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
+    ],
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "txType",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "from",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "to",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "gasLimit",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "gasPerPubdataByteLimit",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "maxFeePerGas",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "maxPriorityFeePerGas",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "paymaster",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "nonce",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "value",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256[4]",
+            name: "reserved",
+            type: "uint256[4]",
+          },
+          {
+            internalType: "bytes",
+            name: "data",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes",
+            name: "signature",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes32[]",
+            name: "factoryDeps",
+            type: "bytes32[]",
+          },
+          {
+            internalType: "bytes",
+            name: "paymasterInput",
+            type: "bytes",
+          },
+          {
+            internalType: "bytes",
+            name: "reservedDynamic",
+            type: "bytes",
+          },
+        ],
+        internalType: "struct Transaction",
+        name: "_transaction",
+        type: "tuple",
+      },
+    ],
+    name: "validateAndPayForPaymasterTransaction",
+    outputs: [
+      {
+        internalType: "bytes4",
+        name: "magic",
+        type: "bytes4",
+      },
+      {
+        internalType: "bytes",
+        name: "context",
+        type: "bytes",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address payable",
+        name: "_to",
+        type: "address",
+      },
+    ],
+    name: "withdraw",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ] as const;
 

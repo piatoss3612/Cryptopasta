@@ -18,6 +18,7 @@
     "@types/react-typist": "^2.0.6",
     "@uiw/react-md-editor": "^4.0.4",
     "axios": "^1.6.8",
+    "ethers": "^6.12.1",
     "framer-motion": "^11.1.9",
     "next": "14.2.3",
     "react": "^18",
@@ -26,7 +27,8 @@
     "react-typist": "^2.0.5",
     "sharp": "^0.33.3",
     "swiper": "^11.1.1",
-    "viem": "2.x"
+    "viem": "2.x",
+    "zksync-ethers": "^6.7.1"
   },
   "devDependencies": {
     "@types/node": "^20",

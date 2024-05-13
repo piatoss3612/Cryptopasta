@@ -18,8 +18,8 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const bbArtifact = await deployer.loadArtifact("BulletinBoard");
   const cpArtifact = await deployer.loadArtifact("Cryptopasta");
 
-  const agentTokenAddress = "0xDe0052c31c6168C5A31A22A72afD9a970FaF9eE3";
-  const usdtAddress = "0x29b9215c11a95F2cA9894fe48B907c79406cdaA4";
+  const agentTokenAddress = "0x986bD9FCecbe530A33c53E2a4333c9ae516ab892";
+  const usdtAddress = "0xE7D83827A084208F7d65bf98D4B21c23C887da32";
   const priceConverterAddress = "0x308B8b1522AC9D555aa66a8d5153610b11668987";
 
   const bb = await deployer.deploy(

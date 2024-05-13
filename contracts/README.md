@@ -26,15 +26,15 @@ $ yarn hardhat compile
 $ yarn hardhat deploy-zksync --script deployFactory.ts
 yarn run v1.22.21
 
-AA factory address: 0xe274675aB041F0D11a4A7d009722c732bB830d12
-SC Account owner pk:  0x6f1dee0a91e191153c41a543ab874b73f9e1b8718e459b3bbc2cc1ff95603fca
-SC Account deployed on address 0xAf7986c3c2Ecb897C27C61fB2d25809319a12c53
-Your verification ID is: 13001
+AA factory address: 0xBF6f49310379154b3907F7142FEb09107a6009D3
+SC Account owner pk:
+SC Account deployed on address 0x96324917bAaed3bb2b2418517eCaB87cdB6d802f
+Your verification ID is: 13054
 Contract successfully verified on zkSync block explorer!
-Your verification ID is: 13002
+Your verification ID is: 13055
 Contract successfully verified on zkSync block explorer!
 Done!
-Done in 32.30s.
+Done in 32.16s.
 ```
 
 ### Deploy AgentRegistry
@@ -43,12 +43,12 @@ Done in 32.30s.
 $ yarn hardhat deploy-zksync --script deployAgentRegistry.ts
 yarn run v1.22.21
 
-Agent registry address: 0xe338f781a1AAAcF9d4A2d4DD2B2aCA9D4520CAED
-Agent token address: 0xDe0052c31c6168C5A31A22A72afD9a970FaF9eE3
-Your verification ID is: 13003
+Agent registry address: 0xC40416509213951995078dba6a309F234c3eC9B8
+Agent token address: 0x986bD9FCecbe530A33c53E2a4333c9ae516ab892
+Your verification ID is: 13056
 Contract successfully verified on zkSync block explorer!
 Done!
-Done in 20.02s.
+Done in 20.42s.
 ```
 
 ### Deploy Paymaster
@@ -57,11 +57,11 @@ Done in 20.02s.
 $ yarn hardhat deploy-zksync --script deployPaymaster.ts
 yarn run v1.22.21
 
-AA paymaster address: 0x92992FF01040bf9C2C1bb7036193d9f457A5BF0c
-Your verification ID is: 13004
+AA paymaster address: 0x68f52F79D8bdD1ab1dd8f9C150Af111Dbf59d88d
+Your verification ID is: 13057
 Contract successfully verified on zkSync block explorer!
 Done!
-Done in 18.97s.
+Done in 18.39s.
 ```
 
 ### Deploy PriceConverter
@@ -83,14 +83,14 @@ Done in 14.30s.
 $ yarn hardhat deploy-zksync --script deployTokens.ts
 yarn run v1.22.21
 
-MockUSDT address: 0x29b9215c11a95F2cA9894fe48B907c79406cdaA4
-MissionLog address: 0xfF135424230Cb2b40CD80c05a19F8F4eb6b512ad
-Your verification ID is: 13005
+MockUSDT address: 0xE7D83827A084208F7d65bf98D4B21c23C887da32
+MissionLog address: 0xE0cFF39d2019122B61c1c1B1320faf5C54c01B18
+Your verification ID is: 13058
 Contract successfully verified on zkSync block explorer!
-Your verification ID is: 13006
+Your verification ID is: 13059
 Contract successfully verified on zkSync block explorer!
 Done!
-Done in 22.64s.
+Done in 24.38s.
 ```
 
 ### Deploy BulletinBoard
@@ -99,24 +99,24 @@ Done in 22.64s.
 $ yarn hardhat deploy-zksync --script deployBulletinBoard.ts
 yarn run v1.22.21
 
-BulletinBoard address: 0xAc66bFEA5150F98C4f93c15023497F93a210accd
-Cryptopasta address: 0x3fBC7D8232fcbC1d48e83Ae3c87edDF562D2Fe55
-Your verification ID is: 13007
+BulletinBoard address: 0xB05EC2bb6b965b4D0Bd2E6c48fF7f0f9D83a4e91
+Cryptopasta address: 0x526a3340332DB7633124caD3a3Dcf42D5adaD246
+Your verification ID is: 13060
 Contract successfully verified on zkSync block explorer!
 Done!
-Done in 20.75s.
+Done in 21.47s.
 ```
 
 ## Contract Addresses
 
 | Contract Name  | Address                                    |
 | -------------- | ------------------------------------------ |
-| Factory        | 0xe274675aB041F0D11a4A7d009722c732bB830d12 |
-| AgentRegistry  | 0xe338f781a1AAAcF9d4A2d4DD2B2aCA9D4520CAED |
-| AgentToken     | 0xDe0052c31c6168C5A31A22A72afD9a970FaF9eE3 |
-| Paymaster      | 0x92992FF01040bf9C2C1bb7036193d9f457A5BF0c |
+| Factory        | 0xBF6f49310379154b3907F7142FEb09107a6009D3 |
+| AgentRegistry  | 0xC40416509213951995078dba6a309F234c3eC9B8 |
+| AgentToken     | 0x986bD9FCecbe530A33c53E2a4333c9ae516ab892 |
+| Paymaster      | 0x68f52F79D8bdD1ab1dd8f9C150Af111Dbf59d88d |
 | PriceConverter | 0x308B8b1522AC9D555aa66a8d5153610b11668987 |
-| MockUSDT       | 0x29b9215c11a95F2cA9894fe48B907c79406cdaA4 |
-| MissionLog     | 0xfF135424230Cb2b40CD80c05a19F8F4eb6b512ad |
-| BulletinBoard  | 0xAc66bFEA5150F98C4f93c15023497F93a210accd |
-| Cryptopasta    | 0x3fBC7D8232fcbC1d48e83Ae3c87edDF562D2Fe55 |
+| MockUSDT       | 0xE7D83827A084208F7d65bf98D4B21c23C887da32 |
+| MissionLog     | 0xE0cFF39d2019122B61c1c1B1320faf5C54c01B18 |
+| BulletinBoard  | 0xB05EC2bb6b965b4D0Bd2E6c48fF7f0f9D83a4e91 |
+| Cryptopasta    | 0x526a3340332DB7633124caD3a3Dcf42D5adaD246 |
