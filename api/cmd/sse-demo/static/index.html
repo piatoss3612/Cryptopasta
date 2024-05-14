@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SSE Example</title>
+  </head>
+  <body>
+    <div id="sse-data"></div>
+
+    <script>
+      const fetchSSE = () => {
+        fetch("http://localhost:1234/completion", {
+          method: "POST",
+          body: JSON.stringify({
+            text: "Why the sky is blue?",
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => {
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            const readChunk = () => {
+              return reader.read().then(appendChunks);
+            };
+
+            const appendChunks = (result) => {
+              const chunk = decoder.decode(result.value || new Uint8Array(), {
+                stream: !result.done,
+              });
+
+              const dataElement = document.getElementById("sse-data");
+              dataElement.innerHTML += chunk;
+
+              if (result.done) {
+                const dataElement = document.getElementById("sse-data");
+                dataElement.innerHTML += "<br>";
+              } else {
+                return readChunk();
+              }
+            };
+
+            return readChunk();
+          })
+          .then(() => {
+            // when it's done
+          })
+          .catch((e) => {
+            // error
+          });
+      };
+
+      fetchSSE();
+    </script>
+  </body>
+</html>
