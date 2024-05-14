@@ -26,16 +26,16 @@ $ yarn hardhat compile
 $ yarn hardhat deploy-zksync --script deployFactory.ts
 yarn run v1.22.21
 
-AA factory address: 0xc82072d318e0eB8e945b7B0a783591CB82880fa5
-SC Account owner address:  0x24062377D22EE93Dc652E8Df32128C16a4326F98
+AA factory address: 0x8595C7eb3F7208D821df18e7bDA6231e8501227E
+SC Account owner address:  0x8864ED1B11e5F82766DEDe749337F229C44C2bD3
 SC Account owner pk:
-SC Account deployed on address 0x767C38420b6d537f485F0D2570aC36954934Ca9D
-Your verification ID is: 13126
+SC Account deployed on address 0x085A18c57D9CD4B2342393059938E593BD0Ef20c
+Your verification ID is: 13132
 Contract successfully verified on zkSync block explorer!
-Your verification ID is: 13127
+Your verification ID is: 13133
 Contract successfully verified on zkSync block explorer!
 Done!
-Done in 31.33s.
+Done in 31.86s.
 ```
 
 ### Deploy AgentRegistry
@@ -112,7 +112,7 @@ Done in 22.24s.
 
 | Contract Name  | Address                                    |
 | -------------- | ------------------------------------------ |
-| Factory        | 0xc82072d318e0eB8e945b7B0a783591CB82880fa5 |
+| Factory        | 0x8595C7eb3F7208D821df18e7bDA6231e8501227E |
 | AgentRegistry  | 0xC40416509213951995078dba6a309F234c3eC9B8 |
 | AgentToken     | 0x986bD9FCecbe530A33c53E2a4333c9ae516ab892 |
 | Paymaster      | 0x68f52F79D8bdD1ab1dd8f9C150Af111Dbf59d88d |

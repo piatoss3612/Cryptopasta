@@ -13,6 +13,7 @@ abstract contract Multicall {
             return false;
         }
 
+        // get the selector
         bytes4 selector = bytes4(data[0:4]);
 
         check = selector == MULTICALL_SELECTOR && to == address(this);
@@ -36,11 +37,12 @@ abstract contract Multicall {
         }
     }
 
+    // decode multicall data (should not contain the selector)
     function _decodeMulticallData(bytes calldata data)
         internal
         pure
         returns (address[] memory targets, bytes[] memory calldatas, uint256[] memory values)
     {
-        (, targets, calldatas, values) = abi.decode(data, (bytes4, address[], bytes[], uint256[]));
+        (targets, calldatas, values) = abi.decode(data, (address[], bytes[], uint256[]));
     }
 }

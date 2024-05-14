@@ -217,7 +217,11 @@ contract AgentAccount is IAccount, IERC1271, IERC721Receiver, IERC1155Receiver, 
         bytes calldata data = _transaction.data;
 
         if (_isMulticall(to, data)) {
-            _multicall(data);
+            // skip heading 4 bytes of the selector and decode the rest
+            (address[] memory targets, bytes[] memory calldatas, uint256[] memory values) =
+                _decodeMulticallData(data[4:]);
+            // call all targets
+            _multicall(targets, calldatas, values);
         } else if (to == address(DEPLOYER_SYSTEM_CONTRACT)) {
             uint32 gas = Utils.safeCastToU32(gasleft());
 
@@ -227,11 +231,6 @@ contract AgentAccount is IAccount, IERC1271, IERC721Receiver, IERC1155Receiver, 
         } else {
             _execute(to, data, value);
         }
-    }
-
-    function _multicall(bytes calldata data) internal {
-        (address[] memory targets, bytes[] memory calldatas, uint256[] memory values) = _decodeMulticallData(data);
-        _multicall(targets, calldatas, values);
     }
 
     /// @notice Method for paying the bootloader for the transaction.
