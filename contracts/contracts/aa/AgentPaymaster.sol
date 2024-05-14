@@ -63,13 +63,13 @@ contract AgentPaymaster is IPaymaster, Ownable {
         bytes4 paymasterInputSelector = bytes4(_transaction.paymasterInput[0:4]);
 
         if (paymasterInputSelector == IPaymasterFlow.general.selector) {
-            address userAddress = address(uint160(_transaction.from));
+            // address userAddress = address(uint160(_transaction.from));
 
-            if (nft_asset.balanceOf(userAddress) == 0) {
-                revert AgentPaymaster__UserDoesNotHoldNFTAsset();
-            }
+            // if (nft_asset.balanceOf(userAddress) == 0) {
+            //     revert AgentPaymaster__UserDoesNotHoldNFTAsset();
+            // }
 
-            _validateTransactionLimit(userAddress);
+            // _validateTransactionLimit(userAddress);
 
             uint256 requiredETH = _transaction.gasLimit * _transaction.maxFeePerGas;
 

@@ -22,12 +22,12 @@ import {
     SystemContractsCaller,
     Utils
 } from "@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol";
+import {SystemContractHelper} from "@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractHelper.sol";
+import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import {IERC1155Receiver} from "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract AgentAccount is IAccount, IERC1271, IERC165, Multicall, Ownable {
-    error AgentAccount__OnlyBootloaderCanCall();
-    error AgentAccount__OnlyThisOrOwnerCanCall();
+contract AgentAccount is IAccount, IERC1271, IERC721Receiver, IERC1155Receiver, Multicall {
     error AgentAccount__NotEnoughBalanceForFeePlusValue();
     error AgentAccount__FailedToPayTheFeeToTheOperator();
 
@@ -35,26 +35,71 @@ contract AgentAccount is IAccount, IERC1271, IERC165, Multicall, Ownable {
 
     bytes4 public constant EIP1271_SUCCESS_RETURN_VALUE = 0x1626ba7e;
 
-    modifier onlyBootloader() {
+    address public owner;
+
+    /**
+     * @dev Simulate the behavior of the EOA if the caller is not the bootloader.
+     * Essentially, for all non-bootloader callers halt the execution with empty return data.
+     * If all functions will use this modifier AND the contract will implement an empty payable fallback()
+     * then the contract will be indistinguishable from the EOA when called.
+     */
+    modifier ignoreNonBootloader() {
         if (msg.sender != BOOTLOADER_FORMAL_ADDRESS) {
-            revert AgentAccount__OnlyBootloaderCanCall();
+            // If function was called outside of the bootloader, behave like an EOA.
+            assembly {
+                return(0, 0)
+            }
         }
         // Continue execution if called from the bootloader.
         _;
     }
 
-    constructor(address _owner) Ownable(_owner) {}
+    /**
+     * @dev Simulate the behavior of the EOA if it is called via `delegatecall`.
+     * Thus, the default account on a delegate call behaves the same as EOA on Ethereum.
+     * If all functions will use this modifier AND the contract will implement an empty payable fallback()
+     * then the contract will be indistinguishable from the EOA when called.
+     */
+    modifier ignoreInDelegateCall() {
+        address codeAddress = SystemContractHelper.getCodeAddress();
+        if (codeAddress != address(this)) {
+            // If the function was delegate called, behave like an EOA.
+            assembly {
+                return(0, 0)
+            }
+        }
 
+        // Continue execution if not delegate called.
+        _;
+    }
+
+    constructor(address _owner) {
+        owner = _owner;
+    }
+
+    /// @notice Validates the transaction & increments nonce.
+    /// @dev The transaction is considered accepted by the account if
+    /// the call to this function by the bootloader does not revert
+    /// and the nonce has been set as used.
+    /// @param _suggestedSignedHash The suggested hash of the transaction to be signed by the user.
+    /// This is the hash that is signed by the EOA by default.
+    /// @param _transaction The transaction structure itself.
+    /// @dev Besides the params above, it also accepts unused first paramter "_txHash", which
+    /// is the unique (canonical) hash of the transaction.
     function validateTransaction(bytes32, bytes32 _suggestedSignedHash, Transaction calldata _transaction)
         external
         payable
         override
-        onlyBootloader
+        ignoreNonBootloader
+        ignoreInDelegateCall
         returns (bytes4 magic)
     {
         magic = _validateTransaction(_suggestedSignedHash, _transaction);
     }
 
+    /// @notice Inner method for validating transaction and increasing the nonce
+    /// @param _suggestedSignedHash The hash of the transaction signed by the EOA
+    /// @param _transaction The transaction.
     function _validateTransaction(bytes32 _suggestedSignedHash, Transaction calldata _transaction)
         internal
         returns (bytes4 magic)
@@ -81,27 +126,30 @@ contract AgentAccount is IAccount, IERC1271, IERC165, Multicall, Ownable {
             revert AgentAccount__NotEnoughBalanceForFeePlusValue();
         }
 
-        if (isValidSignature(txHash, _transaction.signature) == EIP1271_SUCCESS_RETURN_VALUE) {
+        if (_isValidSignature(txHash, _transaction.signature)) {
             magic = ACCOUNT_VALIDATION_SUCCESS_MAGIC;
-        } else {
-            magic = bytes4(0);
         }
     }
 
+    /// @notice Validation that the ECDSA signature of the transaction is correct.
+    /// @param _hash The hash of the transaction to be signed.
+    /// @param _signature The signature of the transaction.
+    /// @return magic EIP1271_SUCCESS_RETURN_VALUE if the signaure is correct.
     function isValidSignature(bytes32 _hash, bytes memory _signature) public view override returns (bytes4 magic) {
-        magic = EIP1271_SUCCESS_RETURN_VALUE;
+        if (_isValidSignature(_hash, _signature)) {
+            return EIP1271_SUCCESS_RETURN_VALUE;
+        }
+    }
 
+    /// @notice Validation that the ECDSA signature of the transaction is correct.
+    /// @param _hash The hash of the transaction to be signed.
+    /// @param _signature The signature of the transaction.
+    /// @return bool True if the signature is correct, false otherwise.
+    function _isValidSignature(bytes32 _hash, bytes memory _signature) internal view returns (bool) {
         if (_signature.length != 65) {
-            // Signature is invalid anyway, but we need to proceed with the signature verification as usual
-            // in order for the fee estimation to work correctly
-            _signature = new bytes(65);
-
-            // Making sure that the signatures look like a valid ECDSA signature and are not rejected rightaway
-            // while skipping the main verification process.
-            _signature[64] = bytes1(uint8(27));
+            return false;
         }
 
-        // extract ECDSA signature
         uint8 v;
         bytes32 r;
         bytes32 s;
@@ -116,7 +164,7 @@ contract AgentAccount is IAccount, IERC1271, IERC165, Multicall, Ownable {
         }
 
         if (v != 27 && v != 28) {
-            magic = bytes4(0);
+            return false;
         }
 
         // EIP-2 still allows signature malleability for ecrecover(). Remove this possibility and make the signature
@@ -124,35 +172,49 @@ contract AgentAccount is IAccount, IERC1271, IERC165, Multicall, Ownable {
         // the valid range for s in (301): 0 < s < secp256k1n ÷ 2 + 1, and for v in (302): v ∈ {27, 28}. Most
         // signatures from current libraries generate a unique signature with an s-value in the lower half order.
         //
+        //
         // If your library generates malleable signatures, such as s-values in the upper range, calculate a new s-value
         // with 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141 - s1 and flip v from 27 to 28 or
         // vice versa. If your library also generates signatures with 0/1 for v instead 27/28, add 27 to v to accept
         // these malleable signatures as well.
         if (uint256(s) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) {
-            magic = bytes4(0);
+            return false;
         }
 
         address recoveredAddress = ecrecover(_hash, v, r, s);
 
-        // Note, that we should abstain from using the require here in order to allow for fee estimation to work
-        if (!_isOwner(recoveredAddress)) {
-            magic = bytes4(0);
-        }
+        return _isOwner(recoveredAddress) && recoveredAddress != address(0);
     }
 
+    /// @notice Method called by the bootloader to execute the transaction.
+    /// @param _transaction The transaction to execute.
+    /// @dev It also accepts unused _txHash and _suggestedSignedHash parameters:
+    /// the unique (canonical) hash of the transaction and the suggested signed
+    /// hash of the transaction.
     function executeTransaction(bytes32, bytes32, Transaction calldata _transaction)
         external
         payable
         override
-        onlyBootloader
+        ignoreNonBootloader
+        ignoreInDelegateCall
     {
+        _executeTransaction(_transaction);
+    }
+
+    /// @notice Method that should be used to initiate a transaction from this account by an external call.
+    /// @dev The custom account is supposed to implement this method to initiate a transaction on behalf
+    /// of the account via L1 -> L2 communication. However, the default account can initiate a transaction
+    /// from L1, so we formally implement the interface method, but it doesn't execute any logic.
+    /// @param _transaction The transaction to execute.
+    function executeTransactionFromOutside(Transaction calldata _transaction) external payable {
+        _validateTransaction(bytes32(0), _transaction);
         _executeTransaction(_transaction);
     }
 
     function _executeTransaction(Transaction calldata _transaction) internal {
         address to = address(uint160(_transaction.to));
         uint128 value = Utils.safeCastToU128(_transaction.value);
-        bytes memory data = _transaction.data;
+        bytes calldata data = _transaction.data;
 
         if (_isMulticall(to, data)) {
             _multicall(data);
@@ -163,29 +225,26 @@ contract AgentAccount is IAccount, IERC1271, IERC165, Multicall, Ownable {
             // with a "systemCall" flag.
             SystemContractsCaller.systemCallWithPropagatedRevert(gas, to, value, data);
         } else {
-            bool success;
-            assembly {
-                success := call(gas(), to, value, add(data, 0x20), mload(data), 0, 0)
-            }
-            require(success);
+            _execute(to, data, value);
         }
     }
 
-    function executeTransactionFromOutside(Transaction calldata _transaction) external payable {
-        _validateTransaction(bytes32(0), _transaction);
-        _executeTransaction(_transaction);
-    }
-
-    function _multicall(bytes memory data) internal {
+    function _multicall(bytes calldata data) internal {
         (address[] memory targets, bytes[] memory calldatas, uint256[] memory values) = _decodeMulticallData(data);
         _multicall(targets, calldatas, values);
     }
 
+    /// @notice Method for paying the bootloader for the transaction.
+    /// @param _transaction The transaction for which the fee is paid.
+    /// @dev It also accepts unused _txHash and _suggestedSignedHash parameters:
+    /// the unique (canonical) hash of the transaction and the suggested signed
+    /// hash of the transaction.
     function payForTransaction(bytes32, bytes32, Transaction calldata _transaction)
         external
         payable
         override
-        onlyBootloader
+        ignoreNonBootloader
+        ignoreInDelegateCall
     {
         bool success = _transaction.payToTheBootloader();
         if (!success) {
@@ -193,21 +252,67 @@ contract AgentAccount is IAccount, IERC1271, IERC165, Multicall, Ownable {
         }
     }
 
+    /// @notice Method, where the user should prepare for the transaction to be
+    /// paid for by a paymaster.
+    /// @dev Here, the account should set the allowance for the smart contracts
+    /// @param _transaction The transaction.
+    /// @dev It also accepts unused _txHash and _suggestedSignedHash parameters:
+    /// the unique (canonical) hash of the transaction and the suggested signed
+    /// hash of the transaction.
     function prepareForPaymaster(
         bytes32, // _txHash
         bytes32, // _suggestedSignedHash
         Transaction calldata _transaction
-    ) external payable override onlyBootloader {
+    ) external payable override ignoreNonBootloader ignoreInDelegateCall {
         _transaction.processPaymasterInput();
     }
 
+    /**
+     * ERC-165 support
+     */
     function supportsInterface(bytes4 interfaceId) public pure returns (bool) {
         return interfaceId == type(IAccount).interfaceId || interfaceId == type(IERC1271).interfaceId
+            || interfaceId == type(IERC721Receiver).interfaceId || interfaceId == type(IERC1155Receiver).interfaceId
             || interfaceId == type(IERC165).interfaceId;
     }
 
+    /**
+     * ERC-721 support
+     */
+    function onERC721Received(
+        address, // operator
+        address, // from
+        uint256, // tokenId
+        bytes calldata // data
+    ) external pure override returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
+    }
+
+    /**
+     * ERC-1155 support
+     */
+    function onERC1155Received(
+        address, // operator
+        address, // from
+        uint256, // id
+        uint256, // value
+        bytes calldata // data
+    ) external pure override returns (bytes4) {
+        return IERC1155Receiver.onERC1155Received.selector;
+    }
+
+    function onERC1155BatchReceived(
+        address, // operator
+        address, // from
+        uint256[] calldata, // ids
+        uint256[] calldata, // values
+        bytes calldata // data
+    ) external pure override returns (bytes4) {
+        return IERC1155Receiver.onERC1155BatchReceived.selector;
+    }
+
     function _isOwner(address account) internal view returns (bool) {
-        return account == owner();
+        return account == owner;
     }
 
     fallback() external {

@@ -34,6 +34,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   );
 
   const owner = Wallet.createRandom();
+  console.log("SC Account owner address: ", owner.address);
   console.log("SC Account owner pk: ", owner.privateKey);
 
   const salt = ethers.ZeroHash;

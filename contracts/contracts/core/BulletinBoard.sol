@@ -125,10 +125,10 @@ contract BulletinBoard is IBulletinBoard, Ownable {
     ) external payable override {
         address reporter = msg.sender;
 
-        // Should be an agent
+        // // Should be an agent
         _isAgent(reporter);
 
-        // Check payment: reporter to owner
+        // // Check payment: reporter to owner
         uint256 paymentAmount = _pay(reporter, _reportingCostInUSD, paymentMethod);
         _updateBalances(owner(), paymentAmount, paymentMethod);
 
@@ -297,7 +297,7 @@ contract BulletinBoard is IBulletinBoard, Ownable {
     /// @param to The receiver address
     /// @param amount The amount to withdraw
     /// @param paymentMethod The payment method
-    function withdraw(address to, uint256 amount, PaymentMethod paymentMethod) external {
+    function withdraw(address payable to, uint256 amount, PaymentMethod paymentMethod) external {
         if (paymentMethod == PaymentMethod.ETHER) {
             // Check if there is enough balance
             if (_ethBalances[msg.sender] < amount) {

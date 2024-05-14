@@ -26,15 +26,16 @@ $ yarn hardhat compile
 $ yarn hardhat deploy-zksync --script deployFactory.ts
 yarn run v1.22.21
 
-AA factory address: 0xBF6f49310379154b3907F7142FEb09107a6009D3
+AA factory address: 0xc82072d318e0eB8e945b7B0a783591CB82880fa5
+SC Account owner address:  0x24062377D22EE93Dc652E8Df32128C16a4326F98
 SC Account owner pk:
-SC Account deployed on address 0x96324917bAaed3bb2b2418517eCaB87cdB6d802f
-Your verification ID is: 13054
+SC Account deployed on address 0x767C38420b6d537f485F0D2570aC36954934Ca9D
+Your verification ID is: 13126
 Contract successfully verified on zkSync block explorer!
-Your verification ID is: 13055
+Your verification ID is: 13127
 Contract successfully verified on zkSync block explorer!
 Done!
-Done in 32.16s.
+Done in 31.33s.
 ```
 
 ### Deploy AgentRegistry
@@ -99,24 +100,24 @@ Done in 24.38s.
 $ yarn hardhat deploy-zksync --script deployBulletinBoard.ts
 yarn run v1.22.21
 
-BulletinBoard address: 0xB05EC2bb6b965b4D0Bd2E6c48fF7f0f9D83a4e91
-Cryptopasta address: 0x526a3340332DB7633124caD3a3Dcf42D5adaD246
-Your verification ID is: 13060
+BulletinBoard address: 0x7d74344e19AB9f053A00cD789CF4cf618a4c3B4B
+Cryptopasta address: 0x8cB84d3fC780CcB224b90459F24cFE2288E93edF
+Your verification ID is: 13130
 Contract successfully verified on zkSync block explorer!
 Done!
-Done in 21.47s.
+Done in 22.24s.
 ```
 
 ## Contract Addresses
 
 | Contract Name  | Address                                    |
 | -------------- | ------------------------------------------ |
-| Factory        | 0xBF6f49310379154b3907F7142FEb09107a6009D3 |
+| Factory        | 0xc82072d318e0eB8e945b7B0a783591CB82880fa5 |
 | AgentRegistry  | 0xC40416509213951995078dba6a309F234c3eC9B8 |
 | AgentToken     | 0x986bD9FCecbe530A33c53E2a4333c9ae516ab892 |
 | Paymaster      | 0x68f52F79D8bdD1ab1dd8f9C150Af111Dbf59d88d |
 | PriceConverter | 0x308B8b1522AC9D555aa66a8d5153610b11668987 |
 | MockUSDT       | 0xE7D83827A084208F7d65bf98D4B21c23C887da32 |
 | MissionLog     | 0xE0cFF39d2019122B61c1c1B1320faf5C54c01B18 |
-| BulletinBoard  | 0xB05EC2bb6b965b4D0Bd2E6c48fF7f0f9D83a4e91 |
-| Cryptopasta    | 0x526a3340332DB7633124caD3a3Dcf42D5adaD246 |
+| BulletinBoard  | 0x7d74344e19AB9f053A00cD789CF4cf618a4c3B4B |
+| Cryptopasta    | 0x8cB84d3fC780CcB224b90459F24cFE2288E93edF |

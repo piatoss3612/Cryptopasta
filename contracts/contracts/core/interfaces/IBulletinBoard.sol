@@ -74,5 +74,5 @@ interface IBulletinBoard is IERC165 {
     function buyReport(uint256 reportId, PaymentMethod paymentMethod) external payable;
     function rateReport(uint256 reportId, Rating rating) external;
     function claimSales(uint256 reportId) external;
-    function withdraw(address to, uint256 amount, PaymentMethod paymentMethod) external;
+    function withdraw(address payable to, uint256 amount, PaymentMethod paymentMethod) external;
 }

@@ -15,11 +15,10 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const provider = new Provider(hre.config.networks.zkSyncSepoliaTestnet.url);
   const wallet = new Wallet(DEPLOYER_PRIVATE_KEY, provider);
   const deployer = new Deployer(hre, wallet);
-  const factoryArtifact = await deployer.loadArtifact("AgentAccountFactory");
   const aaArtifact = await deployer.loadArtifact("AgentAccount");
 
-  const accountAddress = "0x36e5c73029a1d20ADf4E011B9A207e454Bb0196C";
-  const ownerAddress = "0x3459D0E2935be1920BBEdB6064e181D31715ebad";
+  const accountAddress = "0x071a9c84f529bdB59cEb1abCDfC5671fC23a021B";
+  const ownerAddress = "0x24062377D22EE93Dc652E8Df32128C16a4326F98";
   const abiCoder = new ethers.AbiCoder();
 
   await verifyContract({
