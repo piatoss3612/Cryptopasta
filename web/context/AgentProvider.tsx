@@ -7,7 +7,7 @@ import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { useQuery } from "@tanstack/react-query";
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { WalletClient, createWalletClient, custom } from "viem";
-import { zkSyncSepoliaTestnet } from "viem/zksync";
+import { eip712WalletActions, zkSyncSepoliaTestnet } from "viem/zksync";
 
 interface AgentContextType {
   ready: boolean;
@@ -31,13 +31,18 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
   const [wallet, setWallet] = useState<ConnectedWallet | null>(null);
   const [walletClient, setWalletClient] = useState<WalletClient | null>(null);
 
-  // const [provider, setProvider] = useState<Provider | null>(null);
-
-  const setupProvider = async (wallet: ConnectedWallet) => {
+  const zkSyncSetup = useCallback(async (wallet: ConnectedWallet) => {
     await wallet.switchChain(zkSyncSepoliaTestnet.id);
-    const provider = await wallet.getEthersProvider();
-    const signer = provider.getSigner();
-  };
+    const provider = await wallet.getEthereumProvider();
+
+    const walletClient = createWalletClient({
+      account: wallet.address as `0x${string}`,
+      chain: zkSyncSepoliaTestnet,
+      transport: custom(provider),
+    }).extend(eip712WalletActions());
+    setWallet(wallet);
+    setWalletClient(walletClient);
+  }, []);
 
   const getAccountAddress = useCallback(async (): Promise<`0x${string}`> => {
     if (!client) {
@@ -99,21 +104,8 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
         (wallet) => wallet.walletClientType === "privy"
       );
       if (embeddedWallet) {
-        // embeddedWallet.switchChain(zkSyncSepoliaTestnet.id); -> zkSync Sepolia is not supported by Privy!
-
-        embeddedWallet.switchChain(zkSyncSepoliaTestnet.id).then(() => {
-          console.log("Switched to zkSync Sepolia");
-          embeddedWallet.getEthereumProvider().then((provider) => {
-            // Create wallet client with custom transport (provider from privy embedded wallet)
-            const walletClient = createWalletClient({
-              account: embeddedWallet.address as `0x${string}`,
-              chain: zkSyncSepoliaTestnet,
-              transport: custom(provider),
-            });
-            setWallet(embeddedWallet);
-            setWalletClient(walletClient);
-          });
-        });
+        console.log("Embedded wallet found");
+        zkSyncSetup(embeddedWallet);
       }
     }
   }, [wallets]);

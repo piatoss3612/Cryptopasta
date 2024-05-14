@@ -4,7 +4,6 @@ import BulletinBoardAbi from "./BulletinBoard";
 import CryptopastaAbi from "./Cryptopasta";
 import MissionLogAbi from "./MissionLog";
 import MockUSDTAbi from "./MockUSDT";
-import MulticallAbi from "./Multicall";
 
 export {
   AgentRegistryAbi,
@@ -13,5 +12,4 @@ export {
   CryptopastaAbi,
   MissionLogAbi,
   MockUSDTAbi,
-  MulticallAbi,
 };

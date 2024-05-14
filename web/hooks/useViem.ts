@@ -1,6 +1,5 @@
-import { WriteContractParams } from "@/libs/types";
 import {
-  PrepareTransactionRequestReturnType,
+  PrepareTransactionRequestRequest,
   createPublicClient,
   http,
 } from "viem";
@@ -21,7 +20,9 @@ const useViem = () => {
     return await client.getGasPrice();
   };
 
-  const estimateGas = async (params: WriteContractParams): Promise<bigint> => {
+  const estimateGas = async (
+    params: PrepareTransactionRequestRequest
+  ): Promise<bigint> => {
     if (!client) {
       throw new Error("Client not initialized");
     }

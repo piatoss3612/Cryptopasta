@@ -6,14 +6,16 @@ interface TokenMetadata {
   image: string;
 }
 
-interface WriteContractParams {
-  account: Account | Address;
-  address: Address;
-  abi: Abi;
-  functionName: string;
+interface TransactionRequest {
+  from: Account | Address;
+  to: Address;
+  abi?: Abi;
+  functionName?: string;
   args?: any[];
   value?: bigint;
   gas?: bigint;
+  isMulticall?: boolean;
+  multicallData?: string;
   paymaster?: Account | Address;
   paymasterInput?: `0x${string}`;
   gasPerPubdata?: bigint;
@@ -38,7 +40,7 @@ enum PaymentMethod {
 
 export type {
   TokenMetadata,
-  WriteContractParams,
+  TransactionRequest,
   PaymasterParams,
   PaymentMethod,
   PinResponse,

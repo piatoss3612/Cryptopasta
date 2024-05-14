@@ -1,17 +1,17 @@
 import { useAgent, useViem } from "@/hooks";
 import { AgentPaymasterAbi } from "@/libs/abis";
 import { AGENT_PAYMASTER } from "@/libs/constant";
-import { PaymasterParams, WriteContractParams } from "@/libs/types";
+import { PaymasterParams, TransactionRequest } from "@/libs/types";
 import { isZeroAddress } from "@/libs/utils";
 import {
   CheckCircleIcon,
   ExternalLinkIcon,
   SmallCloseIcon,
+  WarningIcon,
 } from "@chakra-ui/icons";
 import {
   Button,
   Center,
-  Checkbox,
   Divider,
   HStack,
   Link,
@@ -26,14 +26,19 @@ import {
   Stack,
   Text,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { createContext, useState } from "react";
-import { formatEther } from "viem";
-import { eip712WalletActions, getGeneralPaymasterInput } from "viem/zksync";
+import { encodeFunctionData, formatEther } from "viem";
+import { getGeneralPaymasterInput, zkSyncSepoliaTestnet } from "viem/zksync";
 
 interface PaymentContextProps {
-  onOpenPayment: (name: string, params: WriteContractParams) => void;
+  onOpenPayment: (
+    name: string,
+    request: TransactionRequest,
+    callback?: () => void
+  ) => void;
   getMaxTxsPerDay: () => Promise<bigint>;
   getDailyTxCount: (address: `0x${string}`) => Promise<bigint>;
   getLastTxTimestamp: (address: `0x${string}`) => Promise<bigint>;
@@ -46,13 +51,15 @@ const PaymentContext = createContext({} as PaymentContextProps);
 const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
   const DEFAULT_GAS_PER_PUBDATA_LIMIT = 50000;
 
+  const toast = useToast();
   const { client, getGasPrice, estimateGas } = useViem();
   const { walletClient, account } = useAgent();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [requestName, setRequestName] = useState<string>("");
-  const [txRequest, setTxRequest] = useState<WriteContractParams | null>(null);
+  const [txRequest, setTxRequest] = useState<TransactionRequest | null>(null);
+  const [callback, setCallback] = useState<() => void>(() => () => {});
+  const [txStatus, setTxStatus] = useState<string>("");
   const [txHash, setTxHash] = useState<string>("");
-  const [requirePaymaster, setRequirePaymaster] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const { data: gasEstimate } = useQuery({
@@ -73,17 +80,31 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
     (gasEstimate || BigInt(200000)) * (gasPrice || BigInt(200000))
   );
 
-  const onOpenPayment = async (name: string, params: WriteContractParams) => {
+  const onOpenPayment = async (
+    name: string,
+    request: TransactionRequest,
+    callback?: () => void
+  ) => {
     setRequestName(name);
-    setTxRequest(params);
+    setTxRequest(request);
+    setCallback(() => callback || (() => {}));
     onOpen();
   };
 
   const onClosePayment = () => {
+    if (txStatus !== "success") {
+      onClose();
+      return;
+    }
+
+    const cb = callback;
+
     setTxRequest(null);
-    setRequirePaymaster(false);
     setTxHash("");
+    setTxStatus("");
+    setCallback(() => {});
     onClose();
+    cb();
   };
 
   const getMaxTxsPerDay = async (): Promise<bigint> => {
@@ -161,6 +182,9 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
 
   const lastTxTimestampValue = lastTxTimestamp || BigInt(0);
   const canResetDailyTxCountValue = canResetDailyTxCount(lastTxTimestampValue);
+  const canUsePaymaster =
+    dailyTxCountValue.valueOf() < maxTxsPerDayValue.valueOf() ||
+    canResetDailyTxCountValue;
 
   const getPaymasterParams = (): PaymasterParams => {
     const params = getGeneralPaymasterInput({
@@ -170,11 +194,15 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
     return {
       paymaster: AGENT_PAYMASTER as `0x${string}`,
       paymasterInput: params,
-      gasPerPubdata: BigInt(DEFAULT_GAS_PER_PUBDATA_LIMIT),
+      gasPerPubdata: BigInt(DEFAULT_GAS_PER_PUBDATA_LIMIT) + BigInt(80000),
     };
   };
 
   const confirmPayment = async () => {
+    if (!client) {
+      throw new Error("Client not initialized");
+    }
+
     if (!walletClient) {
       throw new Error("Wallet not initialized");
     }
@@ -190,21 +218,56 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setIsLoading(true);
 
-      const zkClient = walletClient.extend(eip712WalletActions());
+      const request = txRequest;
 
-      const request = { ...txRequest };
+      let data: `0x${string}` = "0x";
 
-      if (requirePaymaster) {
-        const paymasterParams = getPaymasterParams();
-        request.paymaster = paymasterParams.paymaster;
-        request.paymasterInput = paymasterParams.paymasterInput;
-        request.gasPerPubdata = paymasterParams.gasPerPubdata;
+      // If it's a multicall request, use the multicall data
+      // Otherwise, encode the function data
+      if (request.isMulticall) {
+        data = request.multicallData as `0x${string}`;
+      } else {
+        data = encodeFunctionData({
+          abi: txRequest.abi!,
+          functionName: txRequest.functionName,
+          args: txRequest.args,
+        });
       }
 
-      const hash = await zkClient.writeContract(request);
+      const paymasterParams = getPaymasterParams();
+      request.paymaster = paymasterParams.paymaster;
+      request.paymasterInput = paymasterParams.paymasterInput;
+      request.gasPerPubdata = paymasterParams.gasPerPubdata;
+
+      const hash = await walletClient.sendTransaction({
+        account: request.from,
+        to: request.to,
+        data: data,
+        value: request.value || BigInt(0),
+        chain: zkSyncSepoliaTestnet,
+        gas: request.gas || BigInt(2000000),
+        maxPriorityFeePerGas: BigInt(1000000),
+        paymaster: request.paymaster,
+        paymasterInput: request.paymasterInput,
+        gasPerPubdata: request.gasPerPubdata,
+      });
+
+      const receipt = await client.waitForTransactionReceipt({
+        hash,
+      });
+
+      setTxStatus(receipt.status);
       setTxHash(hash);
     } catch (error) {
-      console.error(error);
+      const errMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      toast({
+        title: "Error",
+        description: errMessage,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -280,37 +343,20 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
                       )
                     }
                   />
-                  <Checkbox
-                    p={2}
-                    borderRadius={"md"}
-                    bg={"blue.500"}
-                    color={"white"}
-                    fontSize={"lg"}
-                    fontWeight={"bold"}
-                    isChecked={requirePaymaster}
-                    isDisabled={
-                      dailyTxCountValue >= maxTxsPerDayValue &&
-                      !canResetDailyTxCountValue
-                    }
-                    onChange={(e) => setRequirePaymaster(e.target.checked)}
-                  >
-                    Use Paymaster
-                  </Checkbox>
+
                   <Divider />
                   <Line
                     left="Estimated Cost:"
                     right={`${totalCostInETH} ETH`}
                   />
-                  {requirePaymaster && (
-                    <Line
-                      left="Paymaster Discount:"
-                      right={`- ${totalCostInETH} ETH`}
-                    />
-                  )}
+                  <Line
+                    left="Paymaster Discount:"
+                    right={`- ${totalCostInETH} ETH`}
+                  />
                   <Divider />
                   <Line
                     left="Total Cost:"
-                    right={`${requirePaymaster ? "0" : totalCostInETH} ETH`}
+                    right={`${canUsePaymaster ? "0" : totalCostInETH} ETH`}
                   />
                 </Stack>
               </ModalBody>
@@ -330,12 +376,26 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
               <ModalBody>
                 <Center m={4}>
                   <Stack spacing={4} justify="center" align="center">
-                    <CheckCircleIcon
-                      name="check-circle"
-                      color="green.500"
-                      boxSize={"2.4rem"}
-                    />
-                    <Text>Transaction sent</Text>
+                    {txStatus === "success" ? (
+                      <>
+                        <CheckCircleIcon
+                          name="check-circle"
+                          color="green.500"
+                          boxSize={"2.4rem"}
+                        />
+                        <Text>Transaction Succeeded</Text>
+                      </>
+                    ) : (
+                      <>
+                        <WarningIcon
+                          name="warning"
+                          color="red.500"
+                          boxSize={"2.4rem"}
+                        />
+                        <Text>Transaction Reverted</Text>
+                      </>
+                    )}
+
                     <Link
                       href={`https://sepolia.explorer.zksync.io/tx/${txHash}`}
                       isExternal

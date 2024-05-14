@@ -27,7 +27,7 @@
     "react-typist": "^2.0.5",
     "sharp": "^0.33.3",
     "swiper": "^11.1.1",
-    "viem": "2.x",
+    "viem": "^2.10.5",
     "zksync-ethers": "^6.7.1"
   },
   "devDependencies": {

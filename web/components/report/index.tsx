@@ -7,6 +7,7 @@ import {
   ButtonGroup,
   Flex,
   Progress,
+  Stack,
   useToast,
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
@@ -14,14 +15,13 @@ import React, { useState } from "react";
 import Form1 from "./Form1";
 import Form2 from "./Form2";
 import Preview from "./Preview";
-import { isZeroAddress } from "@/libs/utils";
-import { BulletinBoardAbi, MockUSDTAbi, MulticallAbi } from "@/libs/abis";
+import { encodeMulticalldata, isZeroAddress } from "@/libs/utils";
+import { BulletinBoardAbi, MockUSDTAbi } from "@/libs/abis";
 import { useQuery } from "@tanstack/react-query";
 import { BULLETIN_BOARD, MOCK_USDT } from "@/libs/constant";
-import { PaymentMethod, WriteContractParams } from "@/libs/types";
+import { PaymentMethod, TransactionRequest } from "@/libs/types";
 import { pinFileToIPFS, pinJsonToIPFS } from "@/actions";
 import { encodeFunctionData } from "viem";
-import { eip712WalletActions, zkSyncSepoliaTestnet } from "viem/zksync";
 
 interface Form1Data {
   title: string;
@@ -227,19 +227,19 @@ const Report = () => {
 
       const usdAmount = BigInt(form1.price * 10 ** 6);
 
-      let params: WriteContractParams;
+      let params: TransactionRequest;
 
       if (paymentMethod.valueOf() === 0) {
         // ETH
-        // params = {
-        //   account: account as `0x${string}`,
-        //   address: BULLETIN_BOARD as `0x${string}`,
-        //   abi: BulletinBoardAbi,
-        //   functionName: "reportDiscovery",
-        //   args: [form1.title, tokenUri_, usdAmount, 0],
-        //   gas: BigInt(1000000),
-        //   value: reportingCostInETHData![0],
-        // };
+        params = {
+          from: account as `0x${string}`,
+          to: BULLETIN_BOARD as `0x${string}`,
+          abi: BulletinBoardAbi,
+          functionName: "createReport",
+          args: [form1.title, tokenUri_, usdAmount, 0],
+          gas: BigInt(1000000),
+          value: reportingCostInETHData![0],
+        } as TransactionRequest;
       } else if (paymentMethod.valueOf() === 1) {
         // USDT
         // 1. approve USDT
@@ -259,31 +259,25 @@ const Report = () => {
         const targets: `0x${string}`[] = [MOCK_USDT, BULLETIN_BOARD];
         const calldatas: `0x${string}`[] = [approveData, reportData];
         const values: bigint[] = [BigInt(0), BigInt(0)];
-
-        const multicallData = encodeFunctionData({
-          abi: MulticallAbi,
-          functionName: "multicall",
-          args: [targets, calldatas, values],
-        });
-
-        console.log("multicallData", multicallData);
+        const data = encodeMulticalldata(targets, calldatas, values);
 
         // multicall params
         params = {
-          account: account as `0x${string}`,
-          address: account as `0x${string}`,
-          abi: MulticallAbi,
-          functionName: "multicall",
-          args: [targets, calldatas, values],
+          from: account as `0x${string}`,
+          to: account as `0x${string}`,
+          isMulticall: true,
+          multicallData: data,
           gas: BigInt(1000000),
         };
       } else {
         throw new Error("Invalid payment method");
       }
 
-      console.log("params", params);
+      const callback = () => {
+        navigator.push("/");
+      };
 
-      onOpenPayment("Report", params);
+      onOpenPayment("Create Report", params, callback);
     } catch (error) {
       const errorMessage = (error as Error).message || "Unknown error";
       toastError("Failed to submit report", errorMessage);
@@ -349,20 +343,25 @@ const Report = () => {
         />
       )}
       <ButtonGroup mt={4} w="100%">
-        <Flex w="100%" justifyContent="space-between">
-          <Flex>
+        <Stack
+          w="100%"
+          direction={{ base: "column", md: "row" }}
+          justifyContent={{ base: "center", md: "space-between" }}
+          gap={4}
+        >
+          <Flex justifyContent={{ base: "center", md: "space-between" }}>
             <Button
               onClick={handleBack}
               isDisabled={step === 1 || isLoading}
               bg="white"
               variant="solid"
-              w="7rem"
+              w={{ base: "100%", md: "7rem" }}
               mr="5%"
             >
               Back
             </Button>
             <Button
-              w="7rem"
+              w={{ base: "100%", md: "7rem" }}
               isDisabled={isLastStep || isLoading}
               onClick={handleNext}
               bg="white"
@@ -372,17 +371,20 @@ const Report = () => {
             </Button>
           </Flex>
           {isLastStep ? (
-            <Button
-              w="7rem"
-              colorScheme="green"
-              variant="solid"
-              type="submit"
-              isDisabled={isLoading}
-            >
-              Submit
-            </Button>
+            <Flex justifyContent={{ base: "end", md: "space-between" }}>
+              <Button
+                w={{ base: "100%", md: "7rem" }}
+                colorScheme="green"
+                variant="solid"
+                type="submit"
+                isDisabled={isLoading}
+                isLoading={isLoading}
+              >
+                Submit
+              </Button>
+            </Flex>
           ) : null}
-        </Flex>
+        </Stack>
       </ButtonGroup>
     </Box>
   );
