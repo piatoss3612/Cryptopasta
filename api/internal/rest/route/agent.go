@@ -1,15 +1,13 @@
 package route
 
 import (
-	"context"
 	"cryptopasta-api/internal/rest/middleware"
-	"cryptopasta-api/internal/rest/websocket"
+	"cryptopasta-api/internal/rest/sse"
 	"cryptopasta-api/internal/service/agent"
 	"cryptopasta-api/internal/service/jwt"
 	"cryptopasta-api/internal/utils"
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -41,25 +39,15 @@ func (a *AgentRoute) Handler() http.Handler {
 //	@Tags			agent
 //	@Accept			json
 //	@Produce		plain
-//	@Param			sessionId	query		string					true	"Session ID"
-//	@Param			request		body		AgentRegisterRequest	true	"Agent Register Request"
-//	@Success		202			{string}	string					"Accepted"
-//	@Failure		400			{string}	string					"Bad Request"
-//	@Failure		401			{string}	string					"Unauthorized"
+//	@Param			request	body		AgentRegisterRequest	true	"Agent Register Request"
+//	@Success		200		{string}	string					"OK"
+//	@Failure		400		{string}	string					"Bad Request"
+//	@Failure		401		{string}	string					"Unauthorized"
 //	@Router			/agent [post]
 //	@Security		BearerAuth
 func (a *AgentRoute) register(w http.ResponseWriter, r *http.Request) {
-	// 1. get session id from query params
-	sessionId := r.URL.Query().Get("sessionId")
 
-	// 2. validate session id
-	id := websocket.ID(sessionId)
-	if !id.Valid() {
-		utils.WriteError(w, http.StatusBadRequest, "invalid session id")
-		return
-	}
-
-	// 3. decode request body
+	// 1. decode request body
 	var req AgentRegisterRequest
 
 	err := utils.ReadJSON(w, r, &req)
@@ -69,54 +57,48 @@ func (a *AgentRoute) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 4. register agent in goroutine
-	go func() {
-		// 1. send websocket message to initiate agent registration
-		go websocket.Send(websocket.Message{
-			ID:   id,
-			Type: websocket.EventMessage,
-			Event: websocket.Event{
-				Name:   "agent_register",
-				Status: websocket.InProgress,
-			},
+	// 2. create stream writer
+	sw, err := sse.NewStreamWriter(w)
+	if err != nil {
+		slog.Error("error while creating stream writer", "error", err)
+		utils.WriteError(w, http.StatusBadRequest, "streaming unsupported")
+		return
+	}
+
+	// 3. send message to initiate agent registration
+	err = sw.WriteEvent(&sse.Event{
+		Type: "agent_register_start",
+		Data: "start agent registration",
+	})
+	if err != nil {
+		slog.Error("error while writing event", "error", err)
+		return
+	}
+
+	// 4. register agent
+	account, tokenId, err := a.r.RegisterAgent(r.Context(), req.AgentAddress, req.PortraitId)
+	if err != nil {
+		slog.Error("agent registration failed", "error", err)
+		_ = sw.WriteEvent(&sse.Event{
+			Type: "agent_register_error",
+			Data: err.Error(),
 		})
+		return
+	}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer cancel()
+	// 5. send message to initiate token creation
+	err = sw.WriteEvent(&sse.Event{
+		Type: "agent_register_success",
+		Data: AgentRegisterResponse{
+			AgentAccount: account.Hex(),
+			TokenId:      tokenId.String(),
+		},
+	})
+	if err != nil {
+		slog.Error("error while writing event", "error", err)
+		return
+	}
 
-		// 2. register agent
-		account, tokenId, err := a.r.RegisterAgent(ctx, req.AgentAddress, req.PortraitId)
-		if err != nil {
-			slog.Error("agent registration failed", "error", err)
-			go websocket.Send(websocket.Message{
-				ID:   id,
-				Type: websocket.ErrorMessage,
-				Event: websocket.Event{
-					Name:   "agent_register",
-					Status: websocket.Error,
-					Data:   "agent registration failed",
-				},
-			})
-			return
-		}
-
-		// 3. send websocket message to confirm agent registration
-		go websocket.Send(websocket.Message{
-			ID:   id,
-			Type: websocket.EventMessage,
-			Event: websocket.Event{
-				Name:   "agent_register",
-				Status: websocket.Done,
-				Data: AgentRegisterResponse{
-					AgentAccount: account.Hex(),
-					TokenId:      tokenId.String(),
-				},
-			},
-		})
-	}()
-
-	// 5. send accepted response
-	w.WriteHeader(http.StatusAccepted)
 }
 
 type AgentRegisterRequest struct {

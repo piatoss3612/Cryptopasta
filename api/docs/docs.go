@@ -44,13 +44,6 @@ const docTemplate = `{
                 "summary": "Agent Register",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Session ID",
-                        "name": "sessionId",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
                         "description": "Agent Register Request",
                         "name": "request",
                         "in": "body",
@@ -61,8 +54,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "202": {
-                        "description": "Accepted",
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "type": "string"
                         }
@@ -212,16 +205,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/ws": {
-            "get": {
-                "description": "returns websocket connection",
-                "tags": [
-                    "websocket"
-                ],
-                "summary": "Serve websocket",
-                "responses": {}
             }
         }
     },

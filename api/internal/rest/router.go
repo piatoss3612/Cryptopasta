@@ -2,7 +2,6 @@ package rest
 
 import (
 	"cryptopasta-api/internal/rest/middleware"
-	"cryptopasta-api/internal/rest/websocket"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -32,8 +31,6 @@ func NewRouter(routes ...Route) *Router {
 	for _, route := range routes {
 		r.Mount(route.Pattern(), route.Handler())
 	}
-
-	r.Handle("/ws", websocket.Serve())
 
 	return &Router{
 		Mux: r,

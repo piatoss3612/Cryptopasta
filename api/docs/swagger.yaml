@@ -44,11 +44,6 @@ paths:
       - application/json
       description: Register a new agent to the system
       parameters:
-      - description: Session ID
-        in: query
-        name: sessionId
-        required: true
-        type: string
       - description: Agent Register Request
         in: body
         name: request
@@ -58,8 +53,8 @@ paths:
       produces:
       - text/plain
       responses:
-        "202":
-          description: Accepted
+        "200":
+          description: OK
           schema:
             type: string
         "400":
@@ -159,13 +154,6 @@ paths:
       summary: Ping
       tags:
       - common
-  /ws:
-    get:
-      description: returns websocket connection
-      responses: {}
-      summary: Serve websocket
-      tags:
-      - websocket
 securityDefinitions:
   BearerAuth:
     in: header
