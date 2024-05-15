@@ -21,7 +21,7 @@ const getFaucetParams = (account: `0x${string}`): TransactionRequest => {
     to: MOCK_USDT as `0x${string}`,
     abi: MockUSDTAbi,
     functionName: "faucet",
-    gas: BigInt(1000000), // estimateGas on aa account is just not working, so we have to set it manually
+    gas: BigInt(10000000), // estimateGas on aa account is just not working, so we have to set it manually
   } as TransactionRequest;
 
   return params;

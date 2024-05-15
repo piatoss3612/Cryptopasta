@@ -237,7 +237,7 @@ const Report = () => {
           abi: BulletinBoardAbi,
           functionName: "createReport",
           args: [form1.title, tokenUri_, usdAmount, 0],
-          gas: BigInt(1000000),
+          gas: BigInt(10000000),
           value: reportingCostInETHData![0],
         } as TransactionRequest;
       } else if (paymentMethod.valueOf() === 1) {
@@ -267,7 +267,7 @@ const Report = () => {
           to: account as `0x${string}`,
           isMulticall: true,
           multicallData: data,
-          gas: BigInt(1000000),
+          gas: BigInt(10000000),
         };
       } else {
         throw new Error("Invalid payment method");
@@ -302,7 +302,7 @@ const Report = () => {
   }
 
   if (isZeroAddress(account)) {
-    navigator.push("/register");
+    navigator.push("/agent/register");
     return null;
   }
 

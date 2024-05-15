@@ -1,10 +1,10 @@
-import { registerAgent } from "@/actions";
 import { useViem } from "@/hooks";
 import { AgentRegistryAbi } from "@/libs/abis";
 import { AGENT_REGISTRY } from "@/libs/constant";
 import { isZeroAddress } from "@/libs/utils";
 import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { WalletClient, createWalletClient, custom } from "viem";
 import { eip712WalletActions, zkSyncSepoliaTestnet } from "viem/zksync";
@@ -19,7 +19,9 @@ interface AgentContextType {
   wallet: ConnectedWallet | null;
   walletClient: WalletClient | null;
   account: `0x${string}` | undefined;
-  register: (sessionId: string, portraitId: bigint) => Promise<void>;
+  register: (
+    portraitId: bigint
+  ) => Promise<ReadableStreamDefaultReader<Uint8Array>>;
 }
 
 const AgentContext = createContext({} as AgentContextType);
@@ -30,6 +32,12 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
   const { wallets } = useWallets();
   const [wallet, setWallet] = useState<ConnectedWallet | null>(null);
   const [walletClient, setWalletClient] = useState<WalletClient | null>(null);
+  const navigator = useRouter();
+
+  const handleLogout = useCallback(async () => {
+    await logout();
+    navigator.push("/");
+  });
 
   const zkSyncSetup = useCallback(async (wallet: ConnectedWallet) => {
     await wallet.switchChain(zkSyncSepoliaTestnet.id);
@@ -69,7 +77,9 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const register = useCallback(
-    async (sessionId: string, portraitId: bigint) => {
+    async (
+      portraitId: bigint
+    ): Promise<ReadableStreamDefaultReader<Uint8Array>> => {
       if (!client) {
         throw new Error("Client not found");
       }
@@ -82,18 +92,31 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error("Agent already registered");
       }
 
-      const token = await getAccessToken();
+      const accessToken = await getAccessToken();
 
-      if (!token) {
+      if (!accessToken) {
         throw new Error("Token not found");
       }
 
-      await registerAgent(
-        wallet.address as `0x${string}`,
-        portraitId,
-        sessionId,
-        token
-      );
+      const body = JSON.stringify({
+        agent_address: wallet.address,
+        portrait_id: portraitId.toString(),
+      });
+
+      const response = await fetch("http://localhost:8080/agent", {
+        method: "POST",
+        body,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok || !response.body) {
+        throw new Error("Failed to register agent");
+      }
+
+      return response.body.getReader();
     },
     [client, wallet, account]
   );
@@ -104,7 +127,6 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
         (wallet) => wallet.walletClientType === "privy"
       );
       if (embeddedWallet) {
-        console.log("Embedded wallet found");
         zkSyncSetup(embeddedWallet);
       }
     }
@@ -117,7 +139,7 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
         authenticated,
         getAccessToken,
         login,
-        logout,
+        logout: handleLogout,
         isLoading: isAccountQuerying,
         wallet,
         walletClient,

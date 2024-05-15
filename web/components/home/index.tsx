@@ -20,7 +20,7 @@ const Main = () => {
   }
 
   if (account && isZeroAddress(account)) {
-    navigator.push("/register");
+    navigator.push("/agent/register");
   }
 
   return <Channels />;

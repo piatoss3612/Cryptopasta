@@ -92,11 +92,6 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const onClosePayment = () => {
-    if (txStatus !== "success") {
-      onClose();
-      return;
-    }
-
     const cb = callback;
 
     setTxRequest(null);
@@ -104,7 +99,10 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
     setTxStatus("");
     setCallback(() => {});
     onClose();
-    cb();
+
+    if (txStatus === "success") {
+      cb();
+    }
   };
 
   const getMaxTxsPerDay = async (): Promise<bigint> => {

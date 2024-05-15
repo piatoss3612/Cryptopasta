@@ -1,36 +1,6 @@
 import { PinResponse } from "@/libs/types";
 import axios from "axios";
 
-const registerAgent = async (
-  address: `0x${string}`,
-  portraitId: bigint,
-  sessionId: string,
-  accessToken: string
-) => {
-  const requestBody = {
-    agent_address: address,
-    portrait_id: portraitId.toString(),
-  };
-
-  const response = await axios.post(
-    "http://localhost:8080/agent",
-    requestBody,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      params: {
-        sessionId: sessionId,
-      },
-    }
-  );
-
-  if (response.status !== 202) {
-    throw new Error("Failed to register agent");
-  }
-};
-
 const pinFileToIPFS = async (
   file: File,
   accessToken: string
@@ -83,4 +53,4 @@ const pinJsonToIPFS = async (
   return response.data;
 };
 
-export { registerAgent, pinFileToIPFS, pinJsonToIPFS };
+export { pinFileToIPFS, pinJsonToIPFS };
