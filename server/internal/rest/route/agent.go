@@ -1,11 +1,11 @@
 package route
 
 import (
-	"cryptopasta-api/internal/rest/middleware"
-	"cryptopasta-api/internal/rest/sse"
-	"cryptopasta-api/internal/service/agent"
-	"cryptopasta-api/internal/service/jwt"
-	"cryptopasta-api/internal/utils"
+	"cryptopasta/internal/rest/middleware"
+	"cryptopasta/internal/rest/sse"
+	"cryptopasta/internal/service/agent"
+	"cryptopasta/internal/service/jwt"
+	"cryptopasta/internal/utils"
 	"log/slog"
 	"net/http"
 

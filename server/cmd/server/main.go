@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"cryptopasta-api/internal/app"
-	"cryptopasta-api/internal/config"
-	"cryptopasta-api/internal/rest"
-	"cryptopasta-api/internal/rest/route"
-	"cryptopasta-api/internal/service/agent"
-	"cryptopasta-api/internal/service/jwt"
-	"cryptopasta-api/internal/service/pinata"
+	"cryptopasta/internal/app"
+	"cryptopasta/internal/config"
+	"cryptopasta/internal/rest"
+	"cryptopasta/internal/rest/route"
+	"cryptopasta/internal/service/agent"
+	"cryptopasta/internal/service/jwt"
+	"cryptopasta/internal/service/pinata"
 	"log/slog"
 )
 

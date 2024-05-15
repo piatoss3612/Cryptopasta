@@ -13,11 +13,21 @@ services:
     build:
       context: .
       target: final
+      dockerfile: ./build/server/Dockerfile
     ports:
       - 8080:8080
     configs:
       - source: server-config
         target: /config.json
+
+  swagger:
+    container_name: swagger
+    build:
+      context: .
+      target: final
+      dockerfile: ./build/swagger/Dockerfile
+    ports:
+      - 1323:1323
 
 configs:
   server-config:

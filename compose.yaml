@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  web:
+    container_name: web
+    build:
+      context: ./web
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:3000
+
+  server:
+    container_name: server
+    build:
+      context: ./server
+      target: final
+      dockerfile: ./build/server/Dockerfile
+    ports:
+      - 8080:8080
+    configs:
+      - source: server-config
+        target: /config.json
+
+  swagger:
+    container_name: swagger
+    build:
+      context: ./server
+      target: final
+      dockerfile: ./build/swagger/Dockerfile
+    ports:
+      - 1323:1323
+
+configs:
+  server-config:
+    file: ./server/config.json

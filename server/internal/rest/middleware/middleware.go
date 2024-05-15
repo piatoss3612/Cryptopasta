@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"cryptopasta-api/internal/service/jwt"
-	"cryptopasta-api/internal/utils"
+	"cryptopasta/internal/service/jwt"
+	"cryptopasta/internal/utils"
 	"log/slog"
 	"net/http"
 	"strings"

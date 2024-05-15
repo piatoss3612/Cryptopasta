@@ -3,7 +3,7 @@ package agent
 import (
 	"context"
 	"crypto/ecdsa"
-	"cryptopasta-api/pkg/contracts"
+	"cryptopasta/pkg/contracts"
 	"errors"
 	"log"
 	"math/big"

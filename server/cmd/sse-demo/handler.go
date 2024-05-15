@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"cryptopasta-api/internal/utils"
+	"cryptopasta/internal/utils"
 	"fmt"
 	"log/slog"
 	"net/http"

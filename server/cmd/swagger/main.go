@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"syscall"
 
-	_ "cryptopasta-api/docs"
-	"cryptopasta-api/internal/app"
+	_ "cryptopasta/docs"
+	"cryptopasta/internal/app"
 
 	"github.com/go-chi/chi/v5"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
