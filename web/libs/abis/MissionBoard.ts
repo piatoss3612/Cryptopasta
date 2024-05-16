@@ -1,4 +1,4 @@
-const BulletinBoardAbi = [
+const MissionBoardAbi = [
   {
     inputs: [
       {
@@ -732,4 +732,4 @@ const BulletinBoardAbi = [
   },
 ] as const;
 
-export default BulletinBoardAbi;
+export default MissionBoardAbi;

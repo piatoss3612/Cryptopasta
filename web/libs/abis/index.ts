@@ -1,6 +1,6 @@
 import AgentRegistryAbi from "./AgentRegistry";
 import AgentPaymasterAbi from "./AgentPaymaster";
-import BulletinBoardAbi from "./BulletinBoard";
+import MissionBoardAbi from "./MissionBoard";
 import CryptopastaAbi from "./Cryptopasta";
 import MissionLogAbi from "./MissionLog";
 import MockUSDTAbi from "./MockUSDT";
@@ -8,7 +8,7 @@ import MockUSDTAbi from "./MockUSDT";
 export {
   AgentRegistryAbi,
   AgentPaymasterAbi,
-  BulletinBoardAbi,
+  MissionBoardAbi,
   CryptopastaAbi,
   MissionLogAbi,
   MockUSDTAbi,

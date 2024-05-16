@@ -2,6 +2,7 @@ import { useAgent, usePayment } from "@/hooks";
 import {
   abbreviateAddress,
   getFaucetParams,
+  getPaymasterApprovalParams,
   isZeroAddress,
 } from "@/libs/utils";
 import {
@@ -14,7 +15,12 @@ import {
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { FaFaucetDrip, FaAngleDown, FaMagento } from "react-icons/fa6";
+import {
+  FaFaucetDrip,
+  FaAngleDown,
+  FaMagento,
+  FaWallet,
+} from "react-icons/fa6";
 import { PiSignOut } from "react-icons/pi";
 
 const Menu = () => {
@@ -26,7 +32,17 @@ const Menu = () => {
     navigator.push(`/agent/${account?.toString()}`);
   };
 
-  const handleFaucet = async () => {
+  const handlePaymasterApproval = () => {
+    if (isZeroAddress(account)) {
+      throw new Error("Account not initialized");
+    }
+
+    const params = getPaymasterApprovalParams(account as `0x${string}`);
+
+    onOpenPayment("Paymaster USDT Approval", params);
+  };
+
+  const handleFaucet = () => {
     if (isZeroAddress(account)) {
       throw new Error("Account not initialized");
     }
@@ -50,6 +66,13 @@ const Menu = () => {
               isDisabled={isZeroAddress(account)}
             >
               Agent
+            </MenuItem>
+            <MenuItem
+              icon={<FaWallet />}
+              onClick={handlePaymasterApproval}
+              isDisabled={isZeroAddress(account)}
+            >
+              Paymaster
             </MenuItem>
             <MenuItem
               icon={<FaFaucetDrip />}

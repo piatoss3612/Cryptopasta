@@ -1,37 +1,18 @@
+import PaymentModal from "@/components/payment/PaymentModal";
 import { useAgent, useViem } from "@/hooks";
-import { AgentPaymasterAbi } from "@/libs/abis";
-import { AGENT_PAYMASTER } from "@/libs/constant";
+import { AgentPaymasterAbi, MockUSDTAbi } from "@/libs/abis";
+import { AGENT_PAYMASTER, MOCK_USDT } from "@/libs/constant";
 import { PaymasterParams, TransactionRequest } from "@/libs/types";
 import { isZeroAddress } from "@/libs/utils";
-import {
-  CheckCircleIcon,
-  ExternalLinkIcon,
-  SmallCloseIcon,
-  WarningIcon,
-} from "@chakra-ui/icons";
-import {
-  Button,
-  Center,
-  Divider,
-  HStack,
-  Link,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  Spinner,
-  Stack,
-  Text,
-  useDisclosure,
-  useToast,
-} from "@chakra-ui/react";
+import { useDisclosure, useToast } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { createContext, useState } from "react";
 import { encodeFunctionData, formatEther } from "viem";
-import { getGeneralPaymasterInput, zkSyncSepoliaTestnet } from "viem/zksync";
+import {
+  getApprovalBasedPaymasterInput,
+  getGeneralPaymasterInput,
+  zkSyncSepoliaTestnet,
+} from "viem/zksync";
 
 interface PaymentContextProps {
   onOpenPayment: (
@@ -56,11 +37,33 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
   const { walletClient, account } = useAgent();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [requestName, setRequestName] = useState<string>("");
+  const [useApproval, setUseApproval] = useState<boolean>(false);
   const [txRequest, setTxRequest] = useState<TransactionRequest | null>(null);
   const [callback, setCallback] = useState<() => void>(() => () => {});
   const [txStatus, setTxStatus] = useState<string>("");
   const [txHash, setTxHash] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const getUSDTAllowance = async (): Promise<bigint> => {
+    if (!client) {
+      throw new Error("Client not initialized");
+    }
+
+    if (!account) {
+      throw new Error("Account not initialized");
+    }
+
+    return await client.readContract({
+      address: MOCK_USDT,
+      abi: MockUSDTAbi,
+      functionName: "allowance",
+      args: [account, AGENT_PAYMASTER],
+    });
+  };
+
+  const toggleUseApproval = () => {
+    setUseApproval((prev) => !prev);
+  };
 
   const { data: gasEstimate } = useQuery({
     queryKey: ["estimateGas"],
@@ -74,11 +77,20 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
     enabled: !!client,
   });
 
+  const { data: usdtAllowance } = useQuery({
+    queryKey: ["usdtAllowance"],
+    queryFn: getUSDTAllowance,
+    enabled: !!client && !!account,
+  });
+
   const gasEstimateInETH = formatEther(gasEstimate || BigInt(200000));
   const gasPriceInETH = formatEther(gasPrice || BigInt(200000));
   const totalCostInETH = formatEther(
     (gasEstimate || BigInt(200000)) * (gasPrice || BigInt(200000))
   );
+  const usdtAllowanceValue = usdtAllowance
+    ? (usdtAllowance / BigInt(10 ** 6)).toString()
+    : "0";
 
   const onOpenPayment = async (
     name: string,
@@ -94,7 +106,9 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
   const onClosePayment = () => {
     const cb = callback;
 
+    setRequestName("");
     setTxRequest(null);
+    setUseApproval(false);
     setTxHash("");
     setTxStatus("");
     setCallback(() => {});
@@ -185,14 +199,26 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
     canResetDailyTxCountValue;
 
   const getPaymasterParams = (): PaymasterParams => {
-    const params = getGeneralPaymasterInput({
-      innerInput: "0x",
-    });
+    let input: `0x${string}`;
+
+    if (useApproval) {
+      input = getApprovalBasedPaymasterInput({
+        token: MOCK_USDT,
+        minAllowance: BigInt(0),
+        innerInput: "0x",
+      });
+    } else {
+      input = getGeneralPaymasterInput({
+        innerInput: "0x",
+      });
+    }
+
+    console.log("input", input);
 
     return {
       paymaster: AGENT_PAYMASTER as `0x${string}`,
-      paymasterInput: params,
-      gasPerPubdata: BigInt(DEFAULT_GAS_PER_PUBDATA_LIMIT) + BigInt(80000),
+      paymasterInput: input,
+      gasPerPubdata: BigInt(DEFAULT_GAS_PER_PUBDATA_LIMIT) + BigInt(30000),
     };
   };
 
@@ -271,19 +297,6 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const Line = ({
-    left,
-    right,
-  }: {
-    left: string | JSX.Element;
-    right: string | JSX.Element;
-  }): JSX.Element => (
-    <HStack spacing={4} justify="space-between" w={"100%"}>
-      <Text fontSize={"lg"}>{left}</Text>
-      <Text fontSize={"lg"}>{right}</Text>
-    </HStack>
-  );
-
   return (
     <PaymentContext.Provider
       value={{
@@ -295,123 +308,25 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
         getPaymasterParams,
       }}
     >
-      <Modal
-        isCentered
-        onClose={onClose}
+      <PaymentModal
+        onClose={onClosePayment}
         isOpen={isOpen}
-        motionPreset="slideInBottom"
-        size={{ base: "md", md: "lg" }}
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Payment Details</ModalHeader>
-          <ModalCloseButton onClick={onClosePayment} />
-          {isLoading && (
-            <ModalBody>
-              <Center m={12}>
-                <Stack spacing={8} justify="center" align="center">
-                  <Spinner thickness="4px" size="lg" />
-                  <Text>Processing...</Text>
-                </Stack>
-              </Center>
-            </ModalBody>
-          )}
-          {!isLoading && !txHash && (
-            <>
-              <ModalBody bg={"gray.100"} mx={6} rounded={"md"}>
-                <Stack m={4} spacing={4} justify="center" align="center">
-                  <Line left="Transaction:" right={requestName} />
-                  <Line
-                    left="Transaction Fee:"
-                    right={`${gasEstimateInETH} ETH`}
-                  />
-                  <Line left="Gas Price:" right={`${gasPriceInETH} ETH`} />
-
-                  <Line
-                    left="Paymaster Limit:"
-                    right={`${dailyTxCountValue.toString()}/${maxTxsPerDayValue.toString()}`}
-                  />
-                  <Line
-                    left="Can Reset Limit:"
-                    right={
-                      canResetDailyTxCountValue ? (
-                        <CheckCircleIcon color="green" />
-                      ) : (
-                        <SmallCloseIcon color="red" />
-                      )
-                    }
-                  />
-
-                  <Divider />
-                  <Line
-                    left="Estimated Cost:"
-                    right={`${totalCostInETH} ETH`}
-                  />
-                  <Line
-                    left="Paymaster Discount:"
-                    right={`- ${totalCostInETH} ETH`}
-                  />
-                  <Divider />
-                  <Line
-                    left="Total Cost:"
-                    right={`${canUsePaymaster ? "0" : totalCostInETH} ETH`}
-                  />
-                </Stack>
-              </ModalBody>
-              <ModalFooter display="flex" justifyContent="center">
-                <Button
-                  colorScheme="green"
-                  onClick={confirmPayment}
-                  width={"100%"}
-                >
-                  Confirm
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-          {!isLoading && txHash && (
-            <>
-              <ModalBody>
-                <Center m={4}>
-                  <Stack spacing={4} justify="center" align="center">
-                    {txStatus === "success" ? (
-                      <>
-                        <CheckCircleIcon
-                          name="check-circle"
-                          color="green.500"
-                          boxSize={"2.4rem"}
-                        />
-                        <Text>Transaction Succeeded</Text>
-                      </>
-                    ) : (
-                      <>
-                        <WarningIcon
-                          name="warning"
-                          color="red.500"
-                          boxSize={"2.4rem"}
-                        />
-                        <Text>Transaction Reverted</Text>
-                      </>
-                    )}
-
-                    <Link
-                      href={`https://sepolia.explorer.zksync.io/tx/${txHash}`}
-                      isExternal
-                    >
-                      See on Explorer <ExternalLinkIcon mx="2px" />
-                    </Link>
-                  </Stack>
-                </Center>
-              </ModalBody>
-              <ModalFooter>
-                <Button colorScheme="blue" onClick={onClosePayment}>
-                  Close
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+        isLoading={isLoading}
+        useApproval={useApproval}
+        toggleUseApproval={toggleUseApproval}
+        allowanceAmount={usdtAllowanceValue}
+        txHash={txHash}
+        requestName={requestName}
+        gasEstimateInETH={gasEstimateInETH}
+        gasPriceInETH={gasPriceInETH}
+        dailyTxCount={dailyTxCountValue.toString()}
+        maxTxsPerDay={maxTxsPerDayValue.toString()}
+        canResetDailyTxCount={canResetDailyTxCountValue}
+        totalCostInETH={totalCostInETH}
+        canUsePaymaster={canUsePaymaster}
+        txStatus={txStatus}
+        confirmPayment={confirmPayment}
+      />
       {children}
     </PaymentContext.Provider>
   );

@@ -12,7 +12,7 @@ import "swiper/css/navigation";
 const Channels = () => {
   const channels = [
     { path: "/report", src: ReportImage.src, alt: "Report" },
-    { path: "/bulletin", src: BulletinImage.src, alt: "Bulletin Board" },
+    { path: "/board", src: BulletinImage.src, alt: "Board" },
     { path: "/mission", src: MissionImage.src, alt: "Mission" },
   ];
 

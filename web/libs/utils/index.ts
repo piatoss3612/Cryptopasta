@@ -1,5 +1,5 @@
-import { encodeAbiParameters, encodePacked, zeroAddress } from "viem";
-import { MOCK_USDT, MULTICALL_SELECTOR } from "../constant";
+import { encodeAbiParameters, encodePacked, fromHex, zeroAddress } from "viem";
+import { AGENT_PAYMASTER, MOCK_USDT, MULTICALL_SELECTOR } from "../constant";
 import { MockUSDTAbi } from "../abis";
 import { TransactionRequest } from "../types";
 
@@ -27,6 +27,27 @@ const getFaucetParams = (account: `0x${string}`): TransactionRequest => {
   return params;
 };
 
+const getPaymasterApprovalParams = (
+  account: `0x${string}`
+): TransactionRequest => {
+  const params = {
+    from: account as `0x${string}`,
+    to: MOCK_USDT as `0x${string}`,
+    abi: MockUSDTAbi,
+    functionName: "approve",
+    args: [
+      AGENT_PAYMASTER,
+      fromHex(
+        "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "bigint"
+      ),
+    ], // max uint256 value
+    gas: BigInt(10000000), // estimateGas on aa account is just not working, so we have to set it manually
+  } as TransactionRequest;
+
+  return params;
+};
+
 const encodeMulticalldata = (
   targets: `0x${string}`[],
   calldatas: `0x${string}`[],
@@ -48,5 +69,6 @@ export {
   isZeroAddress,
   abbreviateAddress,
   getFaucetParams,
+  getPaymasterApprovalParams,
   encodeMulticalldata,
 };

@@ -16,9 +16,9 @@ import Form1 from "./Form1";
 import Form2 from "./Form2";
 import Preview from "./Preview";
 import { encodeMulticalldata, isZeroAddress } from "@/libs/utils";
-import { BulletinBoardAbi, MockUSDTAbi } from "@/libs/abis";
+import { MissionBoardAbi, MockUSDTAbi } from "@/libs/abis";
 import { useQuery } from "@tanstack/react-query";
-import { BULLETIN_BOARD, MOCK_USDT } from "@/libs/constant";
+import { MISSION_BOARD, MOCK_USDT } from "@/libs/constant";
 import { PaymentMethod, TransactionRequest } from "@/libs/types";
 import { pinFileToIPFS, pinJsonToIPFS } from "@/actions";
 import { encodeFunctionData } from "viem";
@@ -125,8 +125,8 @@ const Report = () => {
     }
 
     return await client.readContract({
-      address: BULLETIN_BOARD,
-      abi: BulletinBoardAbi,
+      address: MISSION_BOARD,
+      abi: MissionBoardAbi,
       functionName: "reportingCostInETH",
     });
   };
@@ -139,8 +139,8 @@ const Report = () => {
     }
 
     return await client.readContract({
-      address: BULLETIN_BOARD,
-      abi: BulletinBoardAbi,
+      address: MISSION_BOARD,
+      abi: MissionBoardAbi,
       functionName: "reportingCostInUSDT",
     });
   };
@@ -233,8 +233,8 @@ const Report = () => {
         // ETH
         params = {
           from: account as `0x${string}`,
-          to: BULLETIN_BOARD as `0x${string}`,
-          abi: BulletinBoardAbi,
+          to: MISSION_BOARD as `0x${string}`,
+          abi: MissionBoardAbi,
           functionName: "createReport",
           args: [form1.title, tokenUri_, usdAmount, 0],
           gas: BigInt(10000000),
@@ -246,17 +246,17 @@ const Report = () => {
         const approveData = encodeFunctionData({
           abi: MockUSDTAbi,
           functionName: "approve",
-          args: [BULLETIN_BOARD, reportingCostInUSDTData![0]],
+          args: [MISSION_BOARD, reportingCostInUSDTData![0]],
         });
 
         // 2. report discovery
         const reportData = encodeFunctionData({
-          abi: BulletinBoardAbi,
+          abi: MissionBoardAbi,
           functionName: "createReport",
           args: [form1.title, tokenUri_, usdAmount, 1],
         });
 
-        const targets: `0x${string}`[] = [MOCK_USDT, BULLETIN_BOARD];
+        const targets: `0x${string}`[] = [MOCK_USDT, MISSION_BOARD];
         const calldatas: `0x${string}`[] = [approveData, reportData];
         const values: bigint[] = [BigInt(0), BigInt(0)];
         const data = encodeMulticalldata(targets, calldatas, values);

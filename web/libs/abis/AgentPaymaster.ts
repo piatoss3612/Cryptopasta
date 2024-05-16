@@ -6,6 +6,16 @@ const AgentPaymasterAbi = [
         name: "_erc721",
         type: "address",
       },
+      {
+        internalType: "address",
+        name: "_priceConverter",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_usdt",
+        type: "address",
+      },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
@@ -23,6 +33,11 @@ const AgentPaymasterAbi = [
   {
     inputs: [],
     name: "AgentPaymaster__TransactionLimitReached",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "AgentPaymaster__UnsupportedToken",
     type: "error",
   },
   {
@@ -70,6 +85,19 @@ const AgentPaymasterAbi = [
     ],
     name: "OwnershipTransferred",
     type: "event",
+  },
+  {
+    inputs: [],
+    name: "TOKEN_PAYMENT_SPONSOR_RATE",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [
@@ -413,6 +441,24 @@ const AgentPaymasterAbi = [
       },
     ],
     name: "withdraw",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_token",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_to",
+        type: "address",
+      },
+    ],
+    name: "withdrawToken",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
