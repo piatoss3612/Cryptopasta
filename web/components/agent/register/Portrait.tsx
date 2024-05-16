@@ -1,7 +1,7 @@
 import { useViem } from "@/hooks";
 import { AgentRegistryAbi } from "@/libs/abis";
 import { AGENT_REGISTRY } from "@/libs/constant";
-import { TokenMetadata } from "@/libs/types";
+import { TokenMetadata } from "@/types";
 import { Badge, Box, Image, Skeleton } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useCallback, useEffect } from "react";

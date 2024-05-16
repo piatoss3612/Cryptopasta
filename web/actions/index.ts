@@ -1,4 +1,4 @@
-import { PinResponse } from "@/libs/types";
+import { PinResponse, ReportList } from "@/types";
 import axios from "axios";
 
 const pinFileToIPFS = async (
@@ -53,4 +53,29 @@ const pinJsonToIPFS = async (
   return response.data;
 };
 
-export { pinFileToIPFS, pinJsonToIPFS };
+const getReportList = async (page?: number, limit?: number) => {
+  const response = await axios.get<ReportList>("/api/report/list", {
+    params: {
+      page,
+      limit,
+    },
+  });
+
+  if (response.status !== 200) {
+    throw new Error("Failed to fetch report list");
+  }
+
+  return response.data;
+};
+
+const getReportById = async (reportId: string) => {
+  const response = await axios.get<Report>(`/api/report/${reportId}`);
+
+  if (response.status !== 200) {
+    throw new Error("Failed to fetch report");
+  }
+
+  return response.data;
+};
+
+export { pinFileToIPFS, pinJsonToIPFS, getReportList, getReportById };

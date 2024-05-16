@@ -1,7 +1,7 @@
 import { encodeAbiParameters, encodePacked, fromHex, zeroAddress } from "viem";
 import { AGENT_PAYMASTER, MOCK_USDT, MULTICALL_SELECTOR } from "../constant";
 import { MockUSDTAbi } from "../abis";
-import { TransactionRequest } from "../types";
+import { TransactionRequest } from "../../types";
 
 const isZeroAddress = (address: string | undefined): boolean => {
   return address === zeroAddress;

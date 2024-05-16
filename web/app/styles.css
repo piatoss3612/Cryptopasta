@@ -1,0 +1,26 @@
+/* 스크롤바 너비 및 색상 설정 */
+::-webkit-scrollbar {
+    width: 16px; /* 스크롤바의 너비 설정 */
+  }
+  
+  /* 스크롤바 트랙 */
+  ::-webkit-scrollbar-track {
+    background: #e2e8f0; /* 트랙 배경 색상 설정 (밝은 색상) */
+    border: 4px solid #e2e8f0; /* 트랙 테두리 설정 */
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1); /* 트랙 그림자 설정 */
+    border-radius: 8px; /* 트랙 둥근 모서리 설정 */
+  }
+  
+  /* 스크롤바 핸들 */
+  ::-webkit-scrollbar-thumb {
+    background-color: #a0aec0; /* 핸들 배경 색상 설정 (중간 밝기 색상) */
+    border-radius: 8px; /* 핸들 둥근 모서리 설정 */
+    border: 4px solid #e2e8f0; /* 핸들 테두리 설정 */
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); /* 핸들 그림자 설정 */
+  }
+  
+  /* 스크롤바 핸들 호버 시 */
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #718096; /* 호버 시 핸들 배경 색상 변경 (조금 더 어두운 색상) */
+  }
+  

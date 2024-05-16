@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Pixelify_Sans } from "next/font/google";
 import { Providers } from "./providers";
 import Main from "@/components/layout";
+import "./styles.css";
 
 const pixel = Pixelify_Sans({ weight: "400", subsets: ["latin"] });
 

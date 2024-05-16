@@ -19,7 +19,7 @@ import { encodeMulticalldata, isZeroAddress } from "@/libs/utils";
 import { MissionBoardAbi, MockUSDTAbi } from "@/libs/abis";
 import { useQuery } from "@tanstack/react-query";
 import { MISSION_BOARD, MOCK_USDT } from "@/libs/constant";
-import { PaymentMethod, TransactionRequest } from "@/libs/types";
+import { PaymentMethod, TransactionRequest } from "@/types";
 import { pinFileToIPFS, pinJsonToIPFS } from "@/actions";
 import { encodeFunctionData } from "viem";
 

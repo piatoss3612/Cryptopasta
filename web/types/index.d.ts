@@ -38,10 +38,25 @@ enum PaymentMethod {
   USDT,
 }
 
+interface Report {
+  reportId: string;
+  reporter: string;
+  priceInUSD: string;
+  title: string;
+  contentURI: string;
+  blockTimestamp: string;
+}
+
+interface ReportList {
+  reportDiscoveries: Report[];
+}
+
 export type {
   TokenMetadata,
   TransactionRequest,
   PaymasterParams,
   PaymentMethod,
   PinResponse,
+  Report,
+  ReportList,
 };

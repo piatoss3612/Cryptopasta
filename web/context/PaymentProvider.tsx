@@ -2,7 +2,7 @@ import PaymentModal from "@/components/payment/PaymentModal";
 import { useAgent, useViem } from "@/hooks";
 import { AgentPaymasterAbi, MockUSDTAbi } from "@/libs/abis";
 import { AGENT_PAYMASTER, MOCK_USDT } from "@/libs/constant";
-import { PaymasterParams, TransactionRequest } from "@/libs/types";
+import { PaymasterParams, TransactionRequest } from "@/types";
 import { isZeroAddress } from "@/libs/utils";
 import { useDisclosure, useToast } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
