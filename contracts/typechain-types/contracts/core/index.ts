@@ -5,3 +5,4 @@ import type * as interfaces from "./interfaces";
 export type { interfaces };
 export type { AgentRegistry } from "./AgentRegistry";
 export type { BulletinBoard } from "./BulletinBoard";
+export type { MissionBoard } from "./MissionBoard";

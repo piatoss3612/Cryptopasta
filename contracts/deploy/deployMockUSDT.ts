@@ -16,7 +16,6 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const wallet = new Wallet(DEPLOYER_PRIVATE_KEY, provider);
   const deployer = new Deployer(hre, wallet);
   const mockUSDTArtifact = await deployer.loadArtifact("MockUSDT");
-  const missionLogArtifact = await deployer.loadArtifact("MissionLog");
 
   const mockUSDT = await deployer.deploy(mockUSDTArtifact, [], undefined, [
     mockUSDTArtifact.bytecode,
@@ -26,27 +25,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   console.log(`MockUSDT address: ${mockUSDTAddress}`);
 
-  const agentTokenAddress = "0x986bD9FCecbe530A33c53E2a4333c9ae516ab892";
-
-  const missionLog = await deployer.deploy(
-    missionLogArtifact,
-    [agentTokenAddress],
-    undefined,
-    [missionLogArtifact.bytecode]
-  );
-
-  const missionLogAddress = await missionLog.getAddress();
-
-  console.log(`MissionLog address: ${missionLogAddress}`);
-
   const abiCoder = new ethers.AbiCoder();
-
-  await verifyContract({
-    address: missionLogAddress,
-    contract: "contracts/token/MissionLog.sol:MissionLog",
-    constructorArguments: abiCoder.encode(["address"], [agentTokenAddress]),
-    bytecode: missionLogArtifact.bytecode,
-  });
 
   await verifyContract({
     address: mockUSDTAddress,

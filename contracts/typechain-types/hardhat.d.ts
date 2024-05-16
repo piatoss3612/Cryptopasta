@@ -258,6 +258,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IBulletinBoard__factory>;
     getContractFactory(
+      name: "IMissionBoard",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IMissionBoard__factory>;
+    getContractFactory(
+      name: "MissionBoard",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.MissionBoard__factory>;
+    getContractFactory(
       name: "MockUSDT",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MockUSDT__factory>;
@@ -596,6 +604,16 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IBulletinBoard>;
     getContractAt(
+      name: "IMissionBoard",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IMissionBoard>;
+    getContractAt(
+      name: "MissionBoard",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.MissionBoard>;
+    getContractAt(
       name: "MockUSDT",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -881,6 +899,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IBulletinBoard>;
     deployContract(
+      name: "IMissionBoard",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IMissionBoard>;
+    deployContract(
+      name: "MissionBoard",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.MissionBoard>;
+    deployContract(
       name: "MockUSDT",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MockUSDT>;
@@ -1218,6 +1244,16 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IBulletinBoard>;
+    deployContract(
+      name: "IMissionBoard",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IMissionBoard>;
+    deployContract(
+      name: "MissionBoard",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.MissionBoard>;
     deployContract(
       name: "MockUSDT",
       args: any[],

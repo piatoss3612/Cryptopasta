@@ -2,7 +2,9 @@
 pragma solidity ^0.8.24;
 
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {PriceConverter} from "../chainlink/PriceConverter.sol";
 
 import "@matterlabs/zksync-contracts/l2/system-contracts/Constants.sol";
 
@@ -24,10 +26,15 @@ contract AgentPaymaster is IPaymaster, Ownable {
     error AgentPaymaster__UserDoesNotHoldNFTAsset();
     error AgentPaymaster__TransactionLimitReached();
     error AgentPaymaster__FundsTransferFailed();
+    error AgentPaymaster__UnsupportedToken();
 
-    uint256 public maxTransactionsPerDay = 5;
+    uint256 public constant TOKEN_PAYMENT_SPONSOR_RATE = 500; // 5%
 
     IERC721 private immutable nft_asset;
+    PriceConverter private immutable priceConverter;
+    address private immutable usdt;
+
+    uint256 public maxTransactionsPerDay = 10;
 
     mapping(address => uint256) public dailyTransactionCount;
     mapping(address => uint256) public lastTransactionTimestamp;
@@ -40,8 +47,10 @@ contract AgentPaymaster is IPaymaster, Ownable {
 
     // The constructor takes the address of the ERC721 contract as an argument.
     // The ERC721 contract is the asset that the user must hold in order to use the paymaster.
-    constructor(address _erc721) Ownable(msg.sender) {
+    constructor(address _erc721, address _priceConverter, address _usdt) Ownable(msg.sender) {
         nft_asset = IERC721(_erc721); // Initialize the ERC721 contract
+        priceConverter = PriceConverter(_priceConverter);
+        usdt = _usdt;
     }
 
     function setMaxTransactionsPerDay(uint256 _maxTransactionsPerDay) external onlyOwner {
@@ -62,24 +71,62 @@ contract AgentPaymaster is IPaymaster, Ownable {
 
         bytes4 paymasterInputSelector = bytes4(_transaction.paymasterInput[0:4]);
 
+        address userAddress = address(uint160(_transaction.from));
+
+        // Validate that the user is the owner of the required NFT asset
+        _validateNFTHolding(userAddress);
+
+        uint256 requiredETH = _transaction.gasLimit * _transaction.maxFeePerGas;
+
         if (paymasterInputSelector == IPaymasterFlow.general.selector) {
-            // address userAddress = address(uint160(_transaction.from));
-
-            // if (nft_asset.balanceOf(userAddress) == 0) {
-            //     revert AgentPaymaster__UserDoesNotHoldNFTAsset();
-            // }
-
-            // _validateTransactionLimit(userAddress);
-
-            uint256 requiredETH = _transaction.gasLimit * _transaction.maxFeePerGas;
-
-            (bool success,) = payable(BOOTLOADER_FORMAL_ADDRESS).call{value: requiredETH}("");
-            if (!success) {
-                revert AgentPaymaster__FundsTransferFailed();
+            // Validate the daily transaction limit
+            _validateTransactionLimit(userAddress);
+            // Pay the fee for the user
+            _payFee(requiredETH);
+        } else if (paymasterInputSelector == IPaymasterFlow.approvalBased.selector) {
+            // Check if the token is USDT
+            (address token,,) = abi.decode(_transaction.paymasterInput[4:], (address, uint256, bytes));
+            if (token != usdt) {
+                revert AgentPaymaster__UnsupportedToken();
             }
+            // Start the approval-based paymaster flow
+            context = _approvalBasedPaymasterFlow(userAddress, requiredETH);
+            // Pay the fee for the user
+            _payFee(requiredETH);
         } else {
             revert AgentPaymaster__InvalidPaymasterFlow();
         }
+    }
+
+    function _validateNFTHolding(address _user) internal {
+        if (nft_asset.balanceOf(_user) == 0) {
+            revert AgentPaymaster__UserDoesNotHoldNFTAsset();
+        }
+    }
+
+    function _payFee(uint256 _requiredETH) internal {
+        (bool success,) = payable(BOOTLOADER_FORMAL_ADDRESS).call{value: _requiredETH}("");
+        if (!success) {
+            revert AgentPaymaster__FundsTransferFailed();
+        }
+    }
+
+    function _approvalBasedPaymasterFlow(address _user, uint256 _requiredETH) internal returns (bytes memory context) {
+        uint256 usdtAmount = priceConverter.convertNativeAssetToUSDT(_requiredETH);
+        uint256 sponsored;
+
+        if (usdtAmount > 0) {
+            sponsored = usdtAmount * TOKEN_PAYMENT_SPONSOR_RATE / 10000; // 5% of the fee
+            usdtAmount -= sponsored;
+        }
+
+        uint256 balance = IERC20(usdt).balanceOf(address(this));
+        IERC20(usdt).transferFrom(_user, address(this), usdtAmount);
+        if (IERC20(usdt).balanceOf(address(this)) - balance < usdtAmount) {
+            revert AgentPaymaster__FundsTransferFailed();
+        }
+
+        context = abi.encode(usdtAmount, sponsored);
     }
 
     function postTransaction(
@@ -89,13 +136,39 @@ contract AgentPaymaster is IPaymaster, Ownable {
         bytes32,
         ExecutionResult _txResult,
         uint256 _maxRefundedGas
-    ) external payable override onlyBootloader {}
+    ) external payable override onlyBootloader {
+        // _context is the return value of the validateAndPayForPaymasterTransaction function
+        if (_context.length == 0) {
+            return;
+        }
+
+        (uint256 usdtAmount, uint256 sponsored) = abi.decode(_context, (uint256, uint256));
+
+        // Calculate the amount of USDT to refund to the user
+        //
+        uint256 usdtRefund = priceConverter.convertNativeAssetToUSDT(_maxRefundedGas);
+        if (usdtRefund > sponsored) {
+            usdtRefund -= sponsored;
+        } else {
+            usdtRefund = 0;
+        }
+
+        if (usdtRefund > 0) {
+            IERC20(usdt).transfer(address(uint160(_transaction.from)), usdtRefund);
+        }
+    }
 
     function withdraw(address payable _to) external onlyOwner {
         // send paymaster funds to the owner
         uint256 balance = address(this).balance;
         (bool success,) = _to.call{value: balance}("");
         require(success, "Failed to withdraw funds from paymaster.");
+    }
+
+    function withdrawToken(address _token, address _to) external onlyOwner {
+        IERC20 token = IERC20(_token);
+        uint256 balance = token.balanceOf(address(this));
+        token.transfer(_to, balance);
     }
 
     function _validateTransactionLimit(address _user) internal {

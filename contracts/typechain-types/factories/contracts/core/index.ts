@@ -4,3 +4,4 @@
 export * as interfaces from "./interfaces";
 export { AgentRegistry__factory } from "./AgentRegistry__factory";
 export { BulletinBoard__factory } from "./BulletinBoard__factory";
+export { MissionBoard__factory } from "./MissionBoard__factory";

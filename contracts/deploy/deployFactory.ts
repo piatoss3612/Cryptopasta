@@ -27,29 +27,29 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const factoryAddress = await factory.getAddress();
   console.log(`AA factory address: ${factoryAddress}`);
 
-  const aaFactory = new ethers.Contract(
-    factoryAddress,
-    factoryArtifact.abi,
-    wallet
-  );
+  // const aaFactory = new ethers.Contract(
+  //   factoryAddress,
+  //   factoryArtifact.abi,
+  //   wallet
+  // );
 
-  const owner = Wallet.createRandom();
-  console.log("SC Account owner address: ", owner.address);
-  console.log("SC Account owner pk: ", owner.privateKey);
+  // const owner = Wallet.createRandom();
+  // console.log("SC Account owner address: ", owner.address);
+  // console.log("SC Account owner pk: ", owner.privateKey);
 
-  const salt = ethers.ZeroHash;
-  const tx = await aaFactory.deployAccount(salt, owner.address);
-  await tx.wait();
+  // const salt = ethers.ZeroHash;
+  // const tx = await aaFactory.deployAccount(salt, owner.address);
+  // await tx.wait();
 
   const abiCoder = new ethers.AbiCoder();
-  const accountAddress = utils.create2Address(
-    factoryAddress,
-    await aaFactory.aaBytecodeHash(),
-    salt,
-    abiCoder.encode(["address"], [owner.address])
-  );
+  // const accountAddress = utils.create2Address(
+  //   factoryAddress,
+  //   await aaFactory.aaBytecodeHash(),
+  //   salt,
+  //   abiCoder.encode(["address"], [owner.address])
+  // );
 
-  console.log(`SC Account deployed on address ${accountAddress}`);
+  // console.log(`SC Account deployed on address ${accountAddress}`);
 
   await verifyContract({
     address: factoryAddress,
@@ -61,12 +61,12 @@ export default async function (hre: HardhatRuntimeEnvironment) {
     bytecode: factoryArtifact.bytecode,
   });
 
-  await verifyContract({
-    address: accountAddress,
-    contract: "contracts/aa/AgentAccount.sol:AgentAccount",
-    constructorArguments: abiCoder.encode(["address"], [owner.address]),
-    bytecode: aaArtifact.bytecode,
-  });
+  // await verifyContract({
+  //   address: accountAddress,
+  //   contract: "contracts/aa/AgentAccount.sol:AgentAccount",
+  //   constructorArguments: abiCoder.encode(["address"], [owner.address]),
+  //   bytecode: aaArtifact.bytecode,
+  // });
 
   console.log(`Done!`);
 }

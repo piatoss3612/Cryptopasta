@@ -18,7 +18,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const registryArtifact = await deployer.loadArtifact("AgentRegistry");
   const agentTokenArtifact = await deployer.loadArtifact("Agent");
 
-  const factoryAddress = "0xBF6f49310379154b3907F7142FEb09107a6009D3";
+  const factoryAddress = "0x3ceC7eDbCa2Cba9560fD6Abe007b5C6581b6D040";
   const portraits = [
     "https://scarlet-implicit-seahorse-694.mypinata.cloud/ipfs/QmfPN898BsCRsinpvNZkw1uQyw9HjApWZKKrMyZq9RXUqu",
     "https://scarlet-implicit-seahorse-694.mypinata.cloud/ipfs/QmVoH7ptD5K78dsBa9hqnEhGU91epgnhdqxWZdZgaJd485",

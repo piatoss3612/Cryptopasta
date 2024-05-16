@@ -81,6 +81,7 @@ export type TransactionStructOutput = [
 export interface AgentPaymasterInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "TOKEN_PAYMENT_SPONSOR_RATE"
       | "dailyTransactionCount"
       | "lastTransactionTimestamp"
       | "maxTransactionsPerDay"
@@ -91,10 +92,15 @@ export interface AgentPaymasterInterface extends Interface {
       | "transferOwnership"
       | "validateAndPayForPaymasterTransaction"
       | "withdraw"
+      | "withdrawToken"
   ): FunctionFragment;
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "TOKEN_PAYMENT_SPONSOR_RATE",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "dailyTransactionCount",
     values: [AddressLike]
@@ -139,7 +145,15 @@ export interface AgentPaymasterInterface extends Interface {
     functionFragment: "withdraw",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawToken",
+    values: [AddressLike, AddressLike]
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "TOKEN_PAYMENT_SPONSOR_RATE",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "dailyTransactionCount",
     data: BytesLike
@@ -174,6 +188,10 @@ export interface AgentPaymasterInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawToken",
+    data: BytesLike
+  ): Result;
 }
 
 export namespace OwnershipTransferredEvent {
@@ -232,6 +250,8 @@ export interface AgentPaymaster extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  TOKEN_PAYMENT_SPONSOR_RATE: TypedContractMethod<[], [bigint], "view">;
+
   dailyTransactionCount: TypedContractMethod<
     [arg0: AddressLike],
     [bigint],
@@ -283,10 +303,19 @@ export interface AgentPaymaster extends BaseContract {
 
   withdraw: TypedContractMethod<[_to: AddressLike], [void], "nonpayable">;
 
+  withdrawToken: TypedContractMethod<
+    [_token: AddressLike, _to: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
 
+  getFunction(
+    nameOrSignature: "TOKEN_PAYMENT_SPONSOR_RATE"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "dailyTransactionCount"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
@@ -336,6 +365,13 @@ export interface AgentPaymaster extends BaseContract {
   getFunction(
     nameOrSignature: "withdraw"
   ): TypedContractMethod<[_to: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "withdrawToken"
+  ): TypedContractMethod<
+    [_token: AddressLike, _to: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
   getEvent(
     key: "OwnershipTransferred"

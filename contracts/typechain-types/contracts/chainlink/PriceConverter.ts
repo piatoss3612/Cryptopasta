@@ -31,6 +31,10 @@ export interface PriceConverterInterface extends Interface {
       | "USDT_DECIMALS"
       | "USDT_PRICE_FEED"
       | "USD_DECIMALS"
+      | "convertNativeAssetToUSD"
+      | "convertNativeAssetToUSDT"
+      | "convertUSDTToNativeAsset"
+      | "convertUSDTToUSD"
       | "convertUSDToNativeAsset"
       | "convertUSDToUSDT"
       | "latestNativeAssetPriceInUSD"
@@ -61,6 +65,22 @@ export interface PriceConverterInterface extends Interface {
   encodeFunctionData(
     functionFragment: "USD_DECIMALS",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "convertNativeAssetToUSD",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "convertNativeAssetToUSDT",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "convertUSDTToNativeAsset",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "convertUSDTToUSD",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "convertUSDToNativeAsset",
@@ -106,6 +126,22 @@ export interface PriceConverterInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "USD_DECIMALS",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "convertNativeAssetToUSD",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "convertNativeAssetToUSDT",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "convertUSDTToNativeAsset",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "convertUSDTToUSD",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -201,6 +237,30 @@ export interface PriceConverter extends BaseContract {
 
   USD_DECIMALS: TypedContractMethod<[], [bigint], "view">;
 
+  convertNativeAssetToUSD: TypedContractMethod<
+    [_assetAmount: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
+  convertNativeAssetToUSDT: TypedContractMethod<
+    [_assetAmount: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
+  convertUSDTToNativeAsset: TypedContractMethod<
+    [_usdtAmount: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
+  convertUSDTToUSD: TypedContractMethod<
+    [_usdtAmount: BigNumberish],
+    [bigint],
+    "view"
+  >;
+
   convertUSDToNativeAsset: TypedContractMethod<
     [_usdAmount: BigNumberish],
     [bigint],
@@ -254,6 +314,18 @@ export interface PriceConverter extends BaseContract {
   getFunction(
     nameOrSignature: "USD_DECIMALS"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "convertNativeAssetToUSD"
+  ): TypedContractMethod<[_assetAmount: BigNumberish], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "convertNativeAssetToUSDT"
+  ): TypedContractMethod<[_assetAmount: BigNumberish], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "convertUSDTToNativeAsset"
+  ): TypedContractMethod<[_usdtAmount: BigNumberish], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "convertUSDTToUSD"
+  ): TypedContractMethod<[_usdtAmount: BigNumberish], [bigint], "view">;
   getFunction(
     nameOrSignature: "convertUSDToNativeAsset"
   ): TypedContractMethod<[_usdAmount: BigNumberish], [bigint], "view">;

@@ -128,6 +128,10 @@ export type { IAgentRegistry } from "./contracts/core/interfaces/IAgentRegistry"
 export { IAgentRegistry__factory } from "./factories/contracts/core/interfaces/IAgentRegistry__factory";
 export type { IBulletinBoard } from "./contracts/core/interfaces/IBulletinBoard";
 export { IBulletinBoard__factory } from "./factories/contracts/core/interfaces/IBulletinBoard__factory";
+export type { IMissionBoard } from "./contracts/core/interfaces/IMissionBoard";
+export { IMissionBoard__factory } from "./factories/contracts/core/interfaces/IMissionBoard__factory";
+export type { MissionBoard } from "./contracts/core/MissionBoard";
+export { MissionBoard__factory } from "./factories/contracts/core/MissionBoard__factory";
 export type { MockUSDT } from "./contracts/mock/MockUSDT";
 export { MockUSDT__factory } from "./factories/contracts/mock/MockUSDT__factory";
 export type { Agent } from "./contracts/token/Agent";

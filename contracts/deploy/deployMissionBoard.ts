@@ -15,24 +15,24 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const provider = new Provider(hre.config.networks.zkSyncSepoliaTestnet.url);
   const wallet = new Wallet(DEPLOYER_PRIVATE_KEY, provider);
   const deployer = new Deployer(hre, wallet);
-  const bbArtifact = await deployer.loadArtifact("BulletinBoard");
+  const mbArtifact = await deployer.loadArtifact("MissionBoard");
   const cpArtifact = await deployer.loadArtifact("Cryptopasta");
 
-  const agentTokenAddress = "0x986bD9FCecbe530A33c53E2a4333c9ae516ab892";
-  const usdtAddress = "0xE7D83827A084208F7d65bf98D4B21c23C887da32";
-  const priceConverterAddress = "0x308B8b1522AC9D555aa66a8d5153610b11668987";
+  const agentTokenAddress = "0xc64149F1dc4b3d3Dc6157a9b7e94473cb4089D93";
+  const usdtAddress = "0xc8653E56042003482E7561Cf34d882da4f6709d4";
+  const priceConverterAddress = "0x824b601A2fEC9528829490BaC1C61d94DB575266";
 
-  const bb = await deployer.deploy(
-    bbArtifact,
+  const mb = await deployer.deploy(
+    mbArtifact,
     [agentTokenAddress, usdtAddress, priceConverterAddress],
     undefined,
-    [bbArtifact.bytecode]
+    [mbArtifact.bytecode]
   );
-  const bbAddress = await bb.getAddress();
+  const mbAddress = await mb.getAddress();
 
-  console.log(`BulletinBoard address: ${bbAddress}`);
+  console.log(`MissionBoard address: ${mbAddress}`);
 
-  const bbContract = new ethers.Contract(bbAddress, bbArtifact.abi, wallet);
+  const bbContract = new ethers.Contract(mbAddress, mbArtifact.abi, wallet);
 
   const cryptopasta = await bbContract.CP();
 
@@ -41,13 +41,13 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const abiCoder = new ethers.AbiCoder();
 
   await verifyContract({
-    address: bbAddress,
-    contract: "contracts/core/BulletinBoard.sol:BulletinBoard",
+    address: mbAddress,
+    contract: "contracts/core/MissionBoard.sol:MissionBoard",
     constructorArguments: abiCoder.encode(
       ["address", "address", "address"],
       [agentTokenAddress, usdtAddress, priceConverterAddress]
     ),
-    bytecode: bbArtifact.bytecode,
+    bytecode: mbArtifact.bytecode,
   });
 
   // await verifyContract({

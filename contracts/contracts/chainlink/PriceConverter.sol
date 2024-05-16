@@ -54,4 +54,36 @@ contract PriceConverter is Ownable {
         _usdtAmount = _usdAmount * (10 ** priceDecimals) / usdtPriceInUSD;
         _usdtAmount *= 10 ** (USDT_DECIMALS - USD_DECIMALS);
     }
+
+    function convertUSDTToUSD(uint256 _usdtAmount) public view returns (uint256 _usdAmount) {
+        (uint256 usdtPriceInUSD, uint8 priceDecimals) = latestUSDTPriceInUSD();
+
+        _usdAmount = _usdtAmount * usdtPriceInUSD / (10 ** priceDecimals);
+        _usdAmount = _usdAmount * 10 ** USD_DECIMALS / 10 ** USDT_DECIMALS;
+    }
+
+    function convertUSDTToNativeAsset(uint256 _usdtAmount) public view returns (uint256 _assetAmount) {
+        (uint256 usdtPriceInUSD, uint8 priceDecimals) = latestUSDTPriceInUSD();
+
+        uint256 _usdAmount = _usdtAmount * usdtPriceInUSD / (10 ** priceDecimals);
+        _usdAmount = _usdAmount * 10 ** USD_DECIMALS;
+        _assetAmount = convertUSDToNativeAsset(_usdAmount);
+        _assetAmount /= 10 ** NATIVE_ASSET_DECIMALS;
+    }
+
+    function convertNativeAssetToUSD(uint256 _assetAmount) public view returns (uint256 _usdAmount) {
+        (uint256 baseAssetPriceInUSD, uint8 priceDecimals) = latestNativeAssetPriceInUSD();
+
+        _usdAmount = _assetAmount * baseAssetPriceInUSD / (10 ** priceDecimals);
+        _usdAmount = _usdAmount * 10 ** USD_DECIMALS / 10 ** NATIVE_ASSET_DECIMALS;
+    }
+
+    function convertNativeAssetToUSDT(uint256 _assetAmount) public view returns (uint256 _usdtAmount) {
+        (uint256 baseAssetPriceInUSD, uint8 priceDecimals) = latestNativeAssetPriceInUSD();
+
+        uint256 _usdAmount = _assetAmount * baseAssetPriceInUSD / (10 ** priceDecimals);
+        _usdAmount = _usdAmount * 10 ** USD_DECIMALS;
+        _usdtAmount = convertUSDToUSDT(_usdAmount);
+        _usdtAmount /= 10 ** NATIVE_ASSET_DECIMALS;
+    }
 }

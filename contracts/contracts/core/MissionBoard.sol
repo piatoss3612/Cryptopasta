@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {IBulletinBoard} from "./interfaces/IBulletinBoard.sol";
+import {IMissionBoard} from "./interfaces/IMissionBoard.sol";
 import {PriceConverter} from "../chainlink/PriceConverter.sol";
 import {Cryptopasta} from "../token/Cryptopasta.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -9,12 +9,12 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
-/// @title BulletinBoard
+/// @title MissionBoard
 /// @author piatoss
 /// @notice A contract to report and rate discoveries
 /// @dev The contract is used to report discoveries and rate them
 /// The contract also supports sales and claims
-contract BulletinBoard is IBulletinBoard, Ownable {
+contract MissionBoard is IMissionBoard, Ownable {
     uint8 private constant _RATING_DECIMALS = 6;
     uint256 private constant MIN_FEE = 1000;
 
@@ -41,7 +41,7 @@ contract BulletinBoard is IBulletinBoard, Ownable {
     }
 
     function supportsInterface(bytes4 interfaceId) public pure override returns (bool) {
-        return interfaceId == type(IBulletinBoard).interfaceId || interfaceId == type(IERC165).interfaceId;
+        return interfaceId == type(IMissionBoard).interfaceId || interfaceId == type(IERC165).interfaceId;
     }
 
     /// @notice Returns the cost of reporting in USD
@@ -184,10 +184,10 @@ contract BulletinBoard is IBulletinBoard, Ownable {
         } else if (paymentMethod == PaymentMethod.ETHER) {
             paymentAmount = PRICE_CONVERTER.convertUSDToNativeAsset(amount);
             if (msg.value < paymentAmount) {
-                revert BulletinBoard__InvalidETHAmount(msg.value);
+                revert MissionBoard__InvalidETHAmount(msg.value);
             }
         } else {
-            revert BulletinBoard__InvalidPaymentMethod();
+            revert MissionBoard__InvalidPaymentMethod();
         }
     }
 
@@ -218,7 +218,7 @@ contract BulletinBoard is IBulletinBoard, Ownable {
 
         // Rater should not have rated this report
         if (hasRated(rater, reportId)) {
-            revert BulletinBoard__AlreadyRated(rater, reportId);
+            revert MissionBoard__AlreadyRated(rater, reportId);
         }
 
         _hasRated[rater][reportId] = true;
@@ -245,7 +245,7 @@ contract BulletinBoard is IBulletinBoard, Ownable {
         address caller = msg.sender;
         // Only the report owner can claim sales
         if (caller != _reports[reportId].reporter) {
-            revert BulletinBoard__NotReportOwner(caller, reportId);
+            revert MissionBoard__NotReportOwner(caller, reportId);
         }
 
         SalesStats storage sales = _sales[reportId];
@@ -263,7 +263,7 @@ contract BulletinBoard is IBulletinBoard, Ownable {
 
             // Check if there is enough sales for the fee
             if (fee > claimableInETH) {
-                revert BulletinBoard__InsufficientSalesForClaim(reportId);
+                revert MissionBoard__InsufficientSalesForClaim(reportId);
             }
 
             // Update sales stats
@@ -281,7 +281,7 @@ contract BulletinBoard is IBulletinBoard, Ownable {
 
             // Check if there is enough sales for the fee
             if (fee > claimableInETH) {
-                revert BulletinBoard__InsufficientSalesForClaim(reportId);
+                revert MissionBoard__InsufficientSalesForClaim(reportId);
             }
 
             // Update sales stats
@@ -301,39 +301,39 @@ contract BulletinBoard is IBulletinBoard, Ownable {
         if (paymentMethod == PaymentMethod.ETHER) {
             // Check if there is enough balance
             if (_ethBalances[msg.sender] < amount) {
-                revert BulletinBoard__InsufficientBalance(msg.sender, amount, paymentMethod);
+                revert MissionBoard__InsufficientBalance(msg.sender, amount, paymentMethod);
             }
 
             // Update balance and transfer
             _ethBalances[msg.sender] -= amount;
             (bool ok,) = to.call{value: amount}("");
             if (!ok) {
-                revert BulletinBoard__TransferFailed();
+                revert MissionBoard__TransferFailed();
             }
         } else if (paymentMethod == PaymentMethod.USDT) {
             // Check if there is enough balance
             if (_usdtBalances[msg.sender] < amount) {
-                revert BulletinBoard__InsufficientBalance(msg.sender, amount, paymentMethod);
+                revert MissionBoard__InsufficientBalance(msg.sender, amount, paymentMethod);
             }
             // Update balance and transfer
             _usdtBalances[msg.sender] -= amount;
             USDT.transfer(to, amount);
         } else {
-            revert BulletinBoard__InvalidPaymentMethod();
+            revert MissionBoard__InvalidPaymentMethod();
         }
     }
 
     function _isAgent(address account) private view returns (bool flag) {
         flag = true;
         if (AGENT.balanceOf(account) == 0) {
-            revert BulletinBoard__NotAgent(account);
+            revert MissionBoard__NotAgent(account);
         }
     }
 
     function _reportExists(uint256 reportId) private view returns (bool flag) {
         flag = true;
         if (reportId > _reportId) {
-            revert BulletinBoard__ReportNotFound(reportId);
+            revert MissionBoard__ReportNotFound(reportId);
         }
     }
 

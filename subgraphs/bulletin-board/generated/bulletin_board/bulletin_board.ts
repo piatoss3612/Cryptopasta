@@ -762,6 +762,66 @@ export class ConstructorCall__Outputs {
   }
 }
 
+export class DefaultCall extends ethereum.Call {
+  get inputs(): DefaultCall__Inputs {
+    return new DefaultCall__Inputs(this);
+  }
+
+  get outputs(): DefaultCall__Outputs {
+    return new DefaultCall__Outputs(this);
+  }
+}
+
+export class DefaultCall__Inputs {
+  _call: DefaultCall;
+
+  constructor(call: DefaultCall) {
+    this._call = call;
+  }
+}
+
+export class DefaultCall__Outputs {
+  _call: DefaultCall;
+
+  constructor(call: DefaultCall) {
+    this._call = call;
+  }
+}
+
+export class BuyReportCall extends ethereum.Call {
+  get inputs(): BuyReportCall__Inputs {
+    return new BuyReportCall__Inputs(this);
+  }
+
+  get outputs(): BuyReportCall__Outputs {
+    return new BuyReportCall__Outputs(this);
+  }
+}
+
+export class BuyReportCall__Inputs {
+  _call: BuyReportCall;
+
+  constructor(call: BuyReportCall) {
+    this._call = call;
+  }
+
+  get reportId(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get paymentMethod(): i32 {
+    return this._call.inputValues[1].value.toI32();
+  }
+}
+
+export class BuyReportCall__Outputs {
+  _call: BuyReportCall;
+
+  constructor(call: BuyReportCall) {
+    this._call = call;
+  }
+}
+
 export class ClaimSalesCall extends ethereum.Call {
   get inputs(): ClaimSalesCall__Inputs {
     return new ClaimSalesCall__Inputs(this);
@@ -788,6 +848,48 @@ export class ClaimSalesCall__Outputs {
   _call: ClaimSalesCall;
 
   constructor(call: ClaimSalesCall) {
+    this._call = call;
+  }
+}
+
+export class CreateReportCall extends ethereum.Call {
+  get inputs(): CreateReportCall__Inputs {
+    return new CreateReportCall__Inputs(this);
+  }
+
+  get outputs(): CreateReportCall__Outputs {
+    return new CreateReportCall__Outputs(this);
+  }
+}
+
+export class CreateReportCall__Inputs {
+  _call: CreateReportCall;
+
+  constructor(call: CreateReportCall) {
+    this._call = call;
+  }
+
+  get title(): string {
+    return this._call.inputValues[0].value.toString();
+  }
+
+  get contentURI(): string {
+    return this._call.inputValues[1].value.toString();
+  }
+
+  get priceInUSD(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
+  }
+
+  get paymentMethod(): i32 {
+    return this._call.inputValues[3].value.toI32();
+  }
+}
+
+export class CreateReportCall__Outputs {
+  _call: CreateReportCall;
+
+  constructor(call: CreateReportCall) {
     this._call = call;
   }
 }
@@ -848,82 +950,6 @@ export class RenounceOwnershipCall__Outputs {
   _call: RenounceOwnershipCall;
 
   constructor(call: RenounceOwnershipCall) {
-    this._call = call;
-  }
-}
-
-export class ReportDiscoveryCall extends ethereum.Call {
-  get inputs(): ReportDiscoveryCall__Inputs {
-    return new ReportDiscoveryCall__Inputs(this);
-  }
-
-  get outputs(): ReportDiscoveryCall__Outputs {
-    return new ReportDiscoveryCall__Outputs(this);
-  }
-}
-
-export class ReportDiscoveryCall__Inputs {
-  _call: ReportDiscoveryCall;
-
-  constructor(call: ReportDiscoveryCall) {
-    this._call = call;
-  }
-
-  get title(): string {
-    return this._call.inputValues[0].value.toString();
-  }
-
-  get contentURI(): string {
-    return this._call.inputValues[1].value.toString();
-  }
-
-  get priceInUSD(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
-  }
-
-  get paymentMethod(): i32 {
-    return this._call.inputValues[3].value.toI32();
-  }
-}
-
-export class ReportDiscoveryCall__Outputs {
-  _call: ReportDiscoveryCall;
-
-  constructor(call: ReportDiscoveryCall) {
-    this._call = call;
-  }
-}
-
-export class TakeReportCall extends ethereum.Call {
-  get inputs(): TakeReportCall__Inputs {
-    return new TakeReportCall__Inputs(this);
-  }
-
-  get outputs(): TakeReportCall__Outputs {
-    return new TakeReportCall__Outputs(this);
-  }
-}
-
-export class TakeReportCall__Inputs {
-  _call: TakeReportCall;
-
-  constructor(call: TakeReportCall) {
-    this._call = call;
-  }
-
-  get reportId(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-
-  get paymentMethod(): i32 {
-    return this._call.inputValues[1].value.toI32();
-  }
-}
-
-export class TakeReportCall__Outputs {
-  _call: TakeReportCall;
-
-  constructor(call: TakeReportCall) {
     this._call = call;
   }
 }

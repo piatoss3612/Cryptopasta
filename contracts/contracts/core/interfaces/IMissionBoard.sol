@@ -3,16 +3,16 @@ pragma solidity ^0.8.24;
 
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
-interface IBulletinBoard is IERC165 {
-    error BulletinBoard__ReportNotFound(uint256 reportId);
-    error BulletinBoard__NotAgent(address caller);
-    error BulletinBoard__InvalidETHAmount(uint256 amount);
-    error BulletinBoard__InvalidPaymentMethod();
-    error BulletinBoard__AlreadyRated(address rater, uint256 reportId);
-    error BulletinBoard__NotReportOwner(address caller, uint256 reportId);
-    error BulletinBoard__InsufficientBalance(address caller, uint256 amount, PaymentMethod paymentMethod);
-    error BulletinBoard__InsufficientSalesForClaim(uint256 reportId);
-    error BulletinBoard__TransferFailed();
+interface IMissionBoard is IERC165 {
+    error MissionBoard__ReportNotFound(uint256 reportId);
+    error MissionBoard__NotAgent(address caller);
+    error MissionBoard__InvalidETHAmount(uint256 amount);
+    error MissionBoard__InvalidPaymentMethod();
+    error MissionBoard__AlreadyRated(address rater, uint256 reportId);
+    error MissionBoard__NotReportOwner(address caller, uint256 reportId);
+    error MissionBoard__InsufficientBalance(address caller, uint256 amount, PaymentMethod paymentMethod);
+    error MissionBoard__InsufficientSalesForClaim(uint256 reportId);
+    error MissionBoard__TransferFailed();
 
     enum Rating {
         F,
