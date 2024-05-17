@@ -22,6 +22,7 @@ import {
   FaWallet,
 } from "react-icons/fa6";
 import { PiSignOut } from "react-icons/pi";
+import { IoMdSettings } from "react-icons/io";
 
 const Menu = () => {
   const { authenticated, logout, account } = useAgent();
@@ -30,6 +31,10 @@ const Menu = () => {
 
   const handleAgent = () => {
     navigator.push(`/agent/${account?.toString()}`);
+  };
+
+  const handleSettings = () => {
+    navigator.push("/settings");
   };
 
   const handlePaymasterApproval = () => {
@@ -80,6 +85,9 @@ const Menu = () => {
               onClick={handleFaucet}
             >
               Faucet
+            </MenuItem>
+            <MenuItem icon={<IoMdSettings />} onClick={handleSettings}>
+              Settings
             </MenuItem>
             <MenuItem onClick={logout} icon={<PiSignOut />}>
               Logout

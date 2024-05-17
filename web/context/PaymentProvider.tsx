@@ -227,9 +227,11 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
 
   const totalPriceInUSDTValue = totalPriceInUSDT
     ? formatUnits(totalPriceInUSDT, 6)
-    : 0;
+    : "0";
 
-  const sponsoredTotalCostInUSDT = totalPriceInUSDTValue * 0.95;
+  const sponsoredTotalCostInUSDT = totalPriceInUSDT
+    ? (parseFloat(totalPriceInUSDTValue.toString()) * 95) / 100
+    : 0;
 
   const getPaymasterParams = (): PaymasterParams => {
     let input: `0x${string}`;
@@ -354,7 +356,7 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
         maxTxsPerDay={maxTxsPerDayValue.toString()}
         canResetDailyTxCount={canResetDailyTxCountValue}
         totalCostInETH={totalCostInETH}
-        totalCostInUSDT={sponsoredTotalCostInUSDT.toFixed(6)}
+        totalCostInUSDT={sponsoredTotalCostInUSDT.toString()}
         canUsePaymaster={canUsePaymaster}
         txStatus={txStatus}
         confirmPayment={confirmPayment}

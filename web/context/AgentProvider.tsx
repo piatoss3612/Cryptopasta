@@ -2,7 +2,14 @@ import { useViem } from "@/hooks";
 import { AgentRegistryAbi } from "@/libs/abis";
 import { AGENT_REGISTRY } from "@/libs/constant";
 import { isZeroAddress } from "@/libs/utils";
-import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
+import {
+  ConnectedWallet,
+  usePrivy,
+  useWallets,
+  useMfaEnrollment,
+  WalletWithMetadata,
+  Wallet,
+} from "@privy-io/react-auth";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import React, { createContext, useCallback, useEffect, useState } from "react";
@@ -16,6 +23,8 @@ interface AgentContextType {
   getAccessToken: () => Promise<string | null>;
   login: () => void;
   logout: () => Promise<void>;
+  showMfaEnrollmentModal: () => void;
+  setWalletPassword: () => Promise<Wallet>;
   wallet: ConnectedWallet | null;
   walletClient: WalletClient | null;
   account: `0x${string}` | undefined;
@@ -28,8 +37,17 @@ const AgentContext = createContext({} as AgentContextType);
 
 const AgentProvider = ({ children }: { children: React.ReactNode }) => {
   const { client } = useViem();
-  const { ready, authenticated, getAccessToken, login, logout } = usePrivy();
+  const {
+    ready,
+    authenticated,
+    getAccessToken,
+    user,
+    login,
+    logout,
+    setWalletPassword,
+  } = usePrivy();
   const { wallets } = useWallets();
+  const { showMfaEnrollmentModal } = useMfaEnrollment();
   const [wallet, setWallet] = useState<ConnectedWallet | null>(null);
   const [walletClient, setWalletClient] = useState<WalletClient | null>(null);
   const navigator = useRouter();
@@ -37,7 +55,7 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
   const handleLogout = useCallback(async () => {
     await logout();
     navigator.push("/");
-  });
+  }, [navigator, logout]);
 
   const zkSyncSetup = useCallback(async (wallet: ConnectedWallet) => {
     await wallet.switchChain(zkSyncSepoliaTestnet.id);
@@ -130,7 +148,7 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
         zkSyncSetup(embeddedWallet);
       }
     }
-  }, [wallets]);
+  }, [ready, authenticated, wallets]);
 
   return (
     <AgentContext.Provider
@@ -140,6 +158,8 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
         getAccessToken,
         login,
         logout: handleLogout,
+        showMfaEnrollmentModal,
+        setWalletPassword,
         isLoading: isAccountQuerying,
         wallet,
         walletClient,
