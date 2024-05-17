@@ -22,94 +22,94 @@ const GET = async (req: NextRequest) => {
       limitNum = 10;
     }
 
-    const dummyReportList: ReportList = {
-      reportDiscoveries: [],
-    };
-
     // const dummyReportList: ReportList = {
-    //   reportDiscoveries: [
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //   ],
+    //   reportDiscoveries: [],
     // };
+
+    const dummyReportList: ReportList = {
+      reportDiscoveries: [
+        {
+          reportId: "1",
+          reporter: "0x1234567890",
+          priceInUSD: "1000",
+          title: "Test Report",
+          contentURI: "https://example.com",
+          blockTimestamp: "1630368000",
+        },
+        {
+          reportId: "1",
+          reporter: "0x1234567890",
+          priceInUSD: "1000",
+          title: "Test Report",
+          contentURI: "https://example.com",
+          blockTimestamp: "1630368000",
+        },
+        {
+          reportId: "1",
+          reporter: "0x1234567890",
+          priceInUSD: "1000",
+          title: "Test Report",
+          contentURI: "https://example.com",
+          blockTimestamp: "1630368000",
+        },
+        {
+          reportId: "1",
+          reporter: "0x1234567890",
+          priceInUSD: "1000",
+          title: "Test Report",
+          contentURI: "https://example.com",
+          blockTimestamp: "1630368000",
+        },
+        {
+          reportId: "1",
+          reporter: "0x1234567890",
+          priceInUSD: "1000",
+          title: "Test Report",
+          contentURI: "https://example.com",
+          blockTimestamp: "1630368000",
+        },
+        {
+          reportId: "1",
+          reporter: "0x1234567890",
+          priceInUSD: "1000",
+          title: "Test Report",
+          contentURI: "https://example.com",
+          blockTimestamp: "1630368000",
+        },
+        {
+          reportId: "1",
+          reporter: "0x1234567890",
+          priceInUSD: "1000",
+          title: "Test Report",
+          contentURI: "https://example.com",
+          blockTimestamp: "1630368000",
+        },
+        {
+          reportId: "1",
+          reporter: "0x1234567890",
+          priceInUSD: "1000",
+          title: "Test Report",
+          contentURI: "https://example.com",
+          blockTimestamp: "1630368000",
+        },
+        {
+          reportId: "1",
+          reporter: "0x1234567890",
+          priceInUSD: "1000",
+          title: "Test Report",
+          contentURI: "https://example.com",
+          blockTimestamp: "1630368000",
+        },
+        {
+          reportId: "1",
+          reporter: "0x1234567890",
+          priceInUSD: "1000",
+          title: "Test Report",
+          contentURI: "https://example.com",
+          blockTimestamp: "1630368000",
+        },
+      ],
+    };
 
     // const query = gql`
     //   {

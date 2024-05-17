@@ -1,4 +1,4 @@
-import { PinResponse, ReportList } from "@/types";
+import { PinResponse, Report, ReportList, TokenMetadata } from "@/types";
 import axios from "axios";
 
 const pinFileToIPFS = async (
@@ -53,7 +53,10 @@ const pinJsonToIPFS = async (
   return response.data;
 };
 
-const getReportList = async (page?: number, limit?: number) => {
+const getReportList = async (
+  page?: number,
+  limit?: number
+): Promise<ReportList> => {
   const response = await axios.get<ReportList>("/api/report/list", {
     params: {
       page,
@@ -68,7 +71,7 @@ const getReportList = async (page?: number, limit?: number) => {
   return response.data;
 };
 
-const getReportById = async (reportId: string) => {
+const getReportById = async (reportId: string): Promise<Report> => {
   const response = await axios.get<Report>(`/api/report/${reportId}`);
 
   if (response.status !== 200) {
@@ -78,4 +81,20 @@ const getReportById = async (reportId: string) => {
   return response.data;
 };
 
-export { pinFileToIPFS, pinJsonToIPFS, getReportList, getReportById };
+const getTokenMetadata = async (uri: string): Promise<TokenMetadata> => {
+  const response = await axios.get<TokenMetadata>(uri);
+
+  if (response.status !== 200) {
+    throw new Error("Failed to fetch token metadata");
+  }
+
+  return response.data;
+};
+
+export {
+  pinFileToIPFS,
+  pinJsonToIPFS,
+  getReportList,
+  getReportById,
+  getTokenMetadata,
+};

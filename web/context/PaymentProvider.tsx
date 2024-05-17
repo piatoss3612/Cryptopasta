@@ -1,13 +1,13 @@
 import PaymentModal from "@/components/payment/PaymentModal";
 import { useAgent, useViem } from "@/hooks";
-import { AgentPaymasterAbi, MockUSDTAbi } from "@/libs/abis";
-import { AGENT_PAYMASTER, MOCK_USDT } from "@/libs/constant";
+import { AgentPaymasterAbi, MockUSDTAbi, PriceConverterAbi } from "@/libs/abis";
+import { AGENT_PAYMASTER, MOCK_USDT, PRICE_CONVERTER } from "@/libs/constant";
 import { PaymasterParams, TransactionRequest } from "@/types";
 import { isZeroAddress } from "@/libs/utils";
 import { useDisclosure, useToast } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { createContext, useState } from "react";
-import { encodeFunctionData, formatEther } from "viem";
+import { encodeFunctionData, formatEther, parseEther } from "viem";
 import {
   getApprovalBasedPaymasterInput,
   getGeneralPaymasterInput,
@@ -69,25 +69,32 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
     queryKey: ["estimateGas"],
     queryFn: async () => await estimateGas(txRequest!),
     enabled: !!txRequest,
+    refetchInterval: 3000,
   });
 
   const { data: gasPrice } = useQuery({
     queryKey: ["getGasPrice"],
     queryFn: async () => await getGasPrice(),
     enabled: !!client,
+    refetchInterval: 3000,
   });
 
   const { data: usdtAllowance } = useQuery({
     queryKey: ["usdtAllowance"],
     queryFn: getUSDTAllowance,
     enabled: !!client && !!account,
+    refetchInterval: 3000,
   });
 
-  const gasEstimateInETH = formatEther(gasEstimate || BigInt(200000));
+  const gasEstimateInETH = formatEther(
+    gasEstimate || txRequest?.gas || BigInt(10000000)
+  );
+
   const gasPriceInETH = formatEther(gasPrice || BigInt(200000));
   const totalCostInETH = formatEther(
-    (gasEstimate || BigInt(200000)) * (gasPrice || BigInt(200000))
+    parseEther(gasEstimateInETH) * parseEther(gasPriceInETH)
   );
+
   const usdtAllowanceValue = usdtAllowance
     ? (usdtAllowance / BigInt(10 ** 6)).toString()
     : "0";
@@ -198,6 +205,32 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
     dailyTxCountValue.valueOf() < maxTxsPerDayValue.valueOf() ||
     canResetDailyTxCountValue;
 
+  const getTotalPriceInUSDT = async (): Promise<bigint> => {
+    if (!client) {
+      throw new Error("Client not initialized");
+    }
+
+    return await client.readContract({
+      address: PRICE_CONVERTER,
+      abi: PriceConverterAbi,
+      functionName: "convertNativeAssetToUSDT",
+      args: [parseEther(totalCostInETH)],
+    });
+  };
+
+  const { data: totalPriceInUSDT } = useQuery({
+    queryKey: ["totalPriceInUSDT"],
+    queryFn: getTotalPriceInUSDT,
+    enabled: !!client,
+    refetchInterval: 3000,
+  });
+
+  const totalPriceInUSDTValue = totalPriceInUSDT
+    ? parseFloat(totalPriceInUSDT.toString()) / 10 ** 6
+    : 0;
+
+  const sponsoredTotalCostInUSDT = totalPriceInUSDTValue * 0.95;
+
   const getPaymasterParams = (): PaymasterParams => {
     let input: `0x${string}`;
 
@@ -212,8 +245,6 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
         innerInput: "0x",
       });
     }
-
-    console.log("input", input);
 
     return {
       paymaster: AGENT_PAYMASTER as `0x${string}`,
@@ -323,6 +354,7 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
         maxTxsPerDay={maxTxsPerDayValue.toString()}
         canResetDailyTxCount={canResetDailyTxCountValue}
         totalCostInETH={totalCostInETH}
+        totalCostInUSDT={sponsoredTotalCostInUSDT.toFixed(6)}
         canUsePaymaster={canUsePaymaster}
         txStatus={txStatus}
         confirmPayment={confirmPayment}

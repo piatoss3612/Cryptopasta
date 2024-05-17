@@ -81,6 +81,7 @@ export type TransactionStructOutput = [
 export interface AgentPaymasterInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "MIN_EXCEPTION_ON_REFUND"
       | "TOKEN_PAYMENT_SPONSOR_RATE"
       | "dailyTransactionCount"
       | "lastTransactionTimestamp"
@@ -95,8 +96,18 @@ export interface AgentPaymasterInterface extends Interface {
       | "withdrawToken"
   ): FunctionFragment;
 
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic:
+      | "Approved"
+      | "OwnershipTransferred"
+      | "Refund"
+      | "TransactionLimitChanged"
+  ): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "MIN_EXCEPTION_ON_REFUND",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "TOKEN_PAYMENT_SPONSOR_RATE",
     values?: undefined
@@ -151,6 +162,10 @@ export interface AgentPaymasterInterface extends Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "MIN_EXCEPTION_ON_REFUND",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "TOKEN_PAYMENT_SPONSOR_RATE",
     data: BytesLike
   ): Result;
@@ -194,12 +209,71 @@ export interface AgentPaymasterInterface extends Interface {
   ): Result;
 }
 
+export namespace ApprovedEvent {
+  export type InputTuple = [
+    user: AddressLike,
+    requiredUsdtAmount: BigNumberish,
+    sponsored: BigNumberish
+  ];
+  export type OutputTuple = [
+    user: string,
+    requiredUsdtAmount: bigint,
+    sponsored: bigint
+  ];
+  export interface OutputObject {
+    user: string;
+    requiredUsdtAmount: bigint;
+    sponsored: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
 export namespace OwnershipTransferredEvent {
   export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
   export type OutputTuple = [previousOwner: string, newOwner: string];
   export interface OutputObject {
     previousOwner: string;
     newOwner: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace RefundEvent {
+  export type InputTuple = [
+    user: AddressLike,
+    requiredUsdtAmount: BigNumberish,
+    usedUsdtAmount: BigNumberish,
+    usdtRefund: BigNumberish
+  ];
+  export type OutputTuple = [
+    user: string,
+    requiredUsdtAmount: bigint,
+    usedUsdtAmount: bigint,
+    usdtRefund: bigint
+  ];
+  export interface OutputObject {
+    user: string;
+    requiredUsdtAmount: bigint;
+    usedUsdtAmount: bigint;
+    usdtRefund: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace TransactionLimitChangedEvent {
+  export type InputTuple = [newLimit: BigNumberish];
+  export type OutputTuple = [newLimit: bigint];
+  export interface OutputObject {
+    newLimit: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -249,6 +323,8 @@ export interface AgentPaymaster extends BaseContract {
   removeAllListeners<TCEvent extends TypedContractEvent>(
     event?: TCEvent
   ): Promise<this>;
+
+  MIN_EXCEPTION_ON_REFUND: TypedContractMethod<[], [bigint], "view">;
 
   TOKEN_PAYMENT_SPONSOR_RATE: TypedContractMethod<[], [bigint], "view">;
 
@@ -314,6 +390,9 @@ export interface AgentPaymaster extends BaseContract {
   ): T;
 
   getFunction(
+    nameOrSignature: "MIN_EXCEPTION_ON_REFUND"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "TOKEN_PAYMENT_SPONSOR_RATE"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
@@ -374,14 +453,46 @@ export interface AgentPaymaster extends BaseContract {
   >;
 
   getEvent(
+    key: "Approved"
+  ): TypedContractEvent<
+    ApprovedEvent.InputTuple,
+    ApprovedEvent.OutputTuple,
+    ApprovedEvent.OutputObject
+  >;
+  getEvent(
     key: "OwnershipTransferred"
   ): TypedContractEvent<
     OwnershipTransferredEvent.InputTuple,
     OwnershipTransferredEvent.OutputTuple,
     OwnershipTransferredEvent.OutputObject
   >;
+  getEvent(
+    key: "Refund"
+  ): TypedContractEvent<
+    RefundEvent.InputTuple,
+    RefundEvent.OutputTuple,
+    RefundEvent.OutputObject
+  >;
+  getEvent(
+    key: "TransactionLimitChanged"
+  ): TypedContractEvent<
+    TransactionLimitChangedEvent.InputTuple,
+    TransactionLimitChangedEvent.OutputTuple,
+    TransactionLimitChangedEvent.OutputObject
+  >;
 
   filters: {
+    "Approved(address,uint256,uint256)": TypedContractEvent<
+      ApprovedEvent.InputTuple,
+      ApprovedEvent.OutputTuple,
+      ApprovedEvent.OutputObject
+    >;
+    Approved: TypedContractEvent<
+      ApprovedEvent.InputTuple,
+      ApprovedEvent.OutputTuple,
+      ApprovedEvent.OutputObject
+    >;
+
     "OwnershipTransferred(address,address)": TypedContractEvent<
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
@@ -391,6 +502,28 @@ export interface AgentPaymaster extends BaseContract {
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
       OwnershipTransferredEvent.OutputObject
+    >;
+
+    "Refund(address,uint256,uint256,uint256)": TypedContractEvent<
+      RefundEvent.InputTuple,
+      RefundEvent.OutputTuple,
+      RefundEvent.OutputObject
+    >;
+    Refund: TypedContractEvent<
+      RefundEvent.InputTuple,
+      RefundEvent.OutputTuple,
+      RefundEvent.OutputObject
+    >;
+
+    "TransactionLimitChanged(uint256)": TypedContractEvent<
+      TransactionLimitChangedEvent.InputTuple,
+      TransactionLimitChangedEvent.OutputTuple,
+      TransactionLimitChangedEvent.OutputObject
+    >;
+    TransactionLimitChanged: TypedContractEvent<
+      TransactionLimitChangedEvent.InputTuple,
+      TransactionLimitChangedEvent.OutputTuple,
+      TransactionLimitChangedEvent.OutputObject
     >;
   };
 }

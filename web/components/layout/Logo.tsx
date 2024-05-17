@@ -11,7 +11,12 @@ const Logo = () => {
         alignItems="center"
         _hover={{ textDecoration: "none" }}
       >
-        <Image src={LogoImage.src} boxSize="80px" alt="Project Logo" />
+        <Image
+          src={LogoImage.src}
+          boxSize="80px"
+          alt="Project Logo"
+          borderRadius={"12px"}
+        />
       </Link>
     </NextLink>
   );

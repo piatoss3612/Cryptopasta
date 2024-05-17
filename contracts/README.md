@@ -79,11 +79,11 @@ Done in 16.45s.
 $ yarn hardhat deploy-zksync --script deployPaymaster.ts
 yarn run v1.22.21
 
-AA paymaster address: 0xEF75F13BBa351762Ea697BecdAa19BbcF3B83212
-Your verification ID is: 13320
+AA paymaster address: 0x33CC626e835b5BbEBdEF7084E132E78398CAC8A1
+Your verification ID is: 13426
 Contract successfully verified on zkSync block explorer!
 Done!
-Done in 18.14s.
+Done in 19.73s.
 ```
 
 ### Deploy MissionLog
@@ -120,7 +120,7 @@ Done in 19.93s.
 | Factory        | 0x3ceC7eDbCa2Cba9560fD6Abe007b5C6581b6D040 |
 | AgentRegistry  | 0xD55Eb78A4A49932EAB908ed2163fE430d7878605 |
 | AgentToken     | 0xc64149F1dc4b3d3Dc6157a9b7e94473cb4089D93 |
-| Paymaster      | 0xEF75F13BBa351762Ea697BecdAa19BbcF3B83212 |
+| Paymaster      | 0x33CC626e835b5BbEBdEF7084E132E78398CAC8A1 |
 | PriceConverter | 0x824b601A2fEC9528829490BaC1C61d94DB575266 |
 | MockUSDT       | 0xc8653E56042003482E7561Cf34d882da4f6709d4 |
 | MissionLog     | 0x3859B26bfE58a0E9A019b76aBC051ee46D4d85eB |

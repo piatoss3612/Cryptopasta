@@ -246,17 +246,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AgentRegistry__factory>;
     getContractFactory(
-      name: "BulletinBoard",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.BulletinBoard__factory>;
-    getContractFactory(
       name: "IAgentRegistry",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAgentRegistry__factory>;
-    getContractFactory(
-      name: "IBulletinBoard",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IBulletinBoard__factory>;
     getContractFactory(
       name: "IMissionBoard",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -589,20 +581,10 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.AgentRegistry>;
     getContractAt(
-      name: "BulletinBoard",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.BulletinBoard>;
-    getContractAt(
       name: "IAgentRegistry",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.IAgentRegistry>;
-    getContractAt(
-      name: "IBulletinBoard",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IBulletinBoard>;
     getContractAt(
       name: "IMissionBoard",
       address: string | ethers.Addressable,
@@ -887,17 +869,9 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.AgentRegistry>;
     deployContract(
-      name: "BulletinBoard",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.BulletinBoard>;
-    deployContract(
       name: "IAgentRegistry",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IAgentRegistry>;
-    deployContract(
-      name: "IBulletinBoard",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IBulletinBoard>;
     deployContract(
       name: "IMissionBoard",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -1230,20 +1204,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.AgentRegistry>;
     deployContract(
-      name: "BulletinBoard",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.BulletinBoard>;
-    deployContract(
       name: "IAgentRegistry",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IAgentRegistry>;
-    deployContract(
-      name: "IBulletinBoard",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.IBulletinBoard>;
     deployContract(
       name: "IMissionBoard",
       args: any[],

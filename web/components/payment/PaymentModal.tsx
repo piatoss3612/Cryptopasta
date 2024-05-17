@@ -14,6 +14,7 @@ import {
   Spinner,
   Stack,
   Text,
+  Tooltip,
 } from "@chakra-ui/react";
 import React from "react";
 import InfoLine from "./InfoLine";
@@ -39,6 +40,7 @@ interface PaymentModalProps {
   maxTxsPerDay: string;
   canResetDailyTxCount: boolean;
   totalCostInETH: string;
+  totalCostInUSDT: string;
   canUsePaymaster: boolean;
   txStatus: string;
   confirmPayment: () => void;
@@ -59,6 +61,7 @@ const PaymentModal = ({
   maxTxsPerDay,
   canResetDailyTxCount,
   totalCostInETH,
+  totalCostInUSDT,
   canUsePaymaster,
   txStatus,
   confirmPayment,
@@ -103,11 +106,16 @@ const PaymentModal = ({
                 <InfoLine
                   left="Can Reset Limit:"
                   right={
-                    canResetDailyTxCount ? (
-                      <CheckCircleIcon color="green" />
-                    ) : (
-                      <SmallCloseIcon color="red" />
-                    )
+                    <Tooltip
+                      label="Reset on UTC 6:00 AM"
+                      aria-label="A tooltip"
+                    >
+                      {canResetDailyTxCount ? (
+                        <CheckCircleIcon color="green" />
+                      ) : (
+                        <SmallCloseIcon color="red" />
+                      )}
+                    </Tooltip>
                   }
                 />
                 <Divider />
@@ -133,8 +141,12 @@ const PaymentModal = ({
                 <InfoLine
                   left="Total Cost:"
                   right={`${
-                    canUsePaymaster && !useApproval ? "0" : totalCostInETH
-                  } ETH`}
+                    useApproval
+                      ? `${totalCostInUSDT} USDT`
+                      : canUsePaymaster
+                      ? "0 ETH"
+                      : `${totalCostInETH} ETH`
+                  }`}
                 />
               </Stack>
             </ModalBody>

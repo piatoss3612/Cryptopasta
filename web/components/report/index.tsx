@@ -312,7 +312,7 @@ const Report = () => {
       rounded="lg"
       p={6}
       m="10px auto"
-      w={["100%", "80%", "60%"]}
+      w={["88%", "80%", "60%"]}
       as="form"
       onSubmit={handleSubmit}
     >

@@ -4,6 +4,7 @@ import MissionBoardAbi from "./MissionBoard";
 import CryptopastaAbi from "./Cryptopasta";
 import MissionLogAbi from "./MissionLog";
 import MockUSDTAbi from "./MockUSDT";
+import PriceConverterAbi from "./PriceConverter";
 
 export {
   AgentRegistryAbi,
@@ -12,4 +13,5 @@ export {
   CryptopastaAbi,
   MissionLogAbi,
   MockUSDTAbi,
+  PriceConverterAbi,
 };

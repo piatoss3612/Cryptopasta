@@ -2,5 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { IAgentRegistry__factory } from "./IAgentRegistry__factory";
-export { IBulletinBoard__factory } from "./IBulletinBoard__factory";
 export { IMissionBoard__factory } from "./IMissionBoard__factory";

@@ -80,10 +80,10 @@ const Reports = () => {
       flexGrow={1}
       p={4}
       maxW={{ base: "90%", lg: "48%" }}
-      h="76vh"
+      h="72vh"
       overflowY={hasData ? "auto" : "hidden"}
     >
-      {!hasData && (
+      {!isLoading && !hasData && (
         <VStack h="100%" justify="center" align="center">
           <Text fontSize="2xl">No report available.</Text>
           <Button
@@ -111,11 +111,6 @@ const Reports = () => {
           </React.Fragment>
         ))}
       </VStack>
-      {isLoading && (
-        <Center>
-          <Spinner size="xl" />
-        </Center>
-      )}
       <Center m={4} ref={loadMoreRef}>
         {hasNextPage && <Text>Load More</Text>}
       </Center>

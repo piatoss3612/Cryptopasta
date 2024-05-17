@@ -39,7 +39,7 @@ const Menu = () => {
 
     const params = getPaymasterApprovalParams(account as `0x${string}`);
 
-    onOpenPayment("Paymaster USDT Approval", params);
+    onOpenPayment("Paymaster Approval", params);
   };
 
   const handleFaucet = () => {

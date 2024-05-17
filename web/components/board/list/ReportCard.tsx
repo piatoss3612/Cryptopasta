@@ -34,6 +34,7 @@ const ReportCard = ({
       onClick={() => {
         navigate.push(`/board/${reportId}`);
       }}
+      cursor="pointer"
     >
       <VStack align="start" spacing={4} px={4} color="black">
         <HStack justify="space-between" w="full">

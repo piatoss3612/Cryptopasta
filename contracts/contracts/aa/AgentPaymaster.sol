@@ -29,6 +29,7 @@ contract AgentPaymaster is IPaymaster, Ownable {
     error AgentPaymaster__UnsupportedToken();
 
     uint256 public constant TOKEN_PAYMENT_SPONSOR_RATE = 500; // 5%
+    uint256 public constant MIN_EXCEPTION_ON_REFUND = 0.005 * 10 ** 6; // 0.005 USDT
 
     IERC721 private immutable nft_asset;
     PriceConverter private immutable priceConverter;
@@ -38,6 +39,10 @@ contract AgentPaymaster is IPaymaster, Ownable {
 
     mapping(address => uint256) public dailyTransactionCount;
     mapping(address => uint256) public lastTransactionTimestamp;
+
+    event TransactionLimitChanged(uint256 newLimit);
+    event Approved(address indexed user, uint256 requiredUsdtAmount, uint256 sponsored);
+    event Refund(address indexed user, uint256 requiredUsdtAmount, uint256 usedUsdtAmount, uint256 usdtRefund);
 
     modifier onlyBootloader() {
         require(msg.sender == BOOTLOADER_FORMAL_ADDRESS, "Only bootloader can call this method");
@@ -55,6 +60,7 @@ contract AgentPaymaster is IPaymaster, Ownable {
 
     function setMaxTransactionsPerDay(uint256 _maxTransactionsPerDay) external onlyOwner {
         maxTransactionsPerDay = _maxTransactionsPerDay;
+        emit TransactionLimitChanged(_maxTransactionsPerDay);
     }
 
     // The gas fees will be paid for by the paymaster if the user is the owner of the required NFT asset.
@@ -112,21 +118,23 @@ contract AgentPaymaster is IPaymaster, Ownable {
     }
 
     function _approvalBasedPaymasterFlow(address _user, uint256 _requiredETH) internal returns (bytes memory context) {
-        uint256 usdtAmount = priceConverter.convertNativeAssetToUSDT(_requiredETH);
+        uint256 requiredUsdtAmount = priceConverter.convertNativeAssetToUSDT(_requiredETH);
         uint256 sponsored;
 
-        if (usdtAmount > 0) {
-            sponsored = usdtAmount * TOKEN_PAYMENT_SPONSOR_RATE / 10000; // 5% of the fee
-            usdtAmount -= sponsored;
+        if (requiredUsdtAmount > 0) {
+            sponsored = requiredUsdtAmount * TOKEN_PAYMENT_SPONSOR_RATE / 10000; // 5% of the fee
+            requiredUsdtAmount -= sponsored;
         }
 
         uint256 balance = IERC20(usdt).balanceOf(address(this));
-        IERC20(usdt).transferFrom(_user, address(this), usdtAmount);
-        if (IERC20(usdt).balanceOf(address(this)) - balance < usdtAmount) {
+        IERC20(usdt).transferFrom(_user, address(this), requiredUsdtAmount);
+        if (IERC20(usdt).balanceOf(address(this)) - balance < requiredUsdtAmount) {
             revert AgentPaymaster__FundsTransferFailed();
         }
 
-        context = abi.encode(usdtAmount, sponsored);
+        context = abi.encode(requiredUsdtAmount, sponsored);
+
+        emit Approved(_user, requiredUsdtAmount, sponsored);
     }
 
     function postTransaction(
@@ -142,20 +150,30 @@ contract AgentPaymaster is IPaymaster, Ownable {
             return;
         }
 
-        (uint256 usdtAmount, uint256 sponsored) = abi.decode(_context, (uint256, uint256));
+        (uint256 requiredUsdtAmount, uint256 sponsored) = abi.decode(_context, (uint256, uint256));
 
         // Calculate the amount of USDT to refund to the user
-        //
-        uint256 usdtRefund = priceConverter.convertNativeAssetToUSDT(_maxRefundedGas);
-        if (usdtRefund > sponsored) {
-            usdtRefund -= sponsored;
-        } else {
-            usdtRefund = 0;
+        uint256 usedGas = _transaction.gasLimit - _maxRefundedGas;
+        uint256 usedUsdtAmount = priceConverter.convertNativeAssetToUSDT(usedGas);
+        usedUsdtAmount -= usedUsdtAmount * TOKEN_PAYMENT_SPONSOR_RATE / 10000;
+
+        if (usedUsdtAmount == 0) {
+            usedUsdtAmount = MIN_EXCEPTION_ON_REFUND;
         }
 
-        if (usdtRefund > 0) {
-            IERC20(usdt).transfer(address(uint160(_transaction.from)), usdtRefund);
+        uint256 usdtRefund;
+
+        if (requiredUsdtAmount > usedUsdtAmount) {
+            usdtRefund = requiredUsdtAmount - usedUsdtAmount;
         }
+
+        address userAddress = address(uint160(_transaction.from));
+
+        if (usdtRefund > 0) {
+            IERC20(usdt).transfer(userAddress, usdtRefund);
+        }
+
+        emit Refund(userAddress, requiredUsdtAmount, usedUsdtAmount, usdtRefund);
     }
 
     function withdraw(address payable _to) external onlyOwner {

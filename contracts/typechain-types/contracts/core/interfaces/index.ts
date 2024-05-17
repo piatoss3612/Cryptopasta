@@ -2,5 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { IAgentRegistry } from "./IAgentRegistry";
-export type { IBulletinBoard } from "./IBulletinBoard";
 export type { IMissionBoard } from "./IMissionBoard";
