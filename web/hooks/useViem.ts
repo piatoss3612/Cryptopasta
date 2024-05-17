@@ -1,3 +1,5 @@
+import { PriceConverterAbi } from "@/libs/abis";
+import { PRICE_CONVERTER } from "@/libs/constant";
 import {
   PrepareTransactionRequestRequest,
   createPublicClient,
@@ -30,7 +32,39 @@ const useViem = () => {
     return await client.estimateGas(params);
   };
 
-  return { client, getGasPrice, estimateGas };
+  const getUsdPriceInETH = async (usdAmount: bigint) => {
+    if (!client) {
+      throw new Error("Client not initialized");
+    }
+
+    return await client.readContract({
+      address: PRICE_CONVERTER,
+      abi: PriceConverterAbi,
+      functionName: "convertUSDToNativeAsset",
+      args: [usdAmount],
+    });
+  };
+
+  const getUsdPriceInUSDT = async (usdAmount: bigint) => {
+    if (!client) {
+      throw new Error("Client not initialized");
+    }
+
+    return await client.readContract({
+      address: PRICE_CONVERTER,
+      abi: PriceConverterAbi,
+      functionName: "convertUSDToUSDT",
+      args: [usdAmount],
+    });
+  };
+
+  return {
+    client,
+    getGasPrice,
+    estimateGas,
+    getUsdPriceInETH,
+    getUsdPriceInUSDT,
+  };
 };
 
 export default useViem;

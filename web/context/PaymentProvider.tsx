@@ -7,7 +7,7 @@ import { isZeroAddress } from "@/libs/utils";
 import { useDisclosure, useToast } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { createContext, useState } from "react";
-import { encodeFunctionData, formatEther, parseEther } from "viem";
+import { encodeFunctionData, formatEther, formatUnits, parseEther } from "viem";
 import {
   getApprovalBasedPaymasterInput,
   getGeneralPaymasterInput,
@@ -226,7 +226,7 @@ const PaymentProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const totalPriceInUSDTValue = totalPriceInUSDT
-    ? parseFloat(totalPriceInUSDT.toString()) / 10 ** 6
+    ? formatUnits(totalPriceInUSDT, 6)
     : 0;
 
   const sponsoredTotalCostInUSDT = totalPriceInUSDTValue * 0.95;

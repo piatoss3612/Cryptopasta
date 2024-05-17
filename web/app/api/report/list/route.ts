@@ -26,114 +26,114 @@ const GET = async (req: NextRequest) => {
     //   reportDiscoveries: [],
     // };
 
-    const dummyReportList: ReportList = {
-      reportDiscoveries: [
-        {
-          reportId: "1",
-          reporter: "0x1234567890",
-          priceInUSD: "1000",
-          title: "Test Report",
-          contentURI: "https://example.com",
-          blockTimestamp: "1630368000",
-        },
-        {
-          reportId: "1",
-          reporter: "0x1234567890",
-          priceInUSD: "1000",
-          title: "Test Report",
-          contentURI: "https://example.com",
-          blockTimestamp: "1630368000",
-        },
-        {
-          reportId: "1",
-          reporter: "0x1234567890",
-          priceInUSD: "1000",
-          title: "Test Report",
-          contentURI: "https://example.com",
-          blockTimestamp: "1630368000",
-        },
-        {
-          reportId: "1",
-          reporter: "0x1234567890",
-          priceInUSD: "1000",
-          title: "Test Report",
-          contentURI: "https://example.com",
-          blockTimestamp: "1630368000",
-        },
-        {
-          reportId: "1",
-          reporter: "0x1234567890",
-          priceInUSD: "1000",
-          title: "Test Report",
-          contentURI: "https://example.com",
-          blockTimestamp: "1630368000",
-        },
-        {
-          reportId: "1",
-          reporter: "0x1234567890",
-          priceInUSD: "1000",
-          title: "Test Report",
-          contentURI: "https://example.com",
-          blockTimestamp: "1630368000",
-        },
-        {
-          reportId: "1",
-          reporter: "0x1234567890",
-          priceInUSD: "1000",
-          title: "Test Report",
-          contentURI: "https://example.com",
-          blockTimestamp: "1630368000",
-        },
-        {
-          reportId: "1",
-          reporter: "0x1234567890",
-          priceInUSD: "1000",
-          title: "Test Report",
-          contentURI: "https://example.com",
-          blockTimestamp: "1630368000",
-        },
-        {
-          reportId: "1",
-          reporter: "0x1234567890",
-          priceInUSD: "1000",
-          title: "Test Report",
-          contentURI: "https://example.com",
-          blockTimestamp: "1630368000",
-        },
-        {
-          reportId: "1",
-          reporter: "0x1234567890",
-          priceInUSD: "1000",
-          title: "Test Report",
-          contentURI: "https://example.com",
-          blockTimestamp: "1630368000",
-        },
-      ],
-    };
+    // const dummyReportList: ReportList = {
+    //   reportDiscoveries: [
+    //     {
+    //       reportId: "1",
+    //       reporter: "0x1234567890",
+    //       priceInUSD: "1000",
+    //       title: "Test Report",
+    //       contentURI: "https://example.com",
+    //       blockTimestamp: "1630368000",
+    //     },
+    //     {
+    //       reportId: "1",
+    //       reporter: "0x1234567890",
+    //       priceInUSD: "1000",
+    //       title: "Test Report",
+    //       contentURI: "https://example.com",
+    //       blockTimestamp: "1630368000",
+    //     },
+    //     {
+    //       reportId: "1",
+    //       reporter: "0x1234567890",
+    //       priceInUSD: "1000",
+    //       title: "Test Report",
+    //       contentURI: "https://example.com",
+    //       blockTimestamp: "1630368000",
+    //     },
+    //     {
+    //       reportId: "1",
+    //       reporter: "0x1234567890",
+    //       priceInUSD: "1000",
+    //       title: "Test Report",
+    //       contentURI: "https://example.com",
+    //       blockTimestamp: "1630368000",
+    //     },
+    //     {
+    //       reportId: "1",
+    //       reporter: "0x1234567890",
+    //       priceInUSD: "1000",
+    //       title: "Test Report",
+    //       contentURI: "https://example.com",
+    //       blockTimestamp: "1630368000",
+    //     },
+    //     {
+    //       reportId: "1",
+    //       reporter: "0x1234567890",
+    //       priceInUSD: "1000",
+    //       title: "Test Report",
+    //       contentURI: "https://example.com",
+    //       blockTimestamp: "1630368000",
+    //     },
+    //     {
+    //       reportId: "1",
+    //       reporter: "0x1234567890",
+    //       priceInUSD: "1000",
+    //       title: "Test Report",
+    //       contentURI: "https://example.com",
+    //       blockTimestamp: "1630368000",
+    //     },
+    //     {
+    //       reportId: "1",
+    //       reporter: "0x1234567890",
+    //       priceInUSD: "1000",
+    //       title: "Test Report",
+    //       contentURI: "https://example.com",
+    //       blockTimestamp: "1630368000",
+    //     },
+    //     {
+    //       reportId: "1",
+    //       reporter: "0x1234567890",
+    //       priceInUSD: "1000",
+    //       title: "Test Report",
+    //       contentURI: "https://example.com",
+    //       blockTimestamp: "1630368000",
+    //     },
+    //     {
+    //       reportId: "1",
+    //       reporter: "0x1234567890",
+    //       priceInUSD: "1000",
+    //       title: "Test Report",
+    //       contentURI: "https://example.com",
+    //       blockTimestamp: "1630368000",
+    //     },
+    //   ],
+    // };
 
-    // const query = gql`
-    //   {
-    //     reportDiscoveries(
-    //         first: 10
-    //         skip: ${(pageNum - 1) * limitNum}
-    //         orderBy: reportId
-    //         orderDirection: desc
-    //     ) {
-    //         reportId
-    //         reporter
-    //         priceInUSD
-    //         title
-    //         blockTimestamp
-    //     }
-    //   }
-    // `;
+    const query = gql`
+      {
+        reportDiscoveries(
+            first: 10
+            skip: ${(pageNum - 1) * limitNum}
+            orderBy: reportId
+            orderDirection: desc
+        ) {
+            reportId
+            reporter
+            priceInUSD
+            title
+            blockTimestamp
+        }
+      }
+    `;
 
-    // const response = await request<ReportList>(
-    //   THE_GRAPH_MISSION_BOARD_QUERY_URL,
-    //   query
-    // );
+    const response = await request<ReportList>(
+      THE_GRAPH_MISSION_BOARD_QUERY_URL,
+      query
+    );
 
-    return Response.json(dummyReportList, { status: 200 });
+    return Response.json(response, { status: 200 });
   } catch (e) {
     console.log(e);
     const error = e as Error;

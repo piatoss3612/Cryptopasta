@@ -21,7 +21,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MISSION_BOARD, MOCK_USDT } from "@/libs/constant";
 import { PaymentMethod, TransactionRequest } from "@/types";
 import { pinFileToIPFS, pinJsonToIPFS } from "@/actions";
-import { encodeFunctionData } from "viem";
+import { encodeFunctionData, formatUnits } from "viem";
 
 interface Form1Data {
   title: string;
@@ -38,7 +38,7 @@ const Report = () => {
   const TOTAL_STEPS = 3;
   const { client } = useViem();
   const { authenticated, account, getAccessToken, walletClient } = useAgent();
-  const { onOpenPayment, getPaymasterParams } = usePayment();
+  const { onOpenPayment } = usePayment();
   const navigator = useRouter();
   const toast = useToast();
 
@@ -160,12 +160,10 @@ const Report = () => {
   });
 
   const reportingCostInETH = reportingCostInETHData
-    ? parseFloat(reportingCostInETHData[0].toString()) /
-      10 ** reportingCostInETHData[1]
+    ? formatUnits(reportingCostInETHData[0], reportingCostInETHData[1])
     : 0;
   const reportingCostInUSDT = reportingCostInUSDTData
-    ? parseFloat(reportingCostInUSDTData[0].toString()) /
-      10 ** reportingCostInUSDTData[1]
+    ? formatUnits(reportingCostInUSDTData[0], reportingCostInUSDTData[1])
     : 0;
 
   const handleBack = () => {
