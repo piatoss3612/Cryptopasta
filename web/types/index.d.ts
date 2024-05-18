@@ -51,6 +51,20 @@ interface ReportList {
   reportDiscoveries: Report[];
 }
 
+interface ChatHistoryItem {
+  id: number;
+  title: string;
+}
+
+type ChatHistory = ChatHistoryItem[];
+
+interface Message {
+  id?: number;
+  content: string;
+  isUser: boolean;
+  isTyping?: boolean;
+}
+
 export type {
   TokenMetadata,
   TransactionRequest,
@@ -59,4 +73,7 @@ export type {
   PinResponse,
   Report,
   ReportList,
+  ChatHistoryItem,
+  ChatHistory,
+  Message,
 };
