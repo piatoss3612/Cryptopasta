@@ -9,10 +9,13 @@ import (
 type Config struct {
 	PrivateKey           string `json:"privateKey"`
 	AgentRegistryAddr    string `json:"agentRegistryAddr"`
+	MissionBoardAddr     string `json:"missionBoardAddr"`
 	PrivyAppID           string `json:"privyAppId"`
 	PrivyVerificationKey string `json:"privyVerificationKey"`
 	PinataApiKey         string `json:"pinataApiKey"`
 	PinataSecretKey      string `json:"pinataSecretKey"`
+	OpenaiApiKey         string `json:"openaiApiKey"`
+	MongoUri             string `json:"mongoUri"`
 }
 
 func LoadConfig() *Config {

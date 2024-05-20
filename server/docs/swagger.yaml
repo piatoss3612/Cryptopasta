@@ -1,4 +1,39 @@
 definitions:
+  mission.Entry:
+    properties:
+      createdAt:
+        type: integer
+      id:
+        type: string
+      messages:
+        items:
+          $ref: '#/definitions/mission.Message'
+        type: array
+      missionID:
+        type: string
+    type: object
+  mission.Message:
+    properties:
+      content:
+        type: string
+      image:
+        type: string
+      isUser:
+        type: boolean
+    type: object
+  mission.Mission:
+    properties:
+      agentID:
+        type: string
+      createdAt:
+        type: integer
+      id:
+        type: string
+      reportID:
+        type: string
+      title:
+        type: string
+    type: object
   pinata.PinResponse:
     properties:
       IpfsHash:
@@ -8,12 +43,49 @@ definitions:
       Timestamp:
         type: string
     type: object
+  route.ActOnMissionRequest:
+    properties:
+      input:
+        type: string
+    type: object
   route.AgentRegisterRequest:
     properties:
       agent_address:
         type: string
       portrait_id:
         type: string
+    type: object
+  route.AgentRegisterResponse:
+    properties:
+      agent_account:
+        type: string
+      token_id:
+        type: string
+    type: object
+  route.CreateMissionRequest:
+    properties:
+      agent_id:
+        type: string
+      report_id:
+        type: string
+    type: object
+  route.GetMissionsRequest:
+    properties:
+      agent_id:
+        type: string
+      last_mission_id:
+        type: string
+      limit:
+        type: integer
+    type: object
+  route.GetMissionsResponse:
+    properties:
+      cursor:
+        type: string
+      missions:
+        items:
+          $ref: '#/definitions/mission.Mission'
+        type: array
     type: object
   route.Metadata:
     properties:
@@ -56,7 +128,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/route.AgentRegisterResponse'
         "400":
           description: Bad Request
           schema:
@@ -70,6 +142,155 @@ paths:
       summary: Agent Register
       tags:
       - agent
+  /mission:
+    get:
+      consumes:
+      - application/json
+      description: Get missions by agent id
+      parameters:
+      - description: Get Missions Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/route.GetMissionsRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/route.GetMissionsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get Missions
+      tags:
+      - mission
+    post:
+      consumes:
+      - application/json
+      description: Create a new mission
+      parameters:
+      - description: Create Mission Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/route.CreateMissionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mission.Mission'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create Mission
+      tags:
+      - mission
+  /mission/{missionID}:
+    post:
+      consumes:
+      - application/json
+      description: Act on a mission
+      parameters:
+      - description: Mission ID
+        in: path
+        name: missionID
+        required: true
+        type: string
+      - description: Act On Mission Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/route.ActOnMissionRequest'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Act On Mission
+      tags:
+      - mission
+  /mission/{missionID}/entries:
+    get:
+      consumes:
+      - text/plain
+      description: Get mission entries by mission id
+      parameters:
+      - description: Mission ID
+        in: path
+        name: missionID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/mission.Entry'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get Mission Entries
+      tags:
+      - mission
   /pinata/pinFile:
     post:
       description: Pin file to IPFS

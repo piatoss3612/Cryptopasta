@@ -25,20 +25,8 @@ type AgentService struct {
 	privateKey *ecdsa.PrivateKey
 }
 
-func NewAgentService(ctx context.Context, contractAddr string, privateKeyStr string) *AgentService {
+func NewAgentService(client clients.Client, registry *contracts.AgentRegistry, privateKeyStr string) *AgentService {
 	privateKey, err := crypto.HexToECDSA(privateKeyStr)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	client, err := clients.DialContext(ctx, zkSyncSepoliaRpcUrl)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	agentRegistryAddr := common.HexToAddress(contractAddr)
-
-	registry, err := contracts.NewAgentRegistry(agentRegistryAddr, client)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -113,10 +101,6 @@ func (a *AgentService) RegisterAgent(ctx context.Context, agentAddr string, port
 	tokenId := event.TokenId
 
 	return account, tokenId, nil
-}
-
-func (a *AgentService) Close() {
-	a.client.Close()
 }
 
 func (a *AgentService) callOpts(ctx context.Context) *bind.CallOpts {

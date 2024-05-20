@@ -8,7 +8,7 @@ import (
 	chiddleware "github.com/go-chi/chi/v5/middleware"
 )
 
-type Route interface {
+type Routes interface {
 	Pattern() string
 	Handler() http.Handler
 }
@@ -17,7 +17,7 @@ type Router struct {
 	*chi.Mux
 }
 
-func NewRouter(routes ...Route) *Router {
+func NewRouter(routes ...Routes) *Router {
 	r := chi.NewRouter()
 
 	// middlewares

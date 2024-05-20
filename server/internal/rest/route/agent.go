@@ -17,7 +17,7 @@ type AgentRoute struct {
 	r *agent.AgentService
 }
 
-func NewAgentRoute(j *jwt.JwtService, r *agent.AgentService) *AgentRoute {
+func NewAgentRoutes(j *jwt.JwtService, r *agent.AgentService) *AgentRoute {
 	return &AgentRoute{j: j, r: r}
 }
 
@@ -40,7 +40,7 @@ func (a *AgentRoute) Handler() http.Handler {
 //	@Accept			json
 //	@Produce		plain
 //	@Param			request	body		AgentRegisterRequest	true	"Agent Register Request"
-//	@Success		200		{string}	string					"OK"
+//	@Success		200		{object}	AgentRegisterResponse	"OK"
 //	@Failure		400		{string}	string					"Bad Request"
 //	@Failure		401		{string}	string					"Unauthorized"
 //	@Router			/agent [post]
@@ -86,7 +86,7 @@ func (a *AgentRoute) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 5. send message to initiate token creation
+	// 5. send message to confirm agent registration
 	err = sw.WriteEvent(&sse.Event{
 		Type: "agent_register_success",
 		Data: AgentRegisterResponse{
@@ -96,7 +96,6 @@ func (a *AgentRoute) register(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		slog.Error("error while writing event", "error", err)
-		return
 	}
 
 }

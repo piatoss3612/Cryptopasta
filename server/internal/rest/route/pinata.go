@@ -16,7 +16,7 @@ type PinataRoute struct {
 	p *pinata.PinataService
 }
 
-func NewPinataRoute(j *jwt.JwtService, p *pinata.PinataService) *PinataRoute {
+func NewPinataRoutes(j *jwt.JwtService, p *pinata.PinataService) *PinataRoute {
 	return &PinataRoute{j: j, p: p}
 }
 

@@ -20,6 +20,17 @@ services:
       - source: server-config
         target: /config.json
 
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongo-data:/data/db
+
   swagger:
     container_name: swagger
     build:
@@ -28,6 +39,9 @@ services:
       dockerfile: ./build/swagger/Dockerfile
     ports:
       - 1323:1323
+
+volumes:
+  mongo-data:
 
 configs:
   server-config:

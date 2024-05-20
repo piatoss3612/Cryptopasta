@@ -1,8 +1,11 @@
 {
     "privateKey": "",
     "agentRegistryAddr": "",
+    "missionBoardAddr": "",
     "privy_app_id": "",
     "privy_verification_key": "",
     "pinataApiKey": "",
-    "pinataSecretKey": ""
+    "pinataSecretKey": "",
+    "openaiApiKey": "",
+    "mongoUri": ""
 }

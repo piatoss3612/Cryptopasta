@@ -5,7 +5,7 @@ import "net/http"
 type PingRoute struct {
 }
 
-func NewPingRoute() *PingRoute {
+func NewPingRoutes() *PingRoute {
 	return &PingRoute{}
 }
 

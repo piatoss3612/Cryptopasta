@@ -4,12 +4,18 @@ import (
 	"context"
 	"cryptopasta/internal/app"
 	"cryptopasta/internal/config"
+	"cryptopasta/internal/db"
 	"cryptopasta/internal/rest"
 	"cryptopasta/internal/rest/route"
 	"cryptopasta/internal/service/agent"
 	"cryptopasta/internal/service/jwt"
+	"cryptopasta/internal/service/mission"
 	"cryptopasta/internal/service/pinata"
+	"cryptopasta/internal/zksync"
+	"log"
 	"log/slog"
+
+	"github.com/tmc/langchaingo/llms/openai"
 )
 
 //	@title			Cryptopasta API
@@ -38,20 +44,49 @@ func main() {
 
 	cfg := config.LoadConfig()
 
+	llm, err := openai.New(openai.WithModel("gpt-4o"), openai.WithToken(cfg.OpenaiApiKey))
+	if err != nil {
+		log.Fatal("failed to create openai client", "err", err)
+	}
+
+	mongoClient, err := db.NewMongoClient(context.Background(), cfg.MongoUri)
+	if err != nil {
+		log.Fatal("failed to create mongo client", "err", err)
+	}
+
+	tx := db.NewMongoTx(mongoClient, "cryptopasta")
+
+	zkClient, err := zksync.NewClient(context.Background())
+	if err != nil {
+		log.Fatal("failed to create zksync client", "err", err)
+	}
+
+	agentRegistry, err := zksync.NewAgentRegistry(cfg.AgentRegistryAddr, zkClient)
+	if err != nil {
+		log.Fatal("failed to create agent registry", "err", err)
+	}
+
+	missionBoard, err := zksync.NewMissionBoard(cfg.MissionBoardAddr, zkClient)
+	if err != nil {
+		log.Fatal("failed to create mission board", "err", err)
+	}
+
 	jwtSvc := jwt.NewJwtService(cfg.PrivyAppID, cfg.PrivyVerificationKey)
-	agentSvc := agent.NewAgentService(context.Background(), cfg.AgentRegistryAddr, cfg.PrivateKey)
+	agentSvc := agent.NewAgentService(zkClient, agentRegistry, cfg.PrivateKey)
 	pinataSvc := pinata.NewPinataService(cfg.PinataApiKey, cfg.PinataSecretKey)
+	missionSvc := mission.NewMissionService(llm, missionBoard, tx)
 
 	cfg = nil
 
-	pingRoute := route.NewPingRoute()
-	agentRoute := route.NewAgentRoute(jwtSvc, agentSvc)
-	pinataRoute := route.NewPinataRoute(jwtSvc, pinataSvc)
+	pingRoute := route.NewPingRoutes()
+	agentRoute := route.NewAgentRoutes(jwtSvc, agentSvc)
+	pinataRoute := route.NewPinataRoutes(jwtSvc, pinataSvc)
+	missionRoutes := route.NewMissionRoutes(jwtSvc, missionSvc)
 
-	r := rest.NewRouter(pingRoute, agentRoute, pinataRoute)
+	r := rest.NewRouter(pingRoute, agentRoute, pinataRoute, missionRoutes)
 
 	app.NewApp(":8080", r).Run(func() {
 		// cleanup
-		agentSvc.Close()
+		zkClient.Close()
 	})
 }
