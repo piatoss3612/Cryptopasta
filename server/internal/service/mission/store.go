@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -57,4 +59,36 @@ func (s *MissionStore) CreateEntry(ctx context.Context, missionID string, messag
 	}
 
 	return result.InsertedID.(string), nil
+}
+
+func (s *MissionStore) UpdateEntry(ctx context.Context, id string, messages []Message) error {
+	collection := s.client.Database(s.dbname).Collection("entries")
+
+	if len(messages) == 0 {
+		return errors.New("no messages provided")
+	}
+
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	filter := bson.M{"_id": objID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"messages": messages,
+		},
+	}
+
+	result, err := collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
+	}
+
+	if result.ModifiedCount == 0 {
+		return errors.New("entry not found")
+	}
+
+	return nil
 }

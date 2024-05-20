@@ -1,7 +1,6 @@
 package route
 
 import (
-	"context"
 	"cryptopasta/internal/rest/middleware"
 	"cryptopasta/internal/rest/sse"
 	"cryptopasta/internal/service/jwt"
@@ -139,7 +138,7 @@ func (m *MissionRoutes) createMission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	streamFunc := mission.StreamFunc(func(ctx context.Context, chunk []byte) error {
+	streamFunc := mission.StreamFunc(func(chunk []byte) error {
 		return sw.WriteEvent(&sse.Event{
 			Type: "chunk",
 			Data: string(chunk),
@@ -197,14 +196,15 @@ func (m *MissionRoutes) actOnMission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	streamFunc := mission.StreamFunc(func(ctx context.Context, chunk []byte) error {
+	streamFunc := mission.StreamFunc(func(chunk []byte) error {
 		return sw.WriteEvent(&sse.Event{
 			Type: "chunk",
 			Data: string(chunk),
 		})
 	})
 
-	if err := m.m.ActOnMission(r.Context(), missionID, req.Input, streamFunc); err != nil {
+	entryID, err := m.m.ActOnMission(r.Context(), missionID, req.Input, streamFunc)
+	if err != nil {
 		slog.Error("error acting on mission", "error", err)
 		sw.WriteEvent(&sse.Event{
 			Type: "mission_act_error",
@@ -212,6 +212,21 @@ func (m *MissionRoutes) actOnMission(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	imageB64JSON, err := m.m.VisualizeLatestMissionState(r.Context(), missionID, entryID)
+	if err != nil {
+		slog.Error("error visualizing mission state", "error", err)
+		sw.WriteEvent(&sse.Event{
+			Type: "mission_visualize_error",
+			Data: "error visualizing mission state",
+		})
+		return
+	}
+
+	_ = sw.WriteEvent(&sse.Event{
+		Type: "mission_visualize_success",
+		Data: imageB64JSON,
+	})
 }
 
 type GetMissionsRequest struct {

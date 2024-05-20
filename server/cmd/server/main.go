@@ -15,7 +15,7 @@ import (
 	"log"
 	"log/slog"
 
-	"github.com/tmc/langchaingo/llms/openai"
+	openai "github.com/sashabaranov/go-openai"
 )
 
 //	@title			Cryptopasta API
@@ -44,10 +44,7 @@ func main() {
 
 	cfg := config.LoadConfig()
 
-	llm, err := openai.New(openai.WithModel("gpt-4o"), openai.WithToken(cfg.OpenaiApiKey))
-	if err != nil {
-		log.Fatal("failed to create openai client", "err", err)
-	}
+	llm := openai.NewClient(cfg.OpenaiApiKey)
 
 	mongoClient, err := db.NewMongoClient(context.Background(), cfg.MongoUri)
 	if err != nil {
@@ -88,5 +85,8 @@ func main() {
 	app.NewApp(":8080", r).Run(func() {
 		// cleanup
 		zkClient.Close()
+		mongoClient.Disconnect(context.Background())
+
+		slog.Info("server stopped gracefully")
 	})
 }

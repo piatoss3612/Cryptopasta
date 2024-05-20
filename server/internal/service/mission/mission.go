@@ -7,26 +7,27 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"math/big"
 	"net/http"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
-	"github.com/tmc/langchaingo/llms"
-	"github.com/tmc/langchaingo/llms/openai"
+
+	openai "github.com/sashabaranov/go-openai"
 )
 
-type StreamFunc func(ctx context.Context, chunk []byte) error
+type StreamFunc func(chunk []byte) error
 
 type MissionService struct {
-	llm   *openai.LLM
+	llm   *openai.Client
 	mb    *contracts.MissionBoard
 	query *MissionQuery
 	store *MissionStore
 	tx    *db.MongoTx
 }
 
-func NewMissionService(llm *openai.LLM, mb *contracts.MissionBoard, tx *db.MongoTx) *MissionService {
+func NewMissionService(llm *openai.Client, mb *contracts.MissionBoard, tx *db.MongoTx) *MissionService {
 	return &MissionService{
 		llm:   llm,
 		query: NewMissionQuery(tx.Client, tx.DBName),
@@ -45,6 +46,14 @@ func (s *MissionService) GetMissionsByAgentID(ctx context.Context, agentID, last
 
 func (s *MissionService) GetEntriesByMissionID(ctx context.Context, missionID string) ([]Entry, error) {
 	return s.query.FindEntriesByMissionID(ctx, missionID)
+}
+
+func (s *MissionService) GetEntryByID(ctx context.Context, entryID string) (*Entry, error) {
+	return s.query.FindEntryByID(ctx, entryID)
+}
+
+func (s *MissionService) UpdateEntry(ctx context.Context, entryID string, messages []Message) error {
+	return s.store.UpdateEntry(ctx, entryID, messages)
 }
 
 func (s *MissionService) CreateMission(ctx context.Context, agentID, reportID string, streamFunc StreamFunc) (*Mission, error) {
@@ -92,22 +101,42 @@ func (s *MissionService) CreateMission(ctx context.Context, agentID, reportID st
 
 		// Initialize the mission with a message from the AI
 		// TODO: set the content of the message
-		content := []llms.MessageContent{
-			llms.TextParts(llms.ChatMessageTypeSystem, ""),
-			llms.TextParts(llms.ChatMessageTypeHuman, reportContent),
-		}
+		req := openai.ChatCompletionRequest{}
 
-		// Call the LLM
-		resp, err := s.llm.GenerateContent(ctx, content, llms.WithMaxTokens(2048), llms.WithStreamingFunc(streamFunc))
+		stream, err := s.llm.CreateChatCompletionStream(ctx, req)
 		if err != nil {
 			return nil, err
 		}
+		defer stream.Close()
 
 		builder := strings.Builder{}
 
-		// format the response
-		for _, choice := range resp.Choices {
-			builder.WriteString(choice.Content)
+	Stream:
+		for {
+			select {
+			case <-ctx.Done():
+				return nil, ctx.Err()
+			default:
+				streamResp, err := stream.Recv()
+				if err != nil {
+					if errors.Is(err, io.EOF) {
+						break Stream
+					}
+
+					return nil, err
+				}
+
+				for _, choice := range streamResp.Choices {
+					content := choice.Delta.Content
+
+					err = streamFunc([]byte(content))
+					if err != nil {
+						return nil, err
+					}
+
+					_, _ = builder.WriteString(content)
+				}
+			}
 		}
 
 		// Save the entry with the AI response
@@ -133,7 +162,7 @@ func (s *MissionService) CreateMission(ctx context.Context, agentID, reportID st
 	return mission, nil
 }
 
-func (s *MissionService) ActOnMission(ctx context.Context, missionID, input string, streamFunc StreamFunc) error {
+func (s *MissionService) ActOnMission(ctx context.Context, missionID, input string, streamFunc StreamFunc) (string, error) {
 	fn := func(ctx context.Context) (interface{}, error) {
 		// Get the mission
 		mission, err := s.query.FindMissionByID(ctx, missionID)
@@ -158,38 +187,72 @@ func (s *MissionService) ActOnMission(ctx context.Context, missionID, input stri
 		// Generate the request content with the previous messages
 		builder := strings.Builder{}
 
-		builder.WriteString("Previous game play context:\n")
+		_, _ = builder.WriteString("Previous game play context:\n")
 
 		for _, entry := range entries {
 			for _, message := range entry.Messages {
 				if message.IsUser {
-					builder.WriteString(fmt.Sprintf("User: %s\n", message.Content))
+					_, _ = builder.WriteString(fmt.Sprintf("User: %s\n", message.Content))
 				} else {
-					builder.WriteString(fmt.Sprintf("System: %s\n", message.Content))
+					_, _ = builder.WriteString(fmt.Sprintf("System: %s\n", message.Content))
 				}
 			}
 		}
 
-		content := []llms.MessageContent{
-			llms.TextParts(llms.ChatMessageTypeSystem, builder.String()),
-			llms.TextParts(llms.ChatMessageTypeHuman, input),
+		req := openai.ChatCompletionRequest{
+			Model: openai.GPT4o,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    openai.ChatMessageRoleSystem,
+					Content: builder.String(),
+				},
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: input,
+				},
+			},
+			Stream: true,
 		}
 
-		// Call the LLM
-		resp, err := s.llm.GenerateContent(ctx, content, llms.WithMaxTokens(2048), llms.WithStreamingFunc(streamFunc))
+		stream, err := s.llm.CreateChatCompletionStream(ctx, req)
 		if err != nil {
 			return nil, err
 		}
+		defer stream.Close()
 
 		builder.Reset()
 
-		// format the response
-		for _, choice := range resp.Choices {
-			builder.WriteString(choice.Content)
+	Stream:
+		for {
+			select {
+			case <-ctx.Done():
+				return nil, ctx.Err()
+			default:
+				streamResp, err := stream.Recv()
+				if err != nil {
+					if errors.Is(err, io.EOF) {
+						break Stream
+					}
+
+					return nil, err
+				}
+
+				for _, choice := range streamResp.Choices {
+					content := choice.Delta.Content
+
+					err = streamFunc([]byte(content))
+					if err != nil {
+						return nil, err
+					}
+
+					_, _ = builder.WriteString(content)
+				}
+			}
+
 		}
 
 		// Save the entry with the user input and the AI response
-		_, err = s.store.CreateEntry(ctx, missionID, []Message{
+		return s.store.CreateEntry(ctx, missionID, []Message{
 			{
 				Content: input,
 				IsUser:  true,
@@ -199,10 +262,106 @@ func (s *MissionService) ActOnMission(ctx context.Context, missionID, input stri
 				IsUser:  false,
 			}},
 		)
-
-		return nil, err
 	}
 
-	_, err := s.tx.Execute(ctx, fn)
-	return err
+	result, err := s.tx.Execute(ctx, fn)
+	if err != nil {
+		return "", err
+	}
+
+	entryID, ok := result.(string)
+	if !ok {
+		return "", errors.New("invalid entry ID type")
+	}
+
+	return entryID, nil
+}
+
+func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missionID, entryID string) (string, error) {
+	fn := func(ctx context.Context) (interface{}, error) {
+		entries, err := s.query.FindEntriesByMissionID(ctx, missionID, true)
+		if err != nil {
+			return "", err
+		}
+
+		if len(entries) == 0 {
+			return "", errors.New("no entries found")
+		}
+
+		builder := strings.Builder{}
+
+		for _, entry := range entries {
+			for _, message := range entry.Messages {
+				if message.IsUser {
+					_, _ = builder.WriteString(fmt.Sprintf("User: %s\n", message.Content))
+				} else {
+					_, _ = builder.WriteString(fmt.Sprintf("System: %s\n", message.Content))
+				}
+			}
+		}
+
+		req := openai.ChatCompletionRequest{}
+
+		resp, err := s.llm.CreateChatCompletion(ctx, req)
+		if err != nil {
+			return "", err
+		}
+
+		builder.Reset()
+
+		for _, choice := range resp.Choices {
+			builder.WriteString(choice.Message.Content)
+		}
+
+		summarizedContent := builder.String()
+
+		imageReq := openai.ImageRequest{
+			Model:          openai.CreateImageModelDallE3,
+			Size:           openai.CreateImageSize1024x1024,
+			ResponseFormat: openai.CreateImageResponseFormatB64JSON,
+			Prompt:         summarizedContent,
+		}
+
+		imageResp, err := s.llm.CreateImage(ctx, imageReq)
+		if err != nil {
+			return "", err
+		}
+
+		if len(imageResp.Data) == 0 {
+			return "", errors.New("no images found")
+		}
+
+		imageB64JSON := imageResp.Data[0].B64JSON
+
+		for _, entry := range entries {
+			if entry.ID == entryID {
+				for _, message := range entry.Messages {
+					if !message.IsUser {
+						message.Image = imageB64JSON
+					}
+				}
+
+				err = s.store.UpdateEntry(ctx, entryID, entry.Messages)
+				if err != nil {
+					return "", err
+				}
+
+				break
+			}
+		}
+
+		return imageB64JSON, nil
+	}
+
+	result, err := s.tx.Execute(ctx, fn)
+	if err != nil {
+		return "", err
+	}
+
+	imageB64JSON, ok := result.(string)
+	if !ok {
+		return "", errors.New("invalid image type")
+	}
+
+	return imageB64JSON, nil
 }

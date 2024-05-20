@@ -8,11 +8,13 @@ require (
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/httprate v0.9.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
+	github.com/sashabaranov/go-openai v1.24.0
 	github.com/spf13/viper v1.18.2
 	github.com/swaggo/http-swagger/v2 v2.0.2
 	github.com/swaggo/swag v1.16.3
 	github.com/tmc/langchaingo v0.1.10
 	github.com/zksync-sdk/zksync2-go v0.4.0
+	go.mongodb.org/mongo-driver v1.15.0
 )
 
 require (
@@ -65,7 +67,6 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
-	go.mongodb.org/mongo-driver v1.15.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
