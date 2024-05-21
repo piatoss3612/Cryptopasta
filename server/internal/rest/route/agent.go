@@ -2,7 +2,6 @@ package route
 
 import (
 	"cryptopasta/internal/rest/middleware"
-	"cryptopasta/internal/rest/sse"
 	"cryptopasta/internal/service/agent"
 	"cryptopasta/internal/service/jwt"
 	"cryptopasta/internal/utils"
@@ -38,7 +37,7 @@ func (a *AgentRoute) Handler() http.Handler {
 //	@Description	Register a new agent to the system
 //	@Tags			agent
 //	@Accept			json
-//	@Produce		plain
+//	@Produce		json
 //	@Param			request	body		AgentRegisterRequest	true	"Agent Register Request"
 //	@Success		200		{object}	AgentRegisterResponse	"OK"
 //	@Failure		400		{string}	string					"Bad Request"
@@ -57,47 +56,19 @@ func (a *AgentRoute) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 2. create stream writer
-	sw, err := sse.NewStreamWriter(w)
-	if err != nil {
-		slog.Error("error while creating stream writer", "error", err)
-		utils.WriteError(w, http.StatusBadRequest, "streaming unsupported")
-		return
-	}
-
-	// 3. send message to initiate agent registration
-	err = sw.WriteEvent(&sse.Event{
-		Type: "agent_register_start",
-		Data: "start agent registration",
-	})
-	if err != nil {
-		slog.Error("error while writing event", "error", err)
-		return
-	}
-
-	// 4. register agent
+	// 2. register agent
 	account, tokenId, err := a.r.RegisterAgent(r.Context(), req.AgentAddress, req.PortraitId)
 	if err != nil {
 		slog.Error("agent registration failed", "error", err)
-		_ = sw.WriteEvent(&sse.Event{
-			Type: "agent_register_error",
-			Data: err.Error(),
-		})
+		utils.WriteError(w, http.StatusBadRequest, "agent registration failed")
 		return
 	}
 
-	// 5. send message to confirm agent registration
-	err = sw.WriteEvent(&sse.Event{
-		Type: "agent_register_success",
-		Data: AgentRegisterResponse{
-			AgentAccount: account.Hex(),
-			TokenId:      tokenId.String(),
-		},
+	// 3. send response
+	_ = utils.WriteJSON(w, http.StatusOK, AgentRegisterResponse{
+		AgentAccount: account.Hex(),
+		TokenId:      tokenId.String(),
 	})
-	if err != nil {
-		slog.Error("error while writing event", "error", err)
-	}
-
 }
 
 type AgentRegisterRequest struct {

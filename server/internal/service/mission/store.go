@@ -35,7 +35,9 @@ func (s *MissionStore) CreateMission(ctx context.Context, title, agentID, report
 		return nil, err
 	}
 
-	mission.ID = result.InsertedID.(string)
+	objID := result.InsertedID.(primitive.ObjectID)
+
+	mission.ID = objID.Hex()
 
 	return &mission, nil
 }
@@ -59,7 +61,9 @@ func (s *MissionStore) CreateEntry(ctx context.Context, missionID string, messag
 		return "", err
 	}
 
-	return result.InsertedID.(string), nil
+	objID := result.InsertedID.(primitive.ObjectID)
+
+	return objID.Hex(), nil
 }
 
 func (s *MissionStore) UpdateEntry(ctx context.Context, id string, messages []Message, image string) error {

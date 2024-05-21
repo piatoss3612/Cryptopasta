@@ -5,19 +5,23 @@ definitions:
         type: integer
       id:
         type: string
+      image:
+        type: string
       messages:
         items:
           $ref: '#/definitions/mission.Message'
         type: array
       missionID:
         type: string
+      updateAt:
+        type: integer
     type: object
   mission.Message:
     properties:
       content:
         type: string
-      image:
-        type: string
+      isReport:
+        type: boolean
       isUser:
         type: boolean
     type: object
@@ -123,7 +127,7 @@ paths:
         schema:
           $ref: '#/definitions/route.AgentRegisterRequest'
       produces:
-      - text/plain
+      - application/json
       responses:
         "200":
           description: OK
@@ -289,6 +293,23 @@ paths:
       security:
       - BearerAuth: []
       summary: Get Mission Entries
+      tags:
+      - mission
+  /mission/ws:
+    get:
+      consumes:
+      - text/plain
+      description: Connect to a mission via websocket
+      parameters:
+      - description: Access Token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses: {}
+      summary: Connect WebSocket
       tags:
       - mission
   /pinata/pinFile:

@@ -16,24 +16,74 @@ services:
       context: .
       target: final
       dockerfile: ./build/server/Dockerfile
+    restart: "always"
     ports:
       - 8080:8080
     configs:
       - source: server-config
         target: /config.json
     depends_on:
-      - mongodb
+      - mongo1
+      - mongo2
 
-  mongodb:
-    container_name: mongodb
+  mongo1:
+    container_name: mongo1
     image: mongo:latest
+    restart: "always"
+    command:
+      [
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--port",
+        "27017",
+        "--keyFile",
+        "/etc/mongodb/pki/keyfile",
+      ]
     ports:
       - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
-      - mongo-data:/data/db
+      - ${PWD}/rs_keyfile:/etc/mongodb/pki/keyfile
+      - mongo1-data:/data/db
+      - mongo1-config:/data/configdb
+
+  mongo2:
+    container_name: mongo2
+    restart: "always"
+    image: mongo:latest
+    command:
+      [
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--port",
+        "27018",
+        "--keyFile",
+        "/etc/mongodb/pki/keyfile",
+      ]
+    ports:
+      - "27018:27018"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - ${PWD}/rs_keyfile:/etc/mongodb/pki/keyfile
+      - mongo2-data:/data/db
+      - mongo2-config:/data/configdb
+
+  mongo-setup:
+    container_name: mongo-setup
+    image: mongo:latest
+    depends_on:
+      - mongo1
+      - mongo2
+    volumes:
+      - ${PWD}/scripts:/scripts
+    restart: "no"
+    entrypoint: ["bash", "/scripts/mongo-rs-setup.sh"]
 
   swagger:
     container_name: swagger
@@ -44,12 +94,11 @@ services:
     ports:
       - 1323:1323
 
-networks:
-  mongo-net:
-    driver: bridge
-
 volumes:
-  mongo-data:
+  mongo1-data:
+  mongo1-config:
+  mongo2-data:
+  mongo2-config:
 
 configs:
   server-config:

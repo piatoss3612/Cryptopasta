@@ -36,7 +36,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "produces": [
-                    "text/plain"
+                    "application/json"
                 ],
                 "tags": [
                     "agent"
@@ -185,6 +185,31 @@ const docTemplate = `{
                         }
                     }
                 }
+            }
+        },
+        "/mission/ws": {
+            "get": {
+                "description": "Connect to a mission via websocket",
+                "consumes": [
+                    "text/plain"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "mission"
+                ],
+                "summary": "Connect WebSocket",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Access Token",
+                        "name": "token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
             }
         },
         "/mission/{missionID}": {
@@ -452,6 +477,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "image": {
+                    "type": "string"
+                },
                 "messages": {
                     "type": "array",
                     "items": {
@@ -460,6 +488,9 @@ const docTemplate = `{
                 },
                 "missionID": {
                     "type": "string"
+                },
+                "updateAt": {
+                    "type": "integer"
                 }
             }
         },
@@ -469,8 +500,8 @@ const docTemplate = `{
                 "content": {
                     "type": "string"
                 },
-                "image": {
-                    "type": "string"
+                "isReport": {
+                    "type": "boolean"
                 },
                 "isUser": {
                     "type": "boolean"

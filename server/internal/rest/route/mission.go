@@ -1,13 +1,17 @@
 package route
 
 import (
+	"context"
 	"cryptopasta/internal/rest/middleware"
 	"cryptopasta/internal/rest/sse"
+	"cryptopasta/internal/rest/websocket"
 	"cryptopasta/internal/service/jwt"
 	"cryptopasta/internal/service/mission"
 	"cryptopasta/internal/utils"
+	"fmt"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -27,6 +31,9 @@ func (m *MissionRoutes) Pattern() string {
 
 func (m *MissionRoutes) Handler() http.Handler {
 	r := chi.NewRouter()
+
+	r.Get("/ws", m.connectWebSocket)
+
 	r.Use(middleware.JwtTokenRequired(m.j))
 
 	r.Get("/", m.getMissions)
@@ -108,6 +115,35 @@ func (m *MissionRoutes) getMissionEntries(w http.ResponseWriter, r *http.Request
 	_ = utils.WriteJSON(w, http.StatusOK, entries)
 }
 
+// Mission websocket godoc
+//
+//	@Summary		Connect WebSocket
+//	@Description	Connect to a mission via websocket
+//	@Tags			mission
+//	@Accept			plain
+//	@Produce		plain
+//	@Param			token	query	string	true "Access Token"
+//	@Router			/mission/ws [get]
+func (m *MissionRoutes) connectWebSocket(w http.ResponseWriter, r *http.Request) {
+	tokenStr := r.URL.Query().Get("token")
+
+	token, err := m.j.ParseToken(tokenStr)
+	if err != nil {
+		slog.Error("error parsing token", "error", err)
+		http.Error(w, "invalid token", http.StatusBadRequest)
+		return
+	}
+
+	_, err = m.j.ValidateClaims(token)
+	if err != nil {
+		slog.Error("error validating token", "error", err)
+		http.Error(w, "invalid token", http.StatusBadRequest)
+		return
+	}
+
+	websocket.Serve(w, r)
+}
+
 // Mission create godoc
 //
 //	@Summary		Create Mission
@@ -139,13 +175,17 @@ func (m *MissionRoutes) createMission(w http.ResponseWriter, r *http.Request) {
 	}
 
 	streamFunc := mission.StreamFunc(func(chunk []byte) error {
+		fmt.Println("chunk", string(chunk))
 		return sw.WriteEvent(&sse.Event{
 			Type: "chunk",
 			Data: string(chunk),
 		})
 	})
 
-	mission, err := m.m.CreateMission(r.Context(), req.AgentID, req.ReportID, streamFunc)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+
+	mission, err := m.m.CreateMission(ctx, req.AgentID, req.ReportID, streamFunc)
 	if err != nil {
 		slog.Error("error creating mission", "error", err)
 		sw.WriteEvent(&sse.Event{
@@ -203,7 +243,10 @@ func (m *MissionRoutes) actOnMission(w http.ResponseWriter, r *http.Request) {
 		})
 	})
 
-	entryID, err := m.m.ActOnMission(r.Context(), missionID, req.Input, streamFunc)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+
+	entryID, err := m.m.ActOnMission(ctx, missionID, req.Input, streamFunc)
 	if err != nil {
 		slog.Error("error acting on mission", "error", err)
 		sw.WriteEvent(&sse.Event{
@@ -213,7 +256,7 @@ func (m *MissionRoutes) actOnMission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	imageB64JSON, err := m.m.VisualizeLatestMissionState(r.Context(), missionID, entryID)
+	imageB64JSON, err := m.m.VisualizeLatestMissionState(ctx, missionID, entryID)
 	if err != nil {
 		slog.Error("error visualizing mission state", "error", err)
 		sw.WriteEvent(&sse.Event{
