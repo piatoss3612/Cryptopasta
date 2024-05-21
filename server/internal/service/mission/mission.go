@@ -17,6 +17,68 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
+const systemMessage = `
+You are a game master. Your goal is to serve as a guide for the player to play a text-based adventure game.
+
+## You will be provided with
+
+1. the brief of the adventure in the beginning in markdown format
+2. the latest dialogues between the player and you for context
+3. the player's input for the next action
+
+### The brief of the adventure will include
+
+1. the setting of the game
+2. characters, items, and enemies in the game
+3. events and challenges the player will face
+4. the player's goal
+5. (optional) hints or tips for the player
+6. (optional) references to external resources for additional context
+
+## Your responses should include
+
+1. the outcome of the player's action in a narrative form
+2. the state of the player's character, including health points, fear, hunger and inventory
+3. the next steps for the player to take based on the outcome
+
+## World Building
+
+One day, an incident occurred where some assets and data being transferred between chains through a bridge protocol mysteriously vanished. Initially dismissed as a simple mishap, similar incidents began to occur in other projects, plunging the blockchain world into chaos.
+
+Then, an anonymous figure disclosed information about the phenomenon. No one knew who this person was, but their information sent shockwaves through the blockchain community.
+
+At the center of this phenomenon was a space known as Voidlink. Voidlink is an enigmatic void existing between the layers of blockchains and between chains. No one knows why this space was created, but as long as it exists, the blockchain world remains exposed to danger. Rumors also spread about a presence in this space, representing projects that were shut down or disappeared due to past security issues. This presence is called Null and is said to have the ability to nullify data.
+
+To combat this threat, a decentralized organization called Cryptopasta was formed. Cryptopasta's mission is to enter Voidlink, recover the lost assets and data, and investigate how to close this space.
+
+You are an agent of Cryptopasta, tasked with exploring the secretive Voidlink, confronting Null, and carrying out the mission to secure the blockchain world. Your courage and wisdom will determine the success of Cryptopasta and the safety of the blockchain ecosystem.
+
+## Game Play
+
+1. The player will be presented with a scenario or a challenge in the form of a narrative. The player will then respond with their action or decision. You will guide the player through the game by providing the outcome of their actions, the state of their character, and the next steps to take.
+2. The player's character has the following attributes:
+	   - Health Points: 100
+	   - Fear: 0
+	   - Hunger: 0
+	   - Inventory: Empty
+3. The player can take actions such as exploring, interacting with objects, and making decisions. You will describe the results of these actions and guide the player through the game.
+4. While exploring Voidlink, the player may encounter various challenges, puzzles, and enemies. You will describe these encounters and the player's options for overcoming them.
+5. Inventory items can be collected and used to solve puzzles or interact with the environment. You will describe the effects of using these items and the consequences of the player's decisions.
+6. Fear and hunger will increase as the player faces danger or goes without food. You will describe the effects of these conditions on the player's character and the steps they can take to overcome them.
+7. The player's goal is to retrieve the lost assets and data, confront Null, and close Voidlink. You will guide the player through the game to achieve this objective.
+8. Once the state of the player's character reaches the zero health points, or the maximum fear or hunger level, the game will end. The maximum fear and hunger levels are 100.
+
+## IMPORTANT
+
+- PLEASE PROVIDE DETAILED DESCRIPTIONS OF THE PLAYER'S ACTIONS AND THEIR OUTCOMES.
+- USE DESCRIPTIVE LANGUAGE TO CREATE A RICH AND IMMERSIVE NARRATIVE EXPERIENCE.
+- REMEMBER TO INCLUDE THE PLAYER'S CHARACTER ATTRIBUTES AND INVENTORY STATUS IN YOUR RESPONSES.
+- ENCOURAGE THE PLAYER TO EXPLORE, EXPERIMENT, AND ENGAGE WITH THE GAME WORLD.
+- HAVE FUN AND BE CREATIVE IN YOUR GUIDANCE OF THE PLAYER.
+- IF THE PLAYER IS STUCK OR NEEDS HELP, PROVIDE HINTS OR SUGGESTIONS TO ASSIST THEM.
+- ONCE THE GAME ENDS, YOU CAN PROVIDE A SUMMARY OF THE PLAYER'S JOURNEY AND THEIR ACHIEVEMENTS.
+`
+
 type StreamFunc func(chunk []byte) error
 
 type MissionService struct {
@@ -52,18 +114,15 @@ func (s *MissionService) GetEntryByID(ctx context.Context, entryID string) (*Ent
 	return s.query.FindEntryByID(ctx, entryID)
 }
 
-func (s *MissionService) UpdateEntry(ctx context.Context, entryID string, messages []Message) error {
-	return s.store.UpdateEntry(ctx, entryID, messages)
-}
-
 func (s *MissionService) CreateMission(ctx context.Context, agentID, reportID string, streamFunc StreamFunc) (*Mission, error) {
 	fn := func(ctx context.Context) (interface{}, error) {
-		// Get the report
+		// Validate the report ID
 		reportIdBN, ok := big.NewInt(0).SetString(reportID, 10)
 		if !ok {
 			return nil, errors.New("invalid report ID")
 		}
 
+		// Get the report
 		report, err := s.mb.GetDiscoveryReport(&bind.CallOpts{Context: ctx}, reportIdBN)
 		if err != nil {
 			return nil, err
@@ -100,17 +159,33 @@ func (s *MissionService) CreateMission(ctx context.Context, agentID, reportID st
 		}
 
 		// Initialize the mission with a message from the AI
-		// TODO: set the content of the message
-		req := openai.ChatCompletionRequest{}
+		req := openai.ChatCompletionRequest{
+			Model: openai.GPT4o,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    openai.ChatMessageRoleSystem,
+					Content: systemMessage,
+				},
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: reportContent,
+				},
+			},
+			MaxTokens: 2048,
+			Stream:    true,
+		}
 
+		// Create the chat completion stream
 		stream, err := s.llm.CreateChatCompletionStream(ctx, req)
 		if err != nil {
 			return nil, err
 		}
 		defer stream.Close()
 
+		// Initialize the builder to store the AI response
 		builder := strings.Builder{}
 
+		// Stream the AI response
 	Stream:
 		for {
 			select {
@@ -142,18 +217,26 @@ func (s *MissionService) CreateMission(ctx context.Context, agentID, reportID st
 		// Save the entry with the AI response
 		_, err = s.store.CreateEntry(ctx, mission.ID, []Message{
 			{
+				Content:  reportContent,
+				IsReport: true,
+			},
+			{
 				Content: builder.String(),
 				IsUser:  false,
 			}},
 		)
+
+		// Return the mission
 		return mission, err
 	}
 
+	// Execute the transaction
 	result, err := s.tx.Execute(ctx, fn)
 	if err != nil {
 		return nil, err
 	}
 
+	// Type assertion
 	mission, ok := result.(*Mission)
 	if !ok {
 		return nil, errors.New("invalid mission type")
@@ -174,7 +257,7 @@ func (s *MissionService) ActOnMission(ctx context.Context, missionID, input stri
 			return nil, errors.New("mission not found")
 		}
 
-		// Get the last entry
+		// Get the latest entries
 		entries, err := s.query.FindEntriesByMissionID(ctx, missionID, true)
 		if err != nil {
 			return nil, err
@@ -187,41 +270,47 @@ func (s *MissionService) ActOnMission(ctx context.Context, missionID, input stri
 		// Generate the request content with the previous messages
 		builder := strings.Builder{}
 
-		_, _ = builder.WriteString("Previous game play context:\n")
+		_, _ = builder.WriteString("Previous game play context:\n\n")
 
 		for _, entry := range entries {
 			for _, message := range entry.Messages {
 				if message.IsUser {
-					_, _ = builder.WriteString(fmt.Sprintf("User: %s\n", message.Content))
+					_, _ = builder.WriteString(fmt.Sprintf("Agent: %s\n", message.Content))
 				} else {
 					_, _ = builder.WriteString(fmt.Sprintf("System: %s\n", message.Content))
 				}
 			}
 		}
 
+		_, _ = builder.WriteString(fmt.Sprintf("\nNew input from the agent: %s\n", input))
+
+		// Initialize the chat completion request
 		req := openai.ChatCompletionRequest{
 			Model: openai.GPT4o,
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    openai.ChatMessageRoleSystem,
-					Content: builder.String(),
+					Content: systemMessage,
 				},
 				{
 					Role:    openai.ChatMessageRoleUser,
-					Content: input,
+					Content: builder.String(),
 				},
 			},
 			Stream: true,
 		}
 
+		// Create the chat completion stream
 		stream, err := s.llm.CreateChatCompletionStream(ctx, req)
 		if err != nil {
 			return nil, err
 		}
 		defer stream.Close()
 
+		// Reset the builder to store the AI response
 		builder.Reset()
 
+		// Stream the AI response
 	Stream:
 		for {
 			select {
@@ -264,11 +353,13 @@ func (s *MissionService) ActOnMission(ctx context.Context, missionID, input stri
 		)
 	}
 
+	// Execute the transaction
 	result, err := s.tx.Execute(ctx, fn)
 	if err != nil {
 		return "", err
 	}
 
+	// Type assertion
 	entryID, ok := result.(string)
 	if !ok {
 		return "", errors.New("invalid entry ID type")
@@ -279,6 +370,27 @@ func (s *MissionService) ActOnMission(ctx context.Context, missionID, input stri
 
 func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missionID, entryID string) (string, error) {
 	fn := func(ctx context.Context) (interface{}, error) {
+		// Check if the mission and entry exist
+		exists, err := s.query.MissionExists(ctx, missionID)
+		if err != nil {
+			return "", err
+		}
+
+		if !exists {
+			return "", errors.New("mission not found")
+		}
+
+		// Check if the entry exists
+		exists, err = s.query.EntryExists(ctx, entryID)
+		if err != nil {
+			return "", err
+		}
+
+		if !exists {
+			return "", errors.New("entry not found")
+		}
+
+		// Get the latest entries
 		entries, err := s.query.FindEntriesByMissionID(ctx, missionID, true)
 		if err != nil {
 			return "", err
@@ -288,36 +400,55 @@ func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missio
 			return "", errors.New("no entries found")
 		}
 
+		// Generate the request content with the previous messages
 		builder := strings.Builder{}
 
 		for _, entry := range entries {
 			for _, message := range entry.Messages {
 				if message.IsUser {
-					_, _ = builder.WriteString(fmt.Sprintf("User: %s\n", message.Content))
+					_, _ = builder.WriteString(fmt.Sprintf("Agent: %s\n", message.Content))
 				} else {
 					_, _ = builder.WriteString(fmt.Sprintf("System: %s\n", message.Content))
 				}
 			}
 		}
 
-		req := openai.ChatCompletionRequest{}
+		// Initialize the chat completion request
+		req := openai.ChatCompletionRequest{
+			Model: openai.GPT4o,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role: openai.ChatMessageRoleUser,
+					Content: fmt.Sprintf(
+						`Use the latest game play context to describe the scene for drawing a visual representation. 
+						The context is as follows:\n\n%s`,
+						builder.String(),
+					),
+				},
+			},
+			Stream: false,
+		}
 
+		// Request the chat completion
 		resp, err := s.llm.CreateChatCompletion(ctx, req)
 		if err != nil {
 			return "", err
 		}
 
+		// Reset the builder to store the AI response
 		builder.Reset()
 
+		// Write the AI response to the builder
 		for _, choice := range resp.Choices {
 			builder.WriteString(choice.Message.Content)
 		}
 
+		// Get the summarized content
 		summarizedContent := builder.String()
 
 		imageReq := openai.ImageRequest{
-			Model:          openai.CreateImageModelDallE3,
-			Size:           openai.CreateImageSize1024x1024,
+			Model:          openai.CreateImageModelDallE2,
+			Size:           openai.CreateImageSize256x256,
 			ResponseFormat: openai.CreateImageResponseFormatB64JSON,
 			Prompt:         summarizedContent,
 		}
@@ -333,21 +464,9 @@ func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missio
 
 		imageB64JSON := imageResp.Data[0].B64JSON
 
-		for _, entry := range entries {
-			if entry.ID == entryID {
-				for _, message := range entry.Messages {
-					if !message.IsUser {
-						message.Image = imageB64JSON
-					}
-				}
-
-				err = s.store.UpdateEntry(ctx, entryID, entry.Messages)
-				if err != nil {
-					return "", err
-				}
-
-				break
-			}
+		err = s.store.UpdateEntry(ctx, entryID, nil, imageB64JSON)
+		if err != nil {
+			return "", err
 		}
 
 		return imageB64JSON, nil

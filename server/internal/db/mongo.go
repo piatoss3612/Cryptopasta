@@ -8,7 +8,7 @@ import (
 )
 
 func NewMongoClient(ctx context.Context, uri string) (*mongo.Client, error) {
-	clientOptions := options.Client().ApplyURI("mongodb://root:example@localhost:27017")
+	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		return nil, err

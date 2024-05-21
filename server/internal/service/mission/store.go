@@ -51,6 +51,7 @@ func (s *MissionStore) CreateEntry(ctx context.Context, missionID string, messag
 		MissionID: missionID,
 		Messages:  messages,
 		CreatedAt: time.Now().Unix(),
+		UpdateAt:  time.Now().Unix(),
 	}
 
 	result, err := collection.InsertOne(ctx, entry)
@@ -61,12 +62,8 @@ func (s *MissionStore) CreateEntry(ctx context.Context, missionID string, messag
 	return result.InsertedID.(string), nil
 }
 
-func (s *MissionStore) UpdateEntry(ctx context.Context, id string, messages []Message) error {
+func (s *MissionStore) UpdateEntry(ctx context.Context, id string, messages []Message, image string) error {
 	collection := s.client.Database(s.dbname).Collection("entries")
-
-	if len(messages) == 0 {
-		return errors.New("no messages provided")
-	}
 
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -75,11 +72,25 @@ func (s *MissionStore) UpdateEntry(ctx context.Context, id string, messages []Me
 
 	filter := bson.M{"_id": objID}
 
-	update := bson.M{
-		"$set": bson.M{
-			"messages": messages,
-		},
+	update := bson.M{}
+
+	set := bson.M{}
+
+	if len(messages) > 0 {
+		set["messages"] = messages
 	}
+
+	if len(image) > 0 {
+		set["image"] = image
+	}
+
+	if len(set) == 0 {
+		return errors.New("no update fields provided")
+	}
+
+	set["updateAt"] = time.Now().Unix()
+
+	update["$set"] = set
 
 	result, err := collection.UpdateOne(ctx, filter, update)
 	if err != nil {

@@ -7,6 +7,8 @@
 # You can add other services your application may depend on here, such as a
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
+version: "3.9"
+
 services:
   server:
     container_name: server
@@ -19,6 +21,8 @@ services:
     configs:
       - source: server-config
         target: /config.json
+    depends_on:
+      - mongodb
 
   mongodb:
     container_name: mongodb
@@ -39,6 +43,10 @@ services:
       dockerfile: ./build/swagger/Dockerfile
     ports:
       - 1323:1323
+
+networks:
+  mongo-net:
+    driver: bridge
 
 volumes:
   mongo-data:
