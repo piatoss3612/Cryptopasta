@@ -99,9 +99,10 @@ const Reports = () => {
       <VStack spacing={4}>
         {data?.pages.map((page, i) => (
           <React.Fragment key={i}>
-            {page.reportDiscoveries.map((report, index) => (
+            {page.reportDiscoveries.map((report) => (
               <ReportCard
-                key={index}
+                key={report.id}
+                id={report.id}
                 reportId={report.reportId}
                 reporter={report.reporter}
                 title={report.title}

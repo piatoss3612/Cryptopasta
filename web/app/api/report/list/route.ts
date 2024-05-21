@@ -114,11 +114,12 @@ const GET = async (req: NextRequest) => {
     const query = gql`
       {
         reportDiscoveries(
-            first: 10
-            skip: ${(pageNum - 1) * limitNum}
-            orderBy: reportId
+            first: 10,
+            skip: ${(pageNum - 1) * limitNum},
+            orderBy: reportId,
             orderDirection: desc
         ) {
+            id
             reportId
             reporter
             priceInUSD

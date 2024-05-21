@@ -39,12 +39,17 @@ enum PaymentMethod {
 }
 
 interface Report {
+  id: string;
   reportId: string;
   reporter: string;
   priceInUSD: string;
   title: string;
   contentURI: string;
   blockTimestamp: string;
+}
+
+interface SingleReport {
+  reportDiscovery: Report;
 }
 
 interface ReportList {
@@ -59,9 +64,10 @@ interface ChatHistoryItem {
 type ChatHistory = ChatHistoryItem[];
 
 interface Message {
-  id?: number;
+  id?: string;
   content: string;
   isUser: boolean;
+  image?: string;
   isTyping?: boolean;
 }
 
@@ -73,6 +79,7 @@ export type {
   PinResponse,
   Report,
   ReportList,
+  SingleReport,
   ChatHistoryItem,
   ChatHistory,
   Message,

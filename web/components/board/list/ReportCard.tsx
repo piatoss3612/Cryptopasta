@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { abbreviateAddress } from "@/libs/utils";
 
 interface ReportCardProps {
+  id: string;
   reportId: string;
   reporter: string;
   title: string;
@@ -11,6 +12,7 @@ interface ReportCardProps {
 }
 
 const ReportCard = ({
+  id,
   reportId,
   reporter,
   title,
@@ -32,7 +34,7 @@ const ReportCard = ({
       border={"1px solid #E2E8F0"}
       _hover={{ transform: "scale(1.01)", transition: "all 0.3s" }}
       onClick={() => {
-        navigate.push(`/board/${reportId}`);
+        navigate.push(`/board/${id}`);
       }}
       cursor="pointer"
     >

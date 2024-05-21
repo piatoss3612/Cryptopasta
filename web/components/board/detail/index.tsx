@@ -9,16 +9,16 @@ import ReportOverview from "./ReportOverview";
 import InfoBoxes from "./InfoBoxes";
 
 interface ReportDetailProps {
-  reportId: string;
+  id: string;
 }
 
-const ReportDetail = ({ reportId }: ReportDetailProps) => {
+const ReportDetail = ({ id }: ReportDetailProps) => {
   const toast = useToast();
   const navigator = useRouter();
   const { data, isLoading, error, isError } = useQuery({
     queryKey: ["report-detail"],
     queryFn: async () => {
-      return getReportById(reportId);
+      return getReportById(id);
     },
     retry: 3,
   });
@@ -42,6 +42,8 @@ const ReportDetail = ({ reportId }: ReportDetailProps) => {
   if (!data) {
     return null;
   }
+
+  console.log(data);
 
   return (
     <Container maxW={{ base: "88%", lg: "72%" }}>

@@ -38,7 +38,7 @@ const HistorySlider = ({ chatHistory }: HistorySliderProps) => {
             <DrawerCloseButton />
             <DrawerHeader>History</DrawerHeader>
             <DrawerBody>
-              <Button>New Game</Button>
+              <Button w="100%">New Game</Button>
               <VStack align="stretch">
                 {chatHistory.map((item, index) => (
                   <Text key={index} p={2} borderBottom="1px solid gray">
