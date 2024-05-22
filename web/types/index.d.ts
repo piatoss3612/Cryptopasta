@@ -56,19 +56,67 @@ interface ReportList {
   reportDiscoveries: Report[];
 }
 
-interface ChatHistoryItem {
-  id: number;
-  title: string;
+interface CryptopastaList {
+  transferSingles: [{ cryptopasta_id: string }];
 }
-
-type ChatHistory = ChatHistoryItem[];
 
 interface Message {
   id?: string;
   content: string;
   isUser: boolean;
-  image?: string;
+  isReport?: boolean;
+  isImage?: boolean;
   isTyping?: boolean;
+}
+
+interface Entry {
+  id: string;
+  missionID: string;
+  messages: Message[];
+  image?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Mission {
+  id: string;
+  title: string;
+  agentID: string;
+  reportID: string;
+  createdAt: string;
+  isNew?: boolean;
+}
+
+type Missions = Mission[];
+
+interface GetMissionsRequest {
+  agent_id: string;
+  last_mission_id?: string;
+  limit?: number;
+}
+
+interface GetMissionsResponse {
+  missions: Missions;
+  cursor?: string;
+}
+
+interface GetEntriesResponse {
+  missionID: string;
+  entries: Entry[];
+}
+
+interface CreateMissionRequest {
+  agent_id: string;
+  report_id: string;
+}
+
+interface ActOnMissionRequest {
+  input: string;
+}
+
+interface ServerSentEvent {
+  type: string;
+  data: any;
 }
 
 export type {
@@ -80,7 +128,14 @@ export type {
   Report,
   ReportList,
   SingleReport,
-  ChatHistoryItem,
-  ChatHistory,
   Message,
+  Entry,
+  Mission,
+  Missions,
+  ServerSentEvent,
+  CryptopastaList,
+  GetMissionsRequest,
+  GetMissionsResponse,
+  GetEntriesResponse,
+  CreateMissionRequest,
 };

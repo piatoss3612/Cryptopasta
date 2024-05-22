@@ -8,9 +8,9 @@ dataSources:
     name: cryptopasta
     network: zksync-era-sepolia
     source:
-      address: "0x681fD7152715c295f801E8c49F97103B1B011D0F"
+      address: "0xff8864cF6C9D47Aee270BDb2E4C2B2618c724374"
       abi: cryptopasta
-      startBlock: 2360179
+      startBlock: 2360359
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

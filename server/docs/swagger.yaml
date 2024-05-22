@@ -187,6 +187,11 @@ paths:
       - application/json
       description: Create a new mission
       parameters:
+      - description: Session ID
+        in: query
+        name: sessionID
+        required: true
+        type: string
       - description: Create Mission Request
         in: body
         name: request
@@ -226,6 +231,11 @@ paths:
       - description: Mission ID
         in: path
         name: missionID
+        required: true
+        type: string
+      - description: Session ID
+        in: query
+        name: sessionID
         required: true
         type: string
       - description: Act On Mission Request

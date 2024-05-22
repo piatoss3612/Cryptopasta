@@ -114,7 +114,7 @@ const GET = async (req: NextRequest) => {
     const query = gql`
       {
         reportDiscoveries(
-            first: 10,
+            first: ${limitNum},
             skip: ${(pageNum - 1) * limitNum},
             orderBy: reportId,
             orderDirection: desc

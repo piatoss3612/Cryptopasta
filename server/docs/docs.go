@@ -150,6 +150,13 @@ const docTemplate = `{
                 "summary": "Create Mission",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Session ID",
+                        "name": "sessionID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
                         "description": "Create Mission Request",
                         "name": "request",
                         "in": "body",
@@ -236,6 +243,13 @@ const docTemplate = `{
                         "description": "Mission ID",
                         "name": "missionID",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Session ID",
+                        "name": "sessionID",
+                        "in": "query",
                         "required": true
                     },
                     {

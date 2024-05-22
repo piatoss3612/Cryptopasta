@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"math/big"
 	"net/http"
 	"strings"
@@ -79,7 +78,7 @@ You are an agent of Cryptopasta, tasked with exploring the secretive Voidlink, c
 - ONCE THE GAME ENDS, YOU CAN PROVIDE A SUMMARY OF THE PLAYER'S JOURNEY AND THEIR ACHIEVEMENTS.
 `
 
-type StreamFunc func(chunk []byte) error
+type ChatMessageFunc func(message string) error
 
 type MissionService struct {
 	llm   *openai.Client
@@ -92,6 +91,7 @@ type MissionService struct {
 func NewMissionService(llm *openai.Client, mb *contracts.MissionBoard, tx *db.MongoTx) *MissionService {
 	return &MissionService{
 		llm:   llm,
+		mb:    mb,
 		query: NewMissionQuery(tx.Client, tx.DBName),
 		store: NewMissionStore(tx.Client, tx.DBName),
 		tx:    tx,
@@ -114,7 +114,7 @@ func (s *MissionService) GetEntryByID(ctx context.Context, entryID string) (*Ent
 	return s.query.FindEntryByID(ctx, entryID)
 }
 
-func (s *MissionService) CreateMission(ctx context.Context, agentID, reportID string, streamFunc StreamFunc) (*Mission, error) {
+func (s *MissionService) CreateMission(ctx context.Context, agentID, reportID string, chatFn ChatMessageFunc) (*Mission, error) {
 	fn := func(ctx context.Context) (interface{}, error) {
 		// Validate the report ID
 		reportIdBN, ok := big.NewInt(0).SetString(reportID, 10)
@@ -172,46 +172,24 @@ func (s *MissionService) CreateMission(ctx context.Context, agentID, reportID st
 				},
 			},
 			MaxTokens: 2048,
-			Stream:    true,
 		}
 
-		// Create the chat completion stream
-		stream, err := s.llm.CreateChatCompletionStream(ctx, req)
+		chatResp, err := s.llm.CreateChatCompletion(ctx, req)
 		if err != nil {
 			return nil, err
 		}
-		defer stream.Close()
 
-		// Initialize the builder to store the AI response
 		builder := strings.Builder{}
+		defer builder.Reset()
 
-		// Stream the AI response
-	Stream:
-		for {
-			select {
-			case <-ctx.Done():
-				return nil, ctx.Err()
-			default:
-				streamResp, err := stream.Recv()
-				if err != nil {
-					if errors.Is(err, io.EOF) {
-						break Stream
-					}
+		for _, choice := range chatResp.Choices {
+			_, _ = builder.WriteString(choice.Message.Content)
+		}
 
-					return nil, err
-				}
+		respContent := builder.String()
 
-				for _, choice := range streamResp.Choices {
-					content := choice.Delta.Content
-
-					err = streamFunc([]byte(content))
-					if err != nil {
-						return nil, err
-					}
-
-					_, _ = builder.WriteString(content)
-				}
-			}
+		if err := chatFn(respContent); err != nil {
+			return nil, err
 		}
 
 		// Save the entry with the AI response
@@ -221,7 +199,7 @@ func (s *MissionService) CreateMission(ctx context.Context, agentID, reportID st
 				IsReport: true,
 			},
 			{
-				Content: builder.String(),
+				Content: respContent,
 				IsUser:  false,
 			}},
 		)
@@ -245,7 +223,7 @@ func (s *MissionService) CreateMission(ctx context.Context, agentID, reportID st
 	return mission, nil
 }
 
-func (s *MissionService) ActOnMission(ctx context.Context, missionID, input string, streamFunc StreamFunc) (string, error) {
+func (s *MissionService) ActOnMission(ctx context.Context, missionID, input string, chatFn ChatMessageFunc) (string, error) {
 	fn := func(ctx context.Context) (interface{}, error) {
 		// Get the mission
 		mission, err := s.query.FindMissionByID(ctx, missionID)
@@ -282,75 +260,77 @@ func (s *MissionService) ActOnMission(ctx context.Context, missionID, input stri
 			}
 		}
 
-		_, _ = builder.WriteString(fmt.Sprintf("\nNew input from the agent: %s\n", input))
+		// 	_, _ = builder.WriteString(fmt.Sprintf("\nNew input from the agent: %s\n", input))
 
-		// Initialize the chat completion request
-		req := openai.ChatCompletionRequest{
-			Model: openai.GPT4o,
-			Messages: []openai.ChatCompletionMessage{
-				{
-					Role:    openai.ChatMessageRoleSystem,
-					Content: systemMessage,
-				},
-				{
-					Role:    openai.ChatMessageRoleUser,
-					Content: builder.String(),
-				},
-			},
-			Stream: true,
-		}
+		// 	// Initialize the chat completion request
+		// 	req := openai.ChatCompletionRequest{
+		// 		Model: openai.GPT4o,
+		// 		Messages: []openai.ChatCompletionMessage{
+		// 			{
+		// 				Role:    openai.ChatMessageRoleSystem,
+		// 				Content: systemMessage,
+		// 			},
+		// 			{
+		// 				Role:    openai.ChatMessageRoleUser,
+		// 				Content: builder.String(),
+		// 			},
+		// 		},
+		// 		Stream: true,
+		// 	}
 
-		// Create the chat completion stream
-		stream, err := s.llm.CreateChatCompletionStream(ctx, req)
-		if err != nil {
-			return nil, err
-		}
-		defer stream.Close()
+		// 	// Create the chat completion stream
+		// 	stream, err := s.llm.CreateChatCompletionStream(ctx, req)
+		// 	if err != nil {
+		// 		return nil, err
+		// 	}
+		// 	defer stream.Close()
 
-		// Reset the builder to store the AI response
-		builder.Reset()
+		// 	// Reset the builder to store the AI response
+		// 	builder.Reset()
 
-		// Stream the AI response
-	Stream:
-		for {
-			select {
-			case <-ctx.Done():
-				return nil, ctx.Err()
-			default:
-				streamResp, err := stream.Recv()
-				if err != nil {
-					if errors.Is(err, io.EOF) {
-						break Stream
-					}
+		// 	// Stream the AI response
+		// Stream:
+		// 	for {
+		// 		select {
+		// 		case <-ctx.Done():
+		// 			return nil, ctx.Err()
+		// 		default:
+		// 			streamResp, err := stream.Recv()
+		// 			if err != nil {
+		// 				if errors.Is(err, io.EOF) {
+		// 					break Stream
+		// 				}
 
-					return nil, err
-				}
+		// 				return nil, err
+		// 			}
 
-				for _, choice := range streamResp.Choices {
-					content := choice.Delta.Content
+		// 			for _, choice := range streamResp.Choices {
+		// 				content := choice.Delta.Content
 
-					err = streamFunc([]byte(content))
-					if err != nil {
-						return nil, err
-					}
+		// 				err = chatFn([]byte(content))
+		// 				if err != nil {
+		// 					return nil, err
+		// 				}
 
-					_, _ = builder.WriteString(content)
-				}
-			}
+		// 				_, _ = builder.WriteString(content)
+		// 			}
+		// 		}
 
-		}
+		// 	}
 
-		// Save the entry with the user input and the AI response
-		return s.store.CreateEntry(ctx, missionID, []Message{
-			{
-				Content: input,
-				IsUser:  true,
-			},
-			{
-				Content: builder.String(),
-				IsUser:  false,
-			}},
-		)
+		// // Save the entry with the user input and the AI response
+		// return s.store.CreateEntry(ctx, missionID, []Message{
+		// 	{
+		// 		Content: input,
+		// 		IsUser:  true,
+		// 	},
+		// 	{
+		// 		Content: builder.String(),
+		// 		IsUser:  false,
+		// 	}},
+		// )
+
+		return "entryID", nil
 	}
 
 	// Execute the transaction

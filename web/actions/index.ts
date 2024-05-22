@@ -1,4 +1,13 @@
-import { PinResponse, Report, ReportList, TokenMetadata } from "@/types";
+import {
+  CryptopastaList,
+  GetEntriesResponse,
+  GetMissionsResponse,
+  Missions,
+  PinResponse,
+  Report,
+  ReportList,
+  TokenMetadata,
+} from "@/types";
 import axios from "axios";
 
 const pinFileToIPFS = async (
@@ -81,11 +90,78 @@ const getReportById = async (reportId: string): Promise<Report> => {
   return response.data;
 };
 
+const getCryptopastaList = async (
+  agentAddress: string,
+  page?: number,
+  limit?: number
+): Promise<CryptopastaList> => {
+  const response = await axios.get<CryptopastaList>("/api/cryptopasta", {
+    params: {
+      agent_address: agentAddress,
+      page,
+      limit,
+    },
+  });
+
+  if (response.status !== 200) {
+    throw new Error("Failed to fetch cryptopasta list");
+  }
+
+  return response.data;
+};
+
 const getTokenMetadata = async (uri: string): Promise<TokenMetadata> => {
   const response = await axios.get<TokenMetadata>(uri);
 
   if (response.status !== 200) {
     throw new Error("Failed to fetch token metadata");
+  }
+
+  return response.data;
+};
+
+const getMissions = async (
+  accessToken: string,
+  agentID: string,
+  lastMissionID?: string,
+  limit?: number
+): Promise<Missions> => {
+  const response = await axios.get<GetMissionsResponse>(
+    "http://localhost:8080/mission",
+    {
+      params: {
+        agentID,
+        lastMissionID,
+        limit,
+      },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+
+  if (response.status !== 200) {
+    throw new Error("Failed to get missions");
+  }
+
+  return response.data.missions;
+};
+
+const getEntries = async (
+  accessToken: string,
+  missionID: string
+): Promise<GetEntriesResponse> => {
+  const response = await axios.get<GetEntriesResponse>(
+    `http://localhost:8080/mission/${missionID}/entries`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+
+  if (response.status !== 200) {
+    throw new Error("Failed to get entries");
   }
 
   return response.data;
@@ -97,4 +173,7 @@ export {
   getReportList,
   getReportById,
   getTokenMetadata,
+  getCryptopastaList,
+  getMissions,
+  getEntries,
 };

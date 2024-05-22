@@ -3,6 +3,12 @@ import { AGENT_PAYMASTER, MOCK_USDT, MULTICALL_SELECTOR } from "../constant";
 import { MockUSDTAbi } from "../abis";
 import { TransactionRequest } from "../../types";
 
+const loadImage = async (url: string) => {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  return URL.createObjectURL(blob);
+};
+
 const isZeroAddress = (address: string | undefined): boolean => {
   return address === zeroAddress;
 };
@@ -66,6 +72,7 @@ const encodeMulticalldata = (
 };
 
 export {
+  loadImage,
   isZeroAddress,
   abbreviateAddress,
   getFaucetParams,

@@ -1,8 +1,8 @@
 {
   "zksync-era-sepolia": {
     "cryptopasta": {
-      "address": "0x681fD7152715c295f801E8c49F97103B1B011D0F",
-      "startBlock": 2360179
+      "address": "0xff8864cF6C9D47Aee270BDb2E4C2B2618c724374",
+      "startBlock": 2360359
     }
   }
 }

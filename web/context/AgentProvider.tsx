@@ -1,7 +1,8 @@
+import { getTokenMetadata } from "@/actions";
 import { useViem } from "@/hooks";
 import { AgentRegistryAbi } from "@/libs/abis";
 import { AGENT_REGISTRY } from "@/libs/constant";
-import { isZeroAddress } from "@/libs/utils";
+import { isZeroAddress, loadImage } from "@/libs/utils";
 import {
   ConnectedWallet,
   usePrivy,
@@ -28,6 +29,8 @@ interface AgentContextType {
   wallet: ConnectedWallet | null;
   walletClient: WalletClient | null;
   account: `0x${string}` | undefined;
+  avatar: string;
+  getPortraitURI: (portraitId: bigint) => Promise<string>;
   register: (
     portraitId: bigint
   ) => Promise<ReadableStreamDefaultReader<Uint8Array>>;
@@ -50,6 +53,7 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
   const { showMfaEnrollmentModal } = useMfaEnrollment();
   const [wallet, setWallet] = useState<ConnectedWallet | null>(null);
   const [walletClient, setWalletClient] = useState<WalletClient | null>(null);
+  const [avatar, setAvatar] = useState<string>("");
   const navigator = useRouter();
 
   const handleLogout = useCallback(async () => {
@@ -87,10 +91,60 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
     });
   }, [client, wallet]);
 
+  const getAccountTokenId = useCallback(async (): Promise<bigint> => {
+    if (!client) {
+      throw new Error("Client not found");
+    }
+
+    if (!wallet) {
+      throw new Error("Wallet not found");
+    }
+
+    return await client.readContract({
+      address: AGENT_REGISTRY,
+      abi: AgentRegistryAbi,
+      functionName: "accountToTokenId",
+      args: [wallet.address as `0x${string}`],
+    });
+  }, [client, wallet]);
+
+  const getPortraitURI = useCallback(
+    async (portraitId: bigint): Promise<string> => {
+      return await client.readContract({
+        address: AGENT_REGISTRY,
+        abi: AgentRegistryAbi,
+        functionName: "portrait",
+        args: [portraitId],
+      });
+    },
+    [client]
+  );
+
   const { data: account, isLoading: isAccountQuerying } = useQuery({
     queryKey: ["account"],
     queryFn: getAccountAddress,
     enabled: !!client && !!wallet,
+    refetchInterval: 5000,
+  });
+
+  const { data: tokenId } = useQuery({
+    queryKey: ["tokenId"],
+    queryFn: getAccountTokenId,
+    enabled: !!client && !!wallet && !!account,
+    refetchInterval: 5000,
+  });
+
+  const { data: portrait } = useQuery({
+    queryKey: ["portrait"],
+    queryFn: async () => getPortraitURI(tokenId!),
+    enabled: !!client && !!wallet && (!!tokenId || tokenId === BigInt(0)),
+    refetchInterval: 5000,
+  });
+
+  const { data: metadata } = useQuery({
+    queryKey: ["tokenMetadata"],
+    queryFn: async () => getTokenMetadata(portrait!),
+    enabled: !!portrait,
     refetchInterval: 5000,
   });
 
@@ -150,6 +204,16 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [ready, authenticated, wallets]);
 
+  useEffect(() => {
+    if (metadata) {
+      loadImage(metadata.image)
+        .then((blob) => {
+          setAvatar(blob);
+        })
+        .catch((err) => console.error(err));
+    }
+  }, [metadata]);
+
   return (
     <AgentContext.Provider
       value={{
@@ -165,6 +229,8 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
         walletClient,
         account,
         register,
+        avatar,
+        getPortraitURI,
       }}
     >
       {children}

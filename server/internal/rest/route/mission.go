@@ -3,14 +3,14 @@ package route
 import (
 	"context"
 	"cryptopasta/internal/rest/middleware"
-	"cryptopasta/internal/rest/sse"
 	"cryptopasta/internal/rest/websocket"
 	"cryptopasta/internal/service/jwt"
 	"cryptopasta/internal/service/mission"
 	"cryptopasta/internal/utils"
-	"fmt"
 	"log/slog"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -34,12 +34,14 @@ func (m *MissionRoutes) Handler() http.Handler {
 
 	r.Get("/ws", m.connectWebSocket)
 
-	r.Use(middleware.JwtTokenRequired(m.j))
+	r.Route("/", func(r chi.Router) {
+		r.Use(middleware.JwtTokenRequired(m.j))
 
-	r.Get("/", m.getMissions)
-	r.Get("/{missionID}/entries", m.getMissionEntries)
-	r.Post("/", m.createMission)
-	r.Post("/{missionID}", m.actOnMission)
+		r.Get("/", m.getMissions)
+		r.Get("/{missionID}/entries", m.getMissionEntries)
+		r.Post("/", m.createMission)
+		r.Post("/{missionID}", m.actOnMission)
+	})
 
 	return r
 }
@@ -51,23 +53,40 @@ func (m *MissionRoutes) Handler() http.Handler {
 //	@Tags			mission
 //	@Accept			json
 //	@Produce		json
-//	@Param			request	body		GetMissionsRequest	true	"Get Missions Request"
-//	@Success		200		{object}	GetMissionsResponse	"OK"
-//	@Failure		400		{string}	string				"Bad Request"
-//	@Failure		401		{string}	string				"Unauthorized"
-//	@Failure		500		{string}	string				"Internal Server Error"
+//	@Param			agentID			query		string				true	"Agent ID"
+//	@Param			lastMissionID	query		string				false	"Last Mission ID"
+//	@Param			limit			query		int					false	"Limit"
+//	@Success		200				{object}	GetMissionsResponse	"OK"
+//	@Failure		400				{string}	string				"Bad Request"
+//	@Failure		401				{string}	string				"Unauthorized"
+//	@Failure		500				{string}	string				"Internal Server Error"
 //	@Router			/mission [get]
 //	@Security		BearerAuth
 func (m *MissionRoutes) getMissions(w http.ResponseWriter, r *http.Request) {
-	var req GetMissionsRequest
+	query := r.URL.Query()
 
-	if err := utils.ReadJSON(w, r, &req); err != nil {
-		slog.Error("error reading request body", "error", err)
-		utils.WriteError(w, http.StatusBadRequest, "invalid request body")
+	agentID := query.Get("agentID")
+	lastMissionID := query.Get("lastMissionID")
+	limit := query.Get("limit")
+
+	if agentID == "" {
+		utils.WriteError(w, http.StatusBadRequest, "missing agent id")
 		return
 	}
 
-	missions, err := m.m.GetMissionsByAgentID(r.Context(), req.AgentID, req.LastMissionID, req.Limit)
+	var limitInt int
+	if limit != "" {
+		var err error
+		limitInt, err = strconv.Atoi(limit)
+		if err != nil {
+			utils.WriteError(w, http.StatusBadRequest, "invalid limit")
+			return
+		}
+	}
+
+	agentID = strings.ToLower(agentID)
+
+	missions, err := m.m.GetMissionsByAgentID(r.Context(), agentID, lastMissionID, limitInt)
 	if err != nil {
 		slog.Error("error getting missions", "error", err)
 		utils.WriteError(w, http.StatusInternalServerError, "error getting missions")
@@ -112,7 +131,12 @@ func (m *MissionRoutes) getMissionEntries(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	_ = utils.WriteJSON(w, http.StatusOK, entries)
+	resp := GetEntriesResponse{
+		MissionID: missionID,
+		Entries:   entries,
+	}
+
+	_ = utils.WriteJSON(w, http.StatusOK, resp)
 }
 
 // Mission websocket godoc
@@ -122,7 +146,7 @@ func (m *MissionRoutes) getMissionEntries(w http.ResponseWriter, r *http.Request
 //	@Tags			mission
 //	@Accept			plain
 //	@Produce		plain
-//	@Param			token	query	string	true "Access Token"
+//	@Param			token	query	string	true	"Access Token"
 //	@Router			/mission/ws [get]
 func (m *MissionRoutes) connectWebSocket(w http.ResponseWriter, r *http.Request) {
 	tokenStr := r.URL.Query().Get("token")
@@ -151,14 +175,25 @@ func (m *MissionRoutes) connectWebSocket(w http.ResponseWriter, r *http.Request)
 //	@Tags			mission
 //	@Accept			json
 //	@Produce		json
-//	@Param			request	body		CreateMissionRequest	true	"Create Mission Request"
-//	@Success		200		{object}	mission.Mission			"OK"
-//	@Failure		400		{string}	string					"Bad Request"
-//	@Failure		401		{string}	string					"Unauthorized"
-//	@Failure		500		{string}	string					"Internal Server Error"
+//	@Param			sessionID	query		string					true	"Session ID"
+//	@Param			request		body		CreateMissionRequest	true	"Create Mission Request"
+//	@Success		200			{object}	mission.Mission			"OK"
+//	@Failure		400			{string}	string					"Bad Request"
+//	@Failure		401			{string}	string					"Unauthorized"
+//	@Failure		500			{string}	string					"Internal Server Error"
 //	@Router			/mission [post]
 //	@Security		BearerAuth
 func (m *MissionRoutes) createMission(w http.ResponseWriter, r *http.Request) {
+	sessionID := r.URL.Query().Get("sessionID")
+
+	// 2. validate session id
+	id := websocket.ID(sessionID)
+	if !id.Valid() {
+		utils.WriteError(w, http.StatusBadRequest, "invalid session id")
+		return
+	}
+
+	// 3. read request body
 	var req CreateMissionRequest
 
 	if err := utils.ReadJSON(w, r, &req); err != nil {
@@ -167,40 +202,50 @@ func (m *MissionRoutes) createMission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sw, err := sse.NewStreamWriter(w)
-	if err != nil {
-		slog.Error("error creating stream writer", "error", err)
-		utils.WriteError(w, http.StatusInternalServerError, "error creating stream writer")
-		return
-	}
-
-	streamFunc := mission.StreamFunc(func(chunk []byte) error {
-		fmt.Println("chunk", string(chunk))
-		return sw.WriteEvent(&sse.Event{
-			Type: "chunk",
-			Data: string(chunk),
+	chatFn := mission.ChatMessageFunc(func(message string) error {
+		websocket.Send(websocket.Message{
+			Type: websocket.EventMessage,
+			ID:   id,
+			Event: websocket.Event{
+				Name:   "chat",
+				Data:   message,
+				Status: websocket.InProgress,
+			},
 		})
+		return nil
 	})
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
-	defer cancel()
+	w.WriteHeader(http.StatusOK)
 
-	mission, err := m.m.CreateMission(ctx, req.AgentID, req.ReportID, streamFunc)
-	if err != nil {
-		slog.Error("error creating mission", "error", err)
-		sw.WriteEvent(&sse.Event{
-			Type: "mission_create_error",
-			Data: "error creating mission",
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+		defer cancel()
+
+		mission, err := m.m.CreateMission(ctx, req.AgentID, req.ReportID, chatFn)
+		if err != nil {
+			slog.Error("error creating mission", "error", err)
+			websocket.Send(websocket.Message{
+				Type: websocket.ErrorMessage,
+				ID:   id,
+				Event: websocket.Event{
+					Name:   "mission_create_error",
+					Data:   "error creating mission",
+					Status: websocket.Error,
+				},
+			})
+			return
+		}
+
+		websocket.Send(websocket.Message{
+			Type: websocket.EventMessage,
+			ID:   id,
+			Event: websocket.Event{
+				Name:   "mission_create_success",
+				Data:   mission,
+				Status: websocket.Done,
+			},
 		})
-		return
-	}
-
-	if err := sw.WriteEvent(&sse.Event{
-		Type: "mission_create_success",
-		Data: mission,
-	}); err != nil {
-		slog.Error("error writing event", "error", err)
-	}
+	}()
 }
 
 // Mission act godoc
@@ -211,6 +256,7 @@ func (m *MissionRoutes) createMission(w http.ResponseWriter, r *http.Request) {
 //	@Accept			json
 //	@Produce		plain
 //	@Param			missionID	path		string				true	"Mission ID"
+//	@Param			sessionID	query		string				true	"Session ID"
 //	@Param			request		body		ActOnMissionRequest	true	"Act On Mission Request"
 //	@Success		200			{string}	string				"OK"
 //	@Failure		400			{string}	string				"Bad Request"
@@ -219,8 +265,18 @@ func (m *MissionRoutes) createMission(w http.ResponseWriter, r *http.Request) {
 //	@Router			/mission/{missionID} [post]
 //	@Security		BearerAuth
 func (m *MissionRoutes) actOnMission(w http.ResponseWriter, r *http.Request) {
+	// 1. get mission id and session id
 	missionID := chi.URLParam(r, "missionID")
+	sessionID := r.URL.Query().Get("sessionID")
 
+	// 2. validate session id
+	id := websocket.ID(sessionID)
+	if !id.Valid() {
+		utils.WriteError(w, http.StatusBadRequest, "invalid session id")
+		return
+	}
+
+	// 3. read request body
 	var req ActOnMissionRequest
 
 	if err := utils.ReadJSON(w, r, &req); err != nil {
@@ -229,58 +285,75 @@ func (m *MissionRoutes) actOnMission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sw, err := sse.NewStreamWriter(w)
-	if err != nil {
-		slog.Error("error creating stream writer", "error", err)
-		utils.WriteError(w, http.StatusInternalServerError, "error creating stream writer")
-		return
-	}
-
-	streamFunc := mission.StreamFunc(func(chunk []byte) error {
-		return sw.WriteEvent(&sse.Event{
-			Type: "chunk",
-			Data: string(chunk),
+	chatFn := mission.ChatMessageFunc(func(message string) error {
+		websocket.Send(websocket.Message{
+			Type: websocket.EventMessage,
+			ID:   id,
+			Event: websocket.Event{
+				Name:   "chat",
+				Data:   message,
+				Status: websocket.InProgress,
+			},
 		})
+		return nil
 	})
 
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
-	defer cancel()
+	w.WriteHeader(http.StatusOK)
 
-	entryID, err := m.m.ActOnMission(ctx, missionID, req.Input, streamFunc)
-	if err != nil {
-		slog.Error("error acting on mission", "error", err)
-		sw.WriteEvent(&sse.Event{
-			Type: "mission_act_error",
-			Data: "error acting on mission",
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+		defer cancel()
+
+		entryID, err := m.m.ActOnMission(ctx, missionID, req.Input, chatFn)
+		if err != nil {
+			slog.Error("error acting on mission", "error", err)
+			websocket.Send(websocket.Message{
+				Type: websocket.ErrorMessage,
+				ID:   id,
+				Event: websocket.Event{
+					Name:   "mission_act_error",
+					Data:   "error acting on mission",
+					Status: websocket.Error,
+				},
+			})
+			return
+		}
+
+		imageB64JSON, err := m.m.VisualizeLatestMissionState(ctx, missionID, entryID)
+		if err != nil {
+			slog.Error("error visualizing mission state", "error", err)
+			websocket.Send(websocket.Message{
+				Type: websocket.ErrorMessage,
+				ID:   id,
+				Event: websocket.Event{
+					Name:   "mission_visualize_error",
+					Data:   "error visualizing mission state",
+					Status: websocket.Error,
+				},
+			})
+			return
+		}
+
+		websocket.Send(websocket.Message{
+			Type: websocket.EventMessage,
+			ID:   id,
+			Event: websocket.Event{
+				Name:   "mission_act_success",
+				Data:   ActOnMissionResponse{EntryID: entryID, ImageB64JSON: imageB64JSON},
+				Status: websocket.Done,
+			},
 		})
-		return
-	}
-
-	imageB64JSON, err := m.m.VisualizeLatestMissionState(ctx, missionID, entryID)
-	if err != nil {
-		slog.Error("error visualizing mission state", "error", err)
-		sw.WriteEvent(&sse.Event{
-			Type: "mission_visualize_error",
-			Data: "error visualizing mission state",
-		})
-		return
-	}
-
-	_ = sw.WriteEvent(&sse.Event{
-		Type: "mission_visualize_success",
-		Data: imageB64JSON,
-	})
-}
-
-type GetMissionsRequest struct {
-	AgentID       string `json:"agent_id"`
-	LastMissionID string `json:"last_mission_id,omitempty"`
-	Limit         int    `json:"limit,omitempty"`
+	}()
 }
 
 type GetMissionsResponse struct {
 	Missions []mission.Mission `json:"missions"`
 	Cursor   string            `json:"cursor,omitempty"`
+}
+
+type GetEntriesResponse struct {
+	MissionID string          `json:"missionID"`
+	Entries   []mission.Entry `json:"entries"`
 }
 
 type CreateMissionRequest struct {
@@ -290,4 +363,9 @@ type CreateMissionRequest struct {
 
 type ActOnMissionRequest struct {
 	Input string `json:"input"`
+}
+
+type ActOnMissionResponse struct {
+	EntryID      string `json:"entryID"`
+	ImageB64JSON string `json:"imageB64JSON"`
 }
