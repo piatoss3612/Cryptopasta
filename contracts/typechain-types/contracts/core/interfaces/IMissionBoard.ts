@@ -85,6 +85,7 @@ export interface IMissionBoardInterface extends Interface {
       | "getDiscoveryReport"
       | "getRating"
       | "getSales"
+      | "hasFreeTrial"
       | "hasRated"
       | "rateReport"
       | "ratingDecimals"
@@ -127,6 +128,10 @@ export interface IMissionBoardInterface extends Interface {
   encodeFunctionData(
     functionFragment: "getSales",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasFreeTrial",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "hasRated",
@@ -177,6 +182,10 @@ export interface IMissionBoardInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "getRating", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getSales", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "hasFreeTrial",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "hasRated", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "rateReport", data: BytesLike): Result;
   decodeFunctionResult(
@@ -383,6 +392,8 @@ export interface IMissionBoard extends BaseContract {
     "view"
   >;
 
+  hasFreeTrial: TypedContractMethod<[user: AddressLike], [boolean], "view">;
+
   hasRated: TypedContractMethod<
     [rater: AddressLike, reportId: BigNumberish],
     [boolean],
@@ -464,6 +475,9 @@ export interface IMissionBoard extends BaseContract {
     [[IMissionBoard.SalesStatsStructOutput, bigint]],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "hasFreeTrial"
+  ): TypedContractMethod<[user: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "hasRated"
   ): TypedContractMethod<

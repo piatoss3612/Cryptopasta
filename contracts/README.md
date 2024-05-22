@@ -105,12 +105,12 @@ Done in 15.56s.
 $ yarn hardhat deploy-zksync --script deployMissionBoard.ts
 yarn run v1.22.21
 
-MissionBoard address: 0xa4a28578aFb1558dbd648089433892597417B638
-Cryptopasta address: 0xff8864cF6C9D47Aee270BDb2E4C2B2618c724374
-Your verification ID is: 13323
+MissionBoard address: 0x458aC7a07f3D4985F29f0E3D11d28F65A3f8c4b9
+Cryptopasta address: 0x983407C94537740034B02884A452b1B16Ad44C40
+Your verification ID is: 13974
 Contract successfully verified on zkSync block explorer!
 Done!
-Done in 19.93s.
+Done in 23.21s.
 ```
 
 ## Contract Addresses
@@ -124,5 +124,5 @@ Done in 19.93s.
 | PriceConverter | 0x824b601A2fEC9528829490BaC1C61d94DB575266 |
 | MockUSDT       | 0xc8653E56042003482E7561Cf34d882da4f6709d4 |
 | MissionLog     | 0x3859B26bfE58a0E9A019b76aBC051ee46D4d85eB |
-| MissionBoard   | 0xa4a28578aFb1558dbd648089433892597417B638 |
-| Cryptopasta    | 0xff8864cF6C9D47Aee270BDb2E4C2B2618c724374 |
+| MissionBoard   | 0x458aC7a07f3D4985F29f0E3D11d28F65A3f8c4b9 |
+| Cryptopasta    | 0x983407C94537740034B02884A452b1B16Ad44C40 |

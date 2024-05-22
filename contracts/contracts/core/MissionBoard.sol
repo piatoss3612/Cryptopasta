@@ -32,6 +32,7 @@ contract MissionBoard is IMissionBoard, Ownable {
     mapping(address => mapping(uint256 => bool)) private _hasRated;
     mapping(address => uint256) private _ethBalances;
     mapping(address => uint256) private _usdtBalances;
+    mapping(address => bool) private _usedFreeTrial;
 
     constructor(address _agent, address _usdt, address converter_) Ownable(msg.sender) {
         AGENT = IERC721(_agent);
@@ -112,6 +113,13 @@ contract MissionBoard is IMissionBoard, Ownable {
         return _hasRated[rater][reportId];
     }
 
+    /// @notice Returns if the user has the free trial
+    /// @param user The user address
+    /// @return True if the user has used the free trial
+    function hasFreeTrial(address user) public view override returns (bool) {
+        return !_usedFreeTrial[user];
+    }
+
     /// @notice Creates a discovery report
     /// @param title The title of the discovery
     /// @param contentURI The URI of the content
@@ -128,9 +136,14 @@ contract MissionBoard is IMissionBoard, Ownable {
         // // Should be an agent
         _isAgent(reporter);
 
-        // // Check payment: reporter to owner
-        uint256 paymentAmount = _pay(reporter, _reportingCostInUSD, paymentMethod);
-        _updateBalances(owner(), paymentAmount, paymentMethod);
+        // Check if the reporter has used the free trial
+        if (hasFreeTrial(reporter)) {
+            _usedFreeTrial[reporter] = true;
+        } else {
+            // // Check payment: reporter to owner
+            uint256 paymentAmount = _pay(reporter, _reportingCostInUSD, paymentMethod);
+            _updateBalances(owner(), paymentAmount, paymentMethod);
+        }
 
         // Store report
         uint256 reportId = _reportId++;
@@ -248,49 +261,58 @@ contract MissionBoard is IMissionBoard, Ownable {
             revert MissionBoard__NotReportOwner(caller, reportId);
         }
 
-        SalesStats storage sales = _sales[reportId];
+        SalesStats memory reportSales = _sales[reportId];
 
         // Calculate claimable sales
-        uint256 claimableInETH = sales.salesInETH - sales.claimedInETH;
-        uint256 claimableInUSDT = sales.salesInUSDT - sales.claimedInUSDT;
+        uint256 claimableInETH;
+        if (reportSales.salesInETH > reportSales.claimedInETH) {
+            claimableInETH = reportSales.salesInETH - reportSales.claimedInETH;
+        }
+
+        uint256 actualClaimedInETH;
 
         if (claimableInETH > 0) {
             // take 3% fee
-            uint256 fee = (claimableInETH * 3) / 100;
+            uint256 fee = (claimableInETH * 30) / 1000;
             if (fee < MIN_FEE) {
                 fee = MIN_FEE;
             }
 
             // Check if there is enough sales for the fee
-            if (fee > claimableInETH) {
-                revert MissionBoard__InsufficientSalesForClaim(reportId);
+            if (fee <= claimableInETH) {
+                // Update sales stats
+                _sales[reportId].claimedInETH += uint128(claimableInETH);
+                actualClaimedInETH = claimableInETH - fee;
+                _ethBalances[caller] += actualClaimedInETH;
+                _ethBalances[owner()] += fee;
             }
-
-            // Update sales stats
-            sales.claimedInETH += uint128(claimableInETH);
-            _ethBalances[caller] += claimableInETH - fee;
-            _ethBalances[owner()] += fee;
         }
+
+        uint256 claimableInUSDT;
+        if (reportSales.salesInUSDT > reportSales.claimedInUSDT) {
+            claimableInUSDT = reportSales.salesInUSDT - reportSales.claimedInUSDT;
+        }
+
+        uint256 actualClaimedInUSDT;
 
         if (claimableInUSDT > 0) {
             // take 3% fee
-            uint256 fee = (claimableInUSDT * 3) / 100;
+            uint256 fee = (claimableInUSDT * 30) / 1000;
             if (fee < MIN_FEE) {
                 fee = MIN_FEE;
             }
 
             // Check if there is enough sales for the fee
-            if (fee > claimableInETH) {
-                revert MissionBoard__InsufficientSalesForClaim(reportId);
+            if (fee <= claimableInUSDT) {
+                // Update sales stats
+                _sales[reportId].claimedInUSDT += uint128(claimableInUSDT);
+                actualClaimedInUSDT = claimableInUSDT - fee;
+                _usdtBalances[caller] += actualClaimedInUSDT;
+                _usdtBalances[owner()] += fee;
             }
-
-            // Update sales stats
-            sales.claimedInUSDT += uint128(claimableInUSDT);
-            _usdtBalances[caller] += claimableInUSDT - fee;
-            _usdtBalances[owner()] += fee;
         }
 
-        emit SalesClaimed(reportId, caller, claimableInETH, claimableInUSDT);
+        emit SalesClaimed(reportId, caller, actualClaimedInETH, actualClaimedInUSDT);
     }
 
     /// @notice Withdraws the balance
