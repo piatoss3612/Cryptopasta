@@ -260,77 +260,53 @@ func (s *MissionService) ActOnMission(ctx context.Context, missionID, input stri
 			}
 		}
 
-		// 	_, _ = builder.WriteString(fmt.Sprintf("\nNew input from the agent: %s\n", input))
+		_, _ = builder.WriteString(fmt.Sprintf("\nNew input from the agent: %s\n", input))
 
-		// 	// Initialize the chat completion request
-		// 	req := openai.ChatCompletionRequest{
-		// 		Model: openai.GPT4o,
-		// 		Messages: []openai.ChatCompletionMessage{
-		// 			{
-		// 				Role:    openai.ChatMessageRoleSystem,
-		// 				Content: systemMessage,
-		// 			},
-		// 			{
-		// 				Role:    openai.ChatMessageRoleUser,
-		// 				Content: builder.String(),
-		// 			},
-		// 		},
-		// 		Stream: true,
-		// 	}
+		// Initialize the chat completion request
+		req := openai.ChatCompletionRequest{
+			Model: openai.GPT4o,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    openai.ChatMessageRoleSystem,
+					Content: systemMessage,
+				},
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: builder.String(),
+				},
+			},
+			MaxTokens: 2048,
+		}
 
-		// 	// Create the chat completion stream
-		// 	stream, err := s.llm.CreateChatCompletionStream(ctx, req)
-		// 	if err != nil {
-		// 		return nil, err
-		// 	}
-		// 	defer stream.Close()
+		chatResp, err := s.llm.CreateChatCompletion(ctx, req)
+		if err != nil {
+			return nil, err
+		}
 
-		// 	// Reset the builder to store the AI response
-		// 	builder.Reset()
+		builder.Reset()
+		defer builder.Reset()
 
-		// 	// Stream the AI response
-		// Stream:
-		// 	for {
-		// 		select {
-		// 		case <-ctx.Done():
-		// 			return nil, ctx.Err()
-		// 		default:
-		// 			streamResp, err := stream.Recv()
-		// 			if err != nil {
-		// 				if errors.Is(err, io.EOF) {
-		// 					break Stream
-		// 				}
+		for _, choice := range chatResp.Choices {
+			_, _ = builder.WriteString(choice.Message.Content)
+		}
 
-		// 				return nil, err
-		// 			}
+		respContent := builder.String()
 
-		// 			for _, choice := range streamResp.Choices {
-		// 				content := choice.Delta.Content
+		if err := chatFn(respContent); err != nil {
+			return nil, err
+		}
 
-		// 				err = chatFn([]byte(content))
-		// 				if err != nil {
-		// 					return nil, err
-		// 				}
-
-		// 				_, _ = builder.WriteString(content)
-		// 			}
-		// 		}
-
-		// 	}
-
-		// // Save the entry with the user input and the AI response
-		// return s.store.CreateEntry(ctx, missionID, []Message{
-		// 	{
-		// 		Content: input,
-		// 		IsUser:  true,
-		// 	},
-		// 	{
-		// 		Content: builder.String(),
-		// 		IsUser:  false,
-		// 	}},
-		// )
-
-		return "entryID", nil
+		// Save the entry with the user input and the AI response
+		return s.store.CreateEntry(ctx, missionID, []Message{
+			{
+				Content: input,
+				IsUser:  true,
+			},
+			{
+				Content: respContent,
+				IsUser:  false,
+			}},
+		)
 	}
 
 	// Execute the transaction
@@ -400,13 +376,14 @@ func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missio
 				{
 					Role: openai.ChatMessageRoleUser,
 					Content: fmt.Sprintf(
-						`Use the latest game play context to describe the scene for drawing a visual representation. 
+						`Use the latest game play context to describe the scene for drawing a visual representation in brief. 
 						The context is as follows:\n\n%s`,
 						builder.String(),
 					),
 				},
 			},
-			Stream: false,
+			MaxTokens: 800,
+			Stream:    false,
 		}
 
 		// Request the chat completion
@@ -417,6 +394,7 @@ func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missio
 
 		// Reset the builder to store the AI response
 		builder.Reset()
+		defer builder.Reset()
 
 		// Write the AI response to the builder
 		for _, choice := range resp.Choices {

@@ -11,15 +11,14 @@ import {
 } from "@chakra-ui/react";
 import HistorySlider from "./HistorySlider";
 import MessageForm from "./MessageForm";
-import { Missions, Entry, Mission, Message } from "@/types";
+import { Mission, Message, ActOnMissionResponse } from "@/types";
 import MessageList from "./MessageList";
 import { useAgent } from "@/hooks";
 import NewMissionModal from "./NewMissionModal";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { isZeroAddress } from "@/libs/utils";
 import axios from "axios";
-import { getEntries, getMissions } from "@/actions";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { getEntries } from "@/actions";
 
 type MessageType = "id" | "event" | "error";
 
@@ -134,14 +133,41 @@ const MissionRoom = () => {
         break;
       case MISSION_ACT_SUCCESS_EVENT:
         // TODO: handle mission act success event
+        const resp = event.data as ActOnMissionResponse;
+
+        const image = resp.imageB64JSON;
+        if (image) {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            {
+              content: image,
+              isUser: false,
+              isImage: true,
+            },
+          ]);
+        }
         break;
       default:
-      // error handling
+        // error handling
+        const errorMessage = (event.data as string) || "Unknown event";
+        toast({
+          title: "Error",
+          description: errorMessage,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
     }
   }, []);
 
   const handleMissionClick = useCallback(async (mission: Mission) => {
     if (!mission) {
+      return;
+    }
+
+    // if already in the mission, just close the history slider
+    if (currentMission && currentMission.id === mission.id) {
+      onCloseHistorySlider();
       return;
     }
 
@@ -272,19 +298,72 @@ const MissionRoom = () => {
     [account, getAccessToken, sessionID, toast]
   );
 
-  const handleSendMessage = async (message: string) => {
-    // TODO: send message to WebSocket
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { content: message, isUser: true, isReport: false },
-      {
-        id: Date.now().toString(),
-        content: `Your message is: "${message}"`,
-        isUser: false,
-        isReport: false,
-        isTyping: true,
-      },
-    ]);
+  const handleSendMessage = async (userInput: string) => {
+    if (!currentMission) {
+      return;
+    }
+
+    if (!sessionID) {
+      return;
+    }
+
+    if (!userInput) {
+      return;
+    }
+
+    // if current typing message is still typing
+    if (currentTypingId) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      const accessToken = await getAccessToken();
+
+      if (!accessToken) {
+        throw new Error("Failed to get access token");
+      }
+
+      const missionID = currentMission.id;
+
+      const response = await axios.post(
+        `http://localhost:8080/mission/${missionID}?sessionID=${sessionID}`,
+        {
+          input: userInput,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status !== 200) {
+        throw new Error("Failed to send message");
+      }
+
+      const message: Message = {
+        content: userInput,
+        isUser: true,
+      };
+
+      setMessages((prevMessages) => [...prevMessages, message]);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+
+      toast({
+        title: "Error",
+        description: errorMessage,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleEndTyping = useCallback((id: string | undefined) => {
@@ -350,7 +429,10 @@ const MissionRoom = () => {
               onClick={onOpenHistorySlider}
               aria-label="Open History"
             />
-            <MessageForm onSendMessage={handleSendMessage} />
+            <MessageForm
+              isLoading={isLoading || !!currentTypingId}
+              onSendMessage={handleSendMessage}
+            />
           </HStack>
         </VStack>
       </Box>

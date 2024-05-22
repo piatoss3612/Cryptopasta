@@ -1,8 +1,17 @@
 import React, { useEffect, useRef } from "react";
 import Typist from "react-typist";
-import { VStack, Card, CardBody, Box, Avatar, HStack } from "@chakra-ui/react";
+import {
+  VStack,
+  Card,
+  CardBody,
+  Box,
+  Avatar,
+  HStack,
+  Image,
+} from "@chakra-ui/react";
 import { Message } from "@/types";
 import SystemImage from "@/public/system.jpg";
+import equipment from "@/public/equipment.jpg";
 
 interface MessageListProps {
   messages: Message[];
@@ -51,20 +60,30 @@ const MessageList = ({
               maxW={"70%"}
               backgroundColor={message.isUser ? "blue.100" : "gray.100"}
             >
-              <CardBody wordBreak={"break-word"}>
-                {message.isTyping ? (
-                  <Typist
-                    stdTypingDelay={5}
-                    avgTypingDelay={5}
-                    cursor={{ show: false }}
-                    onTypingDone={() => onEndTyping(message.id)}
-                  >
+              {message.isImage ? (
+                <Image
+                  src={`data:image/png;base64,${message.content}`}
+                  alt="Image"
+                  boxSize="100%"
+                  objectFit="cover"
+                  fallbackSrc={equipment.src}
+                />
+              ) : (
+                <CardBody wordBreak={"break-word"}>
+                  {message.isTyping ? (
+                    <Typist
+                      stdTypingDelay={5}
+                      avgTypingDelay={5}
+                      cursor={{ show: false }}
+                      onTypingDone={() => onEndTyping(message.id)}
+                    >
+                      {`${message.content}`}
+                    </Typist>
+                  ) : (
                     <div>{message.content}</div>
-                  </Typist>
-                ) : (
-                  <div>{message.content}</div>
-                )}
-              </CardBody>
+                  )}
+                </CardBody>
+              )}
             </Card>
           </Box>
           {message.isUser && (

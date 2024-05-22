@@ -2,21 +2,20 @@ import { Button, HStack, Input } from "@chakra-ui/react";
 import React, { useState } from "react";
 
 interface MessageFormProps {
+  isLoading: boolean;
   onSendMessage: (message: string) => Promise<void>;
 }
 
-const MessageForm = ({ onSendMessage }: MessageFormProps) => {
+const MessageForm = ({ isLoading, onSendMessage }: MessageFormProps) => {
   const [message, setMessage] = useState("");
-  const [sending, setSending] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      setSending(true);
       await onSendMessage(message);
       setMessage("");
-    } finally {
-      setSending(false);
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -26,8 +25,9 @@ const MessageForm = ({ onSendMessage }: MessageFormProps) => {
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Type your message..."
+        isDisabled={isLoading}
       />
-      <Button type="submit" isDisabled={sending || !message}>
+      <Button type="submit" isDisabled={isLoading || !message}>
         Send
       </Button>
     </HStack>

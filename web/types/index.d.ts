@@ -114,9 +114,9 @@ interface ActOnMissionRequest {
   input: string;
 }
 
-interface ServerSentEvent {
-  type: string;
-  data: any;
+interface ActOnMissionResponse {
+  entryID: string;
+  imageB64JSON: string;
 }
 
 export type {
@@ -132,10 +132,11 @@ export type {
   Entry,
   Mission,
   Missions,
-  ServerSentEvent,
   CryptopastaList,
   GetMissionsRequest,
   GetMissionsResponse,
   GetEntriesResponse,
   CreateMissionRequest,
+  ActOnMissionRequest,
+  ActOnMissionResponse,
 };
