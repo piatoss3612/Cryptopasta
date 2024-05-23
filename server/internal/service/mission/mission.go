@@ -369,6 +369,8 @@ func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missio
 			}
 		}
 
+		summarizedContent := builder.String()
+
 		// Initialize the chat completion request
 		req := openai.ChatCompletionRequest{
 			Model: openai.GPT4o,
@@ -376,13 +378,14 @@ func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missio
 				{
 					Role: openai.ChatMessageRoleUser,
 					Content: fmt.Sprintf(
-						`Use the latest game play context to describe the scene for drawing a visual representation in brief. 
-						The context is as follows:\n\n%s`,
-						builder.String(),
+						`Describe the scene for drawing a visual representation in brief using the latest game play context provided below.
+						It should include the player's character, the environment, and any other relevant details.						
+						\n\n%s`,
+						summarizedContent,
 					),
 				},
 			},
-			MaxTokens: 800,
+			MaxTokens: 900,
 			Stream:    false,
 		}
 
@@ -402,13 +405,13 @@ func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missio
 		}
 
 		// Get the summarized content
-		summarizedContent := builder.String()
+		prompt := builder.String()
 
 		imageReq := openai.ImageRequest{
 			Model:          openai.CreateImageModelDallE2,
 			Size:           openai.CreateImageSize256x256,
 			ResponseFormat: openai.CreateImageResponseFormatB64JSON,
-			Prompt:         summarizedContent,
+			Prompt:         prompt,
 		}
 
 		imageResp, err := s.llm.CreateImage(ctx, imageReq)
@@ -423,7 +426,7 @@ func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missio
 		imageB64JSON := imageResp.Data[0].B64JSON
 
 		message := Message{
-			Content:  summarizedContent,
+			Content:  prompt,
 			B64Image: imageB64JSON,
 			IsUser:   false,
 			IsReport: false,
