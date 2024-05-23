@@ -16,7 +16,7 @@ import {
 import { Mission, Missions } from "@/types";
 import { useAgent } from "@/hooks";
 import { getMissions } from "@/actions";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { isZeroAddress } from "@/libs/utils";
 
 interface HistorySliderProps {
@@ -69,7 +69,7 @@ const HistorySlider = ({
 
   const { data, fetchNextPage, hasNextPage, isLoading, error, isError } =
     useInfiniteQuery<Missions, Error>({
-      queryKey: ["missions"],
+      queryKey: ["missions", account],
       queryFn: queryMissionHistory,
       initialPageParam: undefined,
       getNextPageParam: (lastPage: Missions, pages: Missions[]) => {
@@ -84,6 +84,7 @@ const HistorySlider = ({
         return lastPage[lastPage.length - 1].id;
       },
       enabled: isOpen && !isZeroAddress(account),
+      placeholderData: keepPreviousData,
       refetchInterval: 10000,
     });
 

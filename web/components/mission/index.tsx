@@ -64,6 +64,13 @@ const MissionRoom = () => {
   const [currentTypingId, setCurrentTypingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  // fullscreen
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
   const setupWebSocket = useCallback(async () => {
     const token = await getAccessToken();
 
@@ -135,16 +142,9 @@ const MissionRoom = () => {
         // TODO: handle mission act success event
         const resp = event.data as ActOnMissionResponse;
 
-        const image = resp.imageB64JSON;
-        if (image) {
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            {
-              content: image,
-              isUser: false,
-              isImage: true,
-            },
-          ]);
+        const message = resp.visualMessage;
+        if (message) {
+          setMessages((prevMessages) => [...prevMessages, message]);
         }
         break;
       default:
@@ -173,6 +173,7 @@ const MissionRoom = () => {
 
     if (!webSocket.current) {
       await setupWebSocket();
+      return;
     }
 
     try {
@@ -247,6 +248,7 @@ const MissionRoom = () => {
 
       if (!webSocket.current) {
         await setupWebSocket();
+        return;
       }
 
       try {
@@ -387,7 +389,7 @@ const MissionRoom = () => {
 
   // WebSocket Connection
   useEffect(() => {
-    if (currentMission && !webSocket.current) {
+    if (!webSocket.current) {
       setupWebSocket().catch((error) => {
         console.error("Failed to setup WebSocket", error);
       });
@@ -424,12 +426,19 @@ const MissionRoom = () => {
         handleNewGameClick={onOpenNewGameModal}
       />
       {/* Main Content */}
-      <Box flexGrow={1} p={4} maxW={{ base: "88%", lg: "72%" }}>
-        <VStack spacing={4} align="stretch">
+      <Box
+        flexGrow={1}
+        p={4}
+        maxW={{ base: "88%", lg: "72%" }}
+        overflow="hidden"
+      >
+        <VStack spacing={4} align="stretch" h={isFullscreen ? "100vh" : "auto"}>
           <MessageList
             messages={messages}
             userAvatar={avatar}
             onEndTyping={handleEndTyping}
+            isFullscreen={isFullscreen}
+            toggleFullscreen={toggleFullscreen}
           />
           <HStack>
             <IconButton
@@ -440,6 +449,7 @@ const MissionRoom = () => {
             <MessageForm
               isLoading={isLoading || !!currentTypingId}
               onSendMessage={handleSendMessage}
+              isFullscreen={isFullscreen}
             />
           </HStack>
         </VStack>

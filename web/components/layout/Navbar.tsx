@@ -16,7 +16,7 @@ const Navbar = () => {
       top="0"
       left="0"
       right="0"
-      zIndex="banner"
+      zIndex="auto"
       mx={6}
     >
       <Logo />

@@ -324,36 +324,36 @@ func (s *MissionService) ActOnMission(ctx context.Context, missionID, input stri
 	return entryID, nil
 }
 
-func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missionID, entryID string) (string, error) {
+func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missionID, entryID string) (*Message, error) {
 	fn := func(ctx context.Context) (interface{}, error) {
 		// Check if the mission and entry exist
 		exists, err := s.query.MissionExists(ctx, missionID)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		if !exists {
-			return "", errors.New("mission not found")
+			return nil, errors.New("mission not found")
 		}
 
 		// Check if the entry exists
-		exists, err = s.query.EntryExists(ctx, entryID)
+		entry, err := s.query.FindEntryByID(ctx, entryID)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
-		if !exists {
-			return "", errors.New("entry not found")
+		if entry == nil {
+			return nil, errors.New("entry not found")
 		}
 
 		// Get the latest entries
 		entries, err := s.query.FindEntriesByMissionID(ctx, missionID, true)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		if len(entries) == 0 {
-			return "", errors.New("no entries found")
+			return nil, errors.New("no entries found")
 		}
 
 		// Generate the request content with the previous messages
@@ -389,7 +389,7 @@ func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missio
 		// Request the chat completion
 		resp, err := s.llm.CreateChatCompletion(ctx, req)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		// Reset the builder to store the AI response
@@ -413,32 +413,43 @@ func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missio
 
 		imageResp, err := s.llm.CreateImage(ctx, imageReq)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		if len(imageResp.Data) == 0 {
-			return "", errors.New("no images found")
+			return nil, errors.New("no images found")
 		}
 
 		imageB64JSON := imageResp.Data[0].B64JSON
 
-		err = s.store.UpdateEntry(ctx, entryID, nil, imageB64JSON)
-		if err != nil {
-			return "", err
+		message := Message{
+			Content:  summarizedContent,
+			B64Image: imageB64JSON,
+			IsUser:   false,
+			IsReport: false,
+			IsImage:  true,
 		}
 
-		return imageB64JSON, nil
+		messages := entry.Messages
+		messages = append(messages, message)
+
+		err = s.store.UpdateEntry(ctx, entryID, messages)
+		if err != nil {
+			return nil, err
+		}
+
+		return &message, nil
 	}
 
 	result, err := s.tx.Execute(ctx, fn)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	imageB64JSON, ok := result.(string)
+	message, ok := result.(*Message)
 	if !ok {
-		return "", errors.New("invalid image type")
+		return nil, errors.New("invalid message type")
 	}
 
-	return imageB64JSON, nil
+	return message, nil
 }

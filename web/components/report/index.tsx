@@ -72,7 +72,7 @@ const Report = () => {
     setForm1({ ...form1, price: parseFloat(event.target.value) });
 
   const validateForm1 = () => {
-    if (!form1.title || !form1.description || form1.price <= 0) {
+    if (!form1.title || !form1.description || form1.price < 0) {
       toastError("Invalid form data", "Please fill in all fields");
       return false;
     }

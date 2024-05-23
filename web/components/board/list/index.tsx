@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import ReportCard from "./ReportCard";
 import React, { useEffect, useRef } from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { getReportList } from "@/actions";
 import { ReportList } from "@/types";
@@ -33,12 +33,17 @@ const Reports = () => {
       queryFn: queryReportList,
       initialPageParam: 1,
       getNextPageParam: (lastPage: ReportList, pages: ReportList[]) => {
+        if (!lastPage || !lastPage.reportDiscoveries) {
+          return undefined;
+        }
+
         if (lastPage.reportDiscoveries.length < PAGE_ITEM_LIMIT) {
           return undefined;
         }
 
         return pages.length + 1;
       },
+      placeholderData: keepPreviousData,
     });
 
   const hasData =

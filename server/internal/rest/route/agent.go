@@ -39,7 +39,7 @@ func (a *AgentRoute) Handler() http.Handler {
 //	@Accept			json
 //	@Produce		json
 //	@Param			request	body		AgentRegisterRequest	true	"Agent Register Request"
-//	@Success		200		{object}	AgentRegisterResponse	"OK"
+//	@Success		201		{object}	AgentRegisterResponse	"Created"
 //	@Failure		400		{string}	string					"Bad Request"
 //	@Failure		401		{string}	string					"Unauthorized"
 //	@Router			/agent [post]
@@ -65,7 +65,7 @@ func (a *AgentRoute) register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 3. send response
-	_ = utils.WriteJSON(w, http.StatusOK, AgentRegisterResponse{
+	_ = utils.WriteJSON(w, http.StatusCreated, AgentRegisterResponse{
 		AgentAccount: account.Hex(),
 		TokenId:      tokenId.String(),
 	})

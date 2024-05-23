@@ -319,7 +319,7 @@ func (m *MissionRoutes) actOnMission(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		imageB64JSON, err := m.m.VisualizeLatestMissionState(ctx, missionID, entryID)
+		visualMessage, err := m.m.VisualizeLatestMissionState(ctx, missionID, entryID)
 		if err != nil {
 			slog.Error("error visualizing mission state", "error", err)
 			websocket.Send(websocket.Message{
@@ -334,15 +334,17 @@ func (m *MissionRoutes) actOnMission(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		websocket.Send(websocket.Message{
-			Type: websocket.EventMessage,
-			ID:   id,
-			Event: websocket.Event{
-				Name:   "mission_act_success",
-				Data:   ActOnMissionResponse{EntryID: entryID, ImageB64JSON: imageB64JSON},
-				Status: websocket.Done,
-			},
-		})
+		if visualMessage != nil {
+			websocket.Send(websocket.Message{
+				Type: websocket.EventMessage,
+				ID:   id,
+				Event: websocket.Event{
+					Name:   "mission_act_success",
+					Data:   ActOnMissionResponse{EntryID: entryID, VisualMessage: *visualMessage},
+					Status: websocket.Done,
+				},
+			})
+		}
 	}()
 }
 
@@ -366,6 +368,6 @@ type ActOnMissionRequest struct {
 }
 
 type ActOnMissionResponse struct {
-	EntryID      string `json:"entryID"`
-	ImageB64JSON string `json:"imageB64JSON"`
+	EntryID       string          `json:"entryID"`
+	VisualMessage mission.Message `json:"visualMessage"`
 }

@@ -8,9 +8,9 @@ dataSources:
     name: bulletin_board
     network: zksync-era-sepolia
     source:
-      address: "0xa4a28578aFb1558dbd648089433892597417B638"
+      address: "0x6983734A8d264B86f27f73FA37381a381F074E77"
       abi: bulletin_board
-      startBlock: 2360359
+      startBlock: 2489241
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

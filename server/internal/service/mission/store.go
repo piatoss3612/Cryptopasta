@@ -66,7 +66,7 @@ func (s *MissionStore) CreateEntry(ctx context.Context, missionID string, messag
 	return objID.Hex(), nil
 }
 
-func (s *MissionStore) UpdateEntry(ctx context.Context, id string, messages []Message, image string) error {
+func (s *MissionStore) UpdateEntry(ctx context.Context, id string, messages []Message) error {
 	collection := s.client.Database(s.dbname).Collection("entries")
 
 	objID, err := primitive.ObjectIDFromHex(id)
@@ -82,10 +82,6 @@ func (s *MissionStore) UpdateEntry(ctx context.Context, id string, messages []Me
 
 	if len(messages) > 0 {
 		set["messages"] = messages
-	}
-
-	if len(image) > 0 {
-		set["image"] = image
 	}
 
 	if len(set) == 0 {

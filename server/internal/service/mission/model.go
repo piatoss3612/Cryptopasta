@@ -2,15 +2,16 @@ package mission
 
 type Message struct {
 	Content  string `json:"content" bson:"content"`
+	B64Image string `json:"b64Image,omitempty" bson:"b64Image,omitempty"`
 	IsUser   bool   `json:"isUser" bson:"isUser"`
 	IsReport bool   `json:"isReport" bson:"isReport"`
+	IsImage  bool   `json:"isImage" bson:"isImage"`
 }
 
 type Entry struct {
 	ID        string    `json:"id" bson:"_id,omitempty"`
 	MissionID string    `json:"missionID" bson:"missionID"`
 	Messages  []Message `json:"messages" bson:"messages"`
-	Image     string    `json:"image,omitempty" bson:"image,omitempty"`
 	CreatedAt int64     `json:"createdAt" bson:"createdAt"`
 	UpdateAt  int64     `json:"updateAt" bson:"updateAt"`
 }

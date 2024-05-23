@@ -64,6 +64,7 @@ interface Message {
   id?: string;
   content: string;
   isUser: boolean;
+  b64Image?: string;
   isReport?: boolean;
   isImage?: boolean;
   isTyping?: boolean;
@@ -116,7 +117,7 @@ interface ActOnMissionRequest {
 
 interface ActOnMissionResponse {
   entryID: string;
-  imageB64JSON: string;
+  visualMessage: Message;
 }
 
 interface AgentRegisterResponse {

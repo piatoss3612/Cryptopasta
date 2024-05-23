@@ -53,13 +53,17 @@ const NewMissionModal = ({
 
   const { data, fetchNextPage, hasNextPage, isLoading, isError, error } =
     useInfiniteQuery<CryptopastaList, Error>({
-      queryKey: ["reports"],
+      queryKey: ["reports", account],
       queryFn: queryCryptopastaList,
       initialPageParam: 1,
       getNextPageParam: (
         lastPage: CryptopastaList,
         pages: CryptopastaList[]
       ) => {
+        if (!lastPage || !lastPage.transferSingles) {
+          return undefined;
+        }
+
         if (lastPage.transferSingles.length < PAGE_ITEM_LIMIT) {
           return undefined;
         }

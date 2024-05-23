@@ -1,3 +1,10 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
 /* 스크롤바 너비 및 색상 설정 */
 ::-webkit-scrollbar {
     width: 16px; /* 스크롤바의 너비 설정 */
