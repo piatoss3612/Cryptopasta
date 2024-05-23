@@ -19,16 +19,6 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-interface Event {
-  type: string;
-  id: string;
-  data: { agent_account: string; token_id: string } | string;
-}
-
-const AGENT_REGISTER_START_EVENT = "agent_register_start";
-const AGENT_REGISTER_SUCCESS_EVENT = "agent_register_success";
-const AGENT_REGISTER_ERROR_EVENT = "agent_register_error";
-
 interface RegisterProps {
   isOpen: boolean;
   onClose: () => void;
@@ -37,7 +27,6 @@ interface RegisterProps {
 
 const RegisterModal = ({ isOpen, onClose, portraitId }: RegisterProps) => {
   const { register, wallet } = useAgent();
-  const [events, setEvents] = useState<Event[]>([]);
   const [isRegistering, setIsRegistering] = useState<boolean>(false);
   const [done, setDone] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
@@ -50,58 +39,35 @@ const RegisterModal = ({ isOpen, onClose, portraitId }: RegisterProps) => {
   };
 
   const registerAgent = useCallback(async () => {
-    const reader = await register(portraitId);
-    const decoder = new TextDecoder("utf-8");
+    try {
+      setIsRegistering(true);
+      setMessage("Registering agent...");
 
-    const readChunk = async (): Promise<void> => {
-      const { done, value } = await reader.read();
+      const response = await register(portraitId);
 
-      if (done) {
-        return;
+      if (!response) {
+        throw new Error("Failed to register agent");
       }
 
-      const message = decoder.decode(value, { stream: true });
-
-      const event = JSON.parse(message) as Event;
-
-      setEvents((prev) => [...prev, event]);
-
-      return readChunk();
-    };
-
-    await readChunk();
+      setDone(true);
+      setMessage(
+        `Agent registered with address ${abbreviateAddress(
+          response.agent_account
+        )}`
+      );
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      setError(true);
+      setMessage(errorMessage);
+    } finally {
+      setIsRegistering(false);
+    }
   }, [wallet, portraitId]);
 
   useEffect(() => {
     registerAgent();
   }, []);
-
-  useEffect(() => {
-    if (events.length === 0) {
-      return;
-    }
-
-    const lastEvent = events[events.length - 1];
-
-    if (lastEvent.type === AGENT_REGISTER_START_EVENT) {
-      setIsRegistering(true);
-      setMessage(lastEvent.data as string);
-    } else if (lastEvent.type === AGENT_REGISTER_SUCCESS_EVENT) {
-      const data = lastEvent.data as {
-        agent_account: string;
-        token_id: string;
-      };
-      setIsRegistering(false);
-      setDone(true);
-      setMessage(`Agent ${abbreviateAddress(data.agent_account)} registered!`);
-    } else if (lastEvent.type === AGENT_REGISTER_ERROR_EVENT) {
-      setIsRegistering(false);
-      setError(true);
-      setMessage(lastEvent.data as string);
-    } else {
-      console.log("Unknown event", lastEvent);
-    }
-  }, [events]);
 
   return (
     <Modal

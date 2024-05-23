@@ -119,6 +119,11 @@ interface ActOnMissionResponse {
   imageB64JSON: string;
 }
 
+interface AgentRegisterResponse {
+  agent_account: string;
+  token_id: string;
+}
+
 export type {
   TokenMetadata,
   TransactionRequest,
@@ -139,4 +144,5 @@ export type {
   CreateMissionRequest,
   ActOnMissionRequest,
   ActOnMissionResponse,
+  AgentRegisterResponse,
 };

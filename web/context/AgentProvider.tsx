@@ -3,6 +3,7 @@ import { useViem } from "@/hooks";
 import { AgentRegistryAbi } from "@/libs/abis";
 import { AGENT_REGISTRY } from "@/libs/constant";
 import { isZeroAddress, loadImage } from "@/libs/utils";
+import { AgentRegisterResponse } from "@/types";
 import {
   ConnectedWallet,
   usePrivy,
@@ -12,6 +13,7 @@ import {
   Wallet,
 } from "@privy-io/react-auth";
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { WalletClient, createWalletClient, custom } from "viem";
@@ -31,9 +33,7 @@ interface AgentContextType {
   account: `0x${string}` | undefined;
   avatar: string;
   getPortraitURI: (portraitId: bigint) => Promise<string>;
-  register: (
-    portraitId: bigint
-  ) => Promise<ReadableStreamDefaultReader<Uint8Array>>;
+  register: (portraitId: bigint) => Promise<AgentRegisterResponse>;
 }
 
 const AgentContext = createContext({} as AgentContextType);
@@ -149,9 +149,7 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const register = useCallback(
-    async (
-      portraitId: bigint
-    ): Promise<ReadableStreamDefaultReader<Uint8Array>> => {
+    async (portraitId: bigint): Promise<AgentRegisterResponse> => {
       if (!client) {
         throw new Error("Client not found");
       }
@@ -170,25 +168,25 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error("Token not found");
       }
 
-      const body = JSON.stringify({
-        agent_address: wallet.address,
-        portrait_id: portraitId.toString(),
-      });
-
-      const response = await fetch("http://localhost:8080/agent", {
-        method: "POST",
-        body,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
+      const response = await axios.post<AgentRegisterResponse>(
+        "http://localhost:8080/agent",
+        {
+          agent_address: wallet.address,
+          portrait_id: portraitId.toString(),
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      if (!response.ok || !response.body) {
+      if (response.status !== 201) {
         throw new Error("Failed to register agent");
       }
 
-      return response.body.getReader();
+      return response.data;
     },
     [client, wallet, account]
   );

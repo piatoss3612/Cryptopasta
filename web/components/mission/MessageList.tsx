@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import Typist from "react-typist";
+import ReactMarkdown from "react-markdown";
 import {
   VStack,
   Card,
@@ -8,6 +9,8 @@ import {
   Avatar,
   HStack,
   Image,
+  Text,
+  Heading,
 } from "@chakra-ui/react";
 import { Message } from "@/types";
 import SystemImage from "@/public/system.jpg";
@@ -18,6 +21,40 @@ interface MessageListProps {
   userAvatar: string;
   onEndTyping: (id: string | undefined) => void;
 }
+
+const Markdown = ({ content }: { content: string }) => (
+  <ReactMarkdown
+    components={{
+      h1: ({ children }) => (
+        <Box mb={2}>
+          <Heading fontSize="2xl" mt={4} mb={2}>
+            {children}
+          </Heading>
+          <Box as="hr" />
+        </Box>
+      ),
+      h2: ({ children }) => (
+        <Box mb={2}>
+          <Heading fontSize="xl" mt={4} mb={2}>
+            {children}
+          </Heading>
+          <Box as="hr" />
+        </Box>
+      ),
+      h3: ({ children }) => (
+        <Box mb={2}>
+          <Heading fontSize="lg" mt={4} mb={2}>
+            {children}
+          </Heading>
+          <Box as="hr" />
+        </Box>
+      ),
+      hr: () => <Box as="hr" my={2} />,
+    }}
+  >
+    {content}
+  </ReactMarkdown>
+);
 
 const MessageList = ({
   messages,
@@ -41,6 +78,7 @@ const MessageList = ({
       p={4}
       h="60vh"
       alignItems="stretch"
+      fontFamily={"sans-serif"}
     >
       {messages.map((message, idx) => (
         <HStack
@@ -69,7 +107,7 @@ const MessageList = ({
                   fallbackSrc={equipment.src}
                 />
               ) : (
-                <CardBody wordBreak={"break-word"}>
+                <CardBody>
                   {message.isTyping ? (
                     <Typist
                       stdTypingDelay={5}
@@ -77,10 +115,10 @@ const MessageList = ({
                       cursor={{ show: false }}
                       onTypingDone={() => onEndTyping(message.id)}
                     >
-                      {`${message.content}`}
+                      <Markdown content={message.content} />
                     </Typist>
                   ) : (
-                    <div>{message.content}</div>
+                    <Markdown content={message.content} />
                   )}
                 </CardBody>
               )}

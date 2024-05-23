@@ -159,11 +159,6 @@ const HistorySlider = ({
             <Button w="100%" onClick={handleNewGameClick} mb={2}>
               New Game
             </Button>
-            {isLoading && !missions && (
-              <Center h="100%">
-                <Spinner size="lg" />
-              </Center>
-            )}
             <VStack align="stretch" spacing={4} m={4}>
               {missions.map((mission, index) => (
                 <Text
@@ -179,7 +174,11 @@ const HistorySlider = ({
                   {mission.title}
                 </Text>
               ))}
-              {isLoading && missions && <Spinner size="md" />}
+              {isLoading && (
+                <Center>
+                  <Spinner size="lg" />
+                </Center>
+              )}
               <div ref={loadMoreRef} />
             </VStack>
           </DrawerBody>

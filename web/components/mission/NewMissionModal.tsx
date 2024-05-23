@@ -127,6 +127,7 @@ const NewMissionModal = ({
       onClose={onClose}
       size={"xl"}
       isCentered
+      trapFocus={false}
     >
       <ModalOverlay />
       <ModalContent>

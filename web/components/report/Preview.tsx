@@ -6,7 +6,6 @@ import {
   HStack,
   Image,
   Center,
-  Divider,
   RadioGroup,
   Radio,
 } from "@chakra-ui/react";
@@ -20,6 +19,7 @@ interface PreviewProps {
   reportingCostInETH: number;
   reportingCostInUSDT: number;
   paymentMethod: number;
+  hasFreeTrial: boolean;
   handlePaymentMethodChange: (value: string) => void;
 }
 
@@ -31,6 +31,7 @@ const Preview = ({
   reportingCostInETH,
   reportingCostInUSDT,
   paymentMethod,
+  hasFreeTrial,
   handlePaymentMethodChange,
 }: PreviewProps) => {
   return (
@@ -92,15 +93,19 @@ const Preview = ({
         <Text fontSize={"lg"} fontWeight="bold">
           Choose Payment Method:
         </Text>
-        <RadioGroup
-          value={paymentMethod.toString()}
-          onChange={handlePaymentMethodChange}
-        >
-          <HStack>
-            <Radio value="0">ETH</Radio>
-            <Radio value="1">USDT</Radio>
-          </HStack>
-        </RadioGroup>
+        {hasFreeTrial ? (
+          <Text fontSize={"lg"}>Free Trial</Text>
+        ) : (
+          <RadioGroup
+            value={paymentMethod.toString()}
+            onChange={handlePaymentMethodChange}
+          >
+            <HStack>
+              <Radio value="0">ETH</Radio>
+              <Radio value="1">USDT</Radio>
+            </HStack>
+          </RadioGroup>
+        )}
       </HStack>
     </VStack>
   );

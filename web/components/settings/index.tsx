@@ -1,14 +1,15 @@
 "use client";
 
+import { useAgent, usePayment } from "@/hooks";
+import { getPaymasterApprovalParams, isZeroAddress } from "@/libs/utils";
 import {
   Box,
   Button,
-  ButtonGroup,
   Center,
   Flex,
   Heading,
-  Text,
   VStack,
+  HStack,
 } from "@chakra-ui/react";
 import {
   WalletWithMetadata,
@@ -20,6 +21,8 @@ import React from "react";
 
 const Settings = () => {
   const { authenticated, user, setWalletPassword, exportWallet } = usePrivy();
+  const { account } = useAgent();
+  const { onOpenPayment } = usePayment();
   const { showMfaEnrollmentModal } = useMfaEnrollment();
   const navigator = useRouter();
 
@@ -35,6 +38,28 @@ const Settings = () => {
     return null;
   }
 
+  const handlePaymasterApproval = () => {
+    if (isZeroAddress(account)) {
+      throw new Error("Account not initialized");
+    }
+
+    const params = getPaymasterApprovalParams(account as `0x${string}`);
+
+    onOpenPayment("Paymaster Approval", params);
+  };
+
+  const handleResetApproval = () => {
+    if (isZeroAddress(account)) {
+      throw new Error("Account not initialized");
+    }
+
+    const params = getPaymasterApprovalParams(account as `0x${string}`);
+
+    params.args![1] = BigInt(0); // reset approval to 0
+
+    onOpenPayment("Reset Approval", params);
+  };
+
   return (
     <Center
       flexGrow={1}
@@ -42,23 +67,50 @@ const Settings = () => {
       maxW={{ base: "90%", lg: "48%" }}
       overflowY={"hidden"}
     >
-      <VStack spacing={4}>
-        <Heading>Settings</Heading>
-        <VStack spacing={4} p={4}>
-          <Button
-            onClick={setWalletPassword}
-            isDisabled={alreadyHasPassword}
-            w={"100%"}
+      <VStack spacing={8} w="100%">
+        <Heading fontFamily={""} size={"2xl"}>
+          Settings
+        </Heading>
+        <Flex w="80%" direction={{ base: "column", md: "row" }} gap={4}>
+          <VStack w="100%" alignItems="center" spacing={4}>
+            <Heading fontFamily={""} size="lg">
+              Paymaster
+            </Heading>
+            <VStack spacing={4} w="100%">
+              <Button w={"80%"} onClick={handlePaymasterApproval}>
+                Approve USDT
+              </Button>
+              <Button w={"80%"} onClick={handleResetApproval}>
+                Reset Approval
+              </Button>
+            </VStack>
+          </VStack>
+          <VStack
+            w="100%"
+            alignItems="center"
+            spacing={4}
+            mt={{ base: 4, md: 0 }}
           >
-            Set Password
-          </Button>
-          <Button onClick={showMfaEnrollmentModal} w={"100%"}>
-            Set MFA
-          </Button>
-          <Button onClick={exportWallet} w={"100%"}>
-            Export Wallet
-          </Button>
-        </VStack>
+            <Heading fontFamily={""} size="lg">
+              Wallet
+            </Heading>
+            <VStack spacing={4} w="100%">
+              <Button
+                onClick={setWalletPassword}
+                isDisabled={alreadyHasPassword}
+                w={"80%"}
+              >
+                Set Password
+              </Button>
+              <Button onClick={showMfaEnrollmentModal} w={"80%"}>
+                Set MFA
+              </Button>
+              <Button onClick={exportWallet} w={"80%"}>
+                Export
+              </Button>
+            </VStack>
+          </VStack>
+        </Flex>
       </VStack>
     </Center>
   );

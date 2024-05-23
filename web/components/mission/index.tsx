@@ -171,6 +171,10 @@ const MissionRoom = () => {
       return;
     }
 
+    if (!webSocket.current) {
+      await setupWebSocket();
+    }
+
     try {
       const accessToken = await getAccessToken();
 
@@ -240,6 +244,10 @@ const MissionRoom = () => {
     async (reportID: string) => {
       onCloseNewGameModal();
       onCloseHistorySlider();
+
+      if (!webSocket.current) {
+        await setupWebSocket();
+      }
 
       try {
         setIsLoading(true);
@@ -379,12 +387,12 @@ const MissionRoom = () => {
 
   // WebSocket Connection
   useEffect(() => {
-    if (!webSocket.current) {
+    if (currentMission && !webSocket.current) {
       setupWebSocket().catch((error) => {
         console.error("Failed to setup WebSocket", error);
       });
     }
-  }, [webSocket, setupWebSocket]);
+  }, [currentMission, webSocket, setupWebSocket]);
 
   // Track Typing
   useEffect(() => {

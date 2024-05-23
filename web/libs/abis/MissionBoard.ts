@@ -33,7 +33,7 @@ const MissionBoardAbi = [
         type: "uint256",
       },
     ],
-    name: "BulletinBoard__AlreadyRated",
+    name: "MissionBoard__AlreadyRated",
     type: "error",
   },
   {
@@ -49,12 +49,12 @@ const MissionBoardAbi = [
         type: "uint256",
       },
       {
-        internalType: "enum IBulletinBoard.PaymentMethod",
+        internalType: "enum IMissionBoard.PaymentMethod",
         name: "paymentMethod",
         type: "uint8",
       },
     ],
-    name: "BulletinBoard__InsufficientBalance",
+    name: "MissionBoard__InsufficientBalance",
     type: "error",
   },
   {
@@ -65,7 +65,7 @@ const MissionBoardAbi = [
         type: "uint256",
       },
     ],
-    name: "BulletinBoard__InsufficientSalesForClaim",
+    name: "MissionBoard__InsufficientSalesForClaim",
     type: "error",
   },
   {
@@ -76,12 +76,12 @@ const MissionBoardAbi = [
         type: "uint256",
       },
     ],
-    name: "BulletinBoard__InvalidETHAmount",
+    name: "MissionBoard__InvalidETHAmount",
     type: "error",
   },
   {
     inputs: [],
-    name: "BulletinBoard__InvalidPaymentMethod",
+    name: "MissionBoard__InvalidPaymentMethod",
     type: "error",
   },
   {
@@ -92,7 +92,7 @@ const MissionBoardAbi = [
         type: "address",
       },
     ],
-    name: "BulletinBoard__NotAgent",
+    name: "MissionBoard__NotAgent",
     type: "error",
   },
   {
@@ -108,7 +108,7 @@ const MissionBoardAbi = [
         type: "uint256",
       },
     ],
-    name: "BulletinBoard__NotReportOwner",
+    name: "MissionBoard__NotReportOwner",
     type: "error",
   },
   {
@@ -119,12 +119,12 @@ const MissionBoardAbi = [
         type: "uint256",
       },
     ],
-    name: "BulletinBoard__ReportNotFound",
+    name: "MissionBoard__ReportNotFound",
     type: "error",
   },
   {
     inputs: [],
-    name: "BulletinBoard__TransferFailed",
+    name: "MissionBoard__TransferFailed",
     type: "error",
   },
   {
@@ -222,7 +222,7 @@ const MissionBoardAbi = [
       },
       {
         indexed: false,
-        internalType: "enum IBulletinBoard.Rating",
+        internalType: "enum IMissionBoard.Rating",
         name: "rating",
         type: "uint8",
       },
@@ -247,7 +247,7 @@ const MissionBoardAbi = [
       },
       {
         indexed: false,
-        internalType: "enum IBulletinBoard.PaymentMethod",
+        internalType: "enum IMissionBoard.PaymentMethod",
         name: "paymentMethod",
         type: "uint8",
       },
@@ -350,7 +350,7 @@ const MissionBoardAbi = [
         type: "uint256",
       },
       {
-        internalType: "enum IBulletinBoard.PaymentMethod",
+        internalType: "enum IMissionBoard.PaymentMethod",
         name: "paymentMethod",
         type: "uint8",
       },
@@ -391,7 +391,7 @@ const MissionBoardAbi = [
         type: "uint128",
       },
       {
-        internalType: "enum IBulletinBoard.PaymentMethod",
+        internalType: "enum IMissionBoard.PaymentMethod",
         name: "paymentMethod",
         type: "uint8",
       },
@@ -439,7 +439,7 @@ const MissionBoardAbi = [
             type: "string",
           },
         ],
-        internalType: "struct IBulletinBoard.DiscoveryReport",
+        internalType: "struct IMissionBoard.DiscoveryReport",
         name: "",
         type: "tuple",
       },
@@ -470,7 +470,7 @@ const MissionBoardAbi = [
             type: "uint128",
           },
         ],
-        internalType: "struct IBulletinBoard.RatingStats",
+        internalType: "struct IMissionBoard.RatingStats",
         name: "",
         type: "tuple",
       },
@@ -516,7 +516,7 @@ const MissionBoardAbi = [
             type: "uint128",
           },
         ],
-        internalType: "struct IBulletinBoard.SalesStats",
+        internalType: "struct IMissionBoard.SalesStats",
         name: "",
         type: "tuple",
       },
@@ -524,6 +524,25 @@ const MissionBoardAbi = [
         internalType: "uint8",
         name: "",
         type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "hasFreeTrial",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -574,7 +593,7 @@ const MissionBoardAbi = [
         type: "uint256",
       },
       {
-        internalType: "enum IBulletinBoard.Rating",
+        internalType: "enum IMissionBoard.Rating",
         name: "rating",
         type: "uint8",
       },
@@ -706,7 +725,7 @@ const MissionBoardAbi = [
   {
     inputs: [
       {
-        internalType: "address",
+        internalType: "address payable",
         name: "to",
         type: "address",
       },
@@ -716,7 +735,7 @@ const MissionBoardAbi = [
         type: "uint256",
       },
       {
-        internalType: "enum IBulletinBoard.PaymentMethod",
+        internalType: "enum IMissionBoard.PaymentMethod",
         name: "paymentMethod",
         type: "uint8",
       },

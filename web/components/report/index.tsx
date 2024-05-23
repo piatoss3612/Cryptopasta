@@ -145,6 +145,32 @@ const Report = () => {
     });
   };
 
+  const getHasFreeTrial = async (): Promise<boolean> => {
+    if (!client) {
+      throw new Error("Client is not initialized");
+    }
+
+    if (!account || isZeroAddress(account)) {
+      return false;
+    }
+
+    return await client.readContract({
+      address: MISSION_BOARD,
+      abi: MissionBoardAbi,
+      functionName: "hasFreeTrial",
+      args: [account as `0x${string}`],
+    });
+  };
+
+  const { data: hasFreeTrialData } = useQuery({
+    queryKey: ["hasFreeTrial"],
+    queryFn: getHasFreeTrial,
+    enabled: !!client,
+    refetchInterval: 30000,
+  });
+
+  const hasFreeTrial = hasFreeTrialData || false;
+
   const { data: reportingCostInETHData } = useQuery({
     queryKey: ["reportingCostInETH"],
     queryFn: geReportingCostInETH,
@@ -160,10 +186,14 @@ const Report = () => {
   });
 
   const reportingCostInETH = reportingCostInETHData
-    ? formatUnits(reportingCostInETHData[0], reportingCostInETHData[1])
+    ? parseFloat(
+        formatUnits(reportingCostInETHData[0], reportingCostInETHData[1])
+      )
     : 0;
   const reportingCostInUSDT = reportingCostInUSDTData
-    ? formatUnits(reportingCostInUSDTData[0], reportingCostInUSDTData[1])
+    ? parseFloat(
+        formatUnits(reportingCostInUSDTData[0], reportingCostInUSDTData[1])
+      )
     : 0;
 
   const handleBack = () => {
@@ -236,7 +266,7 @@ const Report = () => {
           functionName: "createReport",
           args: [form1.title, tokenUri_, usdAmount, 0],
           gas: BigInt(10000000),
-          value: reportingCostInETHData![0],
+          value: hasFreeTrial ? BigInt(0) : reportingCostInETHData![0],
         } as TransactionRequest;
       } else if (paymentMethod.valueOf() === 1) {
         // USDT
@@ -337,6 +367,7 @@ const Report = () => {
           reportingCostInETH={reportingCostInETH}
           reportingCostInUSDT={reportingCostInUSDT}
           paymentMethod={paymentMethod}
+          hasFreeTrial={hasFreeTrial}
           handlePaymentMethodChange={handlePaymentMethodChange}
         />
       )}

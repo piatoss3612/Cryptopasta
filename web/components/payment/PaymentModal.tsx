@@ -73,6 +73,7 @@ const PaymentModal = ({
       isOpen={isOpen}
       motionPreset="slideInBottom"
       size={{ base: "md", md: "lg" }}
+      trapFocus={false}
     >
       <ModalOverlay />
       <ModalContent>
