@@ -31,6 +31,7 @@ interface MessageListProps {
 
 const Markdown = ({ content }: { content: string }) => (
   <ReactMarkdown
+    className={"markdown"}
     components={{
       code({ node, className, children, ...props }) {
         const match = /language-(\w+)/.exec(className || "");
@@ -49,6 +50,7 @@ const Markdown = ({ content }: { content: string }) => (
           </code>
         );
       },
+      div: ({ children }) => <Box fontFamily={"sans-serif"}>{children}</Box>,
       h1: ({ children }) => (
         <Box mb={2}>
           <Heading fontSize="2xl" mt={4} mb={2}>

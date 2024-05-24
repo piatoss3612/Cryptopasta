@@ -110,7 +110,7 @@ func (q *MissionQuery) FindEntriesByMissionID(ctx context.Context, missionID str
 	opts.SetSort(bson.M{"createdAt": 1}) // Sort by createdAt in ascending order
 
 	if len(isSummary) > 0 && isSummary[0] {
-		opts.SetProjection(bson.M{"content": 1})
+		opts.SetSort(bson.M{"createdAt": -1}) // Sort by createdAt in descending order (latest first)
 		opts.SetLimit(5)
 	}
 

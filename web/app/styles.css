@@ -5,6 +5,10 @@ html, body {
   overflow: hidden;
 }
 
+.markdown {
+  font-family: sans-serif;
+}
+
 /* 스크롤바 너비 및 색상 설정 */
 ::-webkit-scrollbar {
     width: 16px; /* 스크롤바의 너비 설정 */

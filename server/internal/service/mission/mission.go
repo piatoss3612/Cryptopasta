@@ -252,6 +252,10 @@ func (s *MissionService) ActOnMission(ctx context.Context, missionID, input stri
 
 		for _, entry := range entries {
 			for _, message := range entry.Messages {
+				if message.IsImage {
+					continue
+				}
+
 				if message.IsUser {
 					_, _ = builder.WriteString(fmt.Sprintf("Agent: %s\n", message.Content))
 				} else {
@@ -361,6 +365,10 @@ func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missio
 
 		for _, entry := range entries {
 			for _, message := range entry.Messages {
+				if message.IsImage {
+					continue
+				}
+
 				if message.IsUser {
 					_, _ = builder.WriteString(fmt.Sprintf("Agent: %s\n", message.Content))
 				} else {
@@ -369,23 +377,28 @@ func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missio
 			}
 		}
 
-		summarizedContent := builder.String()
+		context := builder.String()
 
 		// Initialize the chat completion request
 		req := openai.ChatCompletionRequest{
 			Model: openai.GPT4o,
 			Messages: []openai.ChatCompletionMessage{
 				{
+					Role: openai.ChatMessageRoleSystem,
+					Content: `Describe the scene in text format in brief using the input provided by the user for the next image generation.
+					Only the latest game play context will be used to generate the image.
+					Please generate a detailed visual representation of the scene.`,
+				},
+				{
 					Role: openai.ChatMessageRoleUser,
-					Content: fmt.Sprintf(
-						`Describe the scene for drawing a visual representation in brief using the latest game play context provided below.
-						It should include the player's character, the environment, and any other relevant details.						
-						\n\n%s`,
-						summarizedContent,
-					),
+					Content: fmt.Sprintf(`Here is the latest game play context: 
+					%s
+
+					Please generate a visual representation of the scene. 
+					`, context),
 				},
 			},
-			MaxTokens: 900,
+			MaxTokens: 600,
 			Stream:    false,
 		}
 
@@ -407,11 +420,19 @@ func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missio
 		// Get the summarized content
 		prompt := builder.String()
 
+		var inputPrompt string
+
+		if len(prompt) > 1000 {
+			inputPrompt = prompt[:1000]
+		} else {
+			inputPrompt = prompt
+		}
+
 		imageReq := openai.ImageRequest{
 			Model:          openai.CreateImageModelDallE2,
 			Size:           openai.CreateImageSize256x256,
 			ResponseFormat: openai.CreateImageResponseFormatB64JSON,
-			Prompt:         prompt,
+			Prompt:         inputPrompt,
 		}
 
 		imageResp, err := s.llm.CreateImage(ctx, imageReq)
