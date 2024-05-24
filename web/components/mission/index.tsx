@@ -426,12 +426,7 @@ const MissionRoom = () => {
         handleNewGameClick={onOpenNewGameModal}
       />
       {/* Main Content */}
-      <Box
-        flexGrow={1}
-        p={4}
-        maxW={{ base: "88%", lg: "72%" }}
-        overflow="hidden"
-      >
+      <Box flexGrow={1} p={4} maxW={{ base: "88%", lg: "72%" }}>
         <VStack spacing={4} align="stretch" h={isFullscreen ? "100vh" : "auto"}>
           <MessageList
             messages={messages}

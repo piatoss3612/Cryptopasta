@@ -120,6 +120,21 @@ contract MissionBoard is IMissionBoard, Ownable {
         return !_usedFreeTrial[user];
     }
 
+    /// @notice Returns the balance of the account
+    /// @param account The account address
+    /// @return ethBalance The ETH balance
+    /// @return usdtBalance The USDT balance
+    function getBalance(address account) external view override returns (uint256 ethBalance, uint256 usdtBalance) {
+        return (_ethBalances[account], _usdtBalances[account]);
+    }
+
+    /// @notice Returns if the account is an agent
+    /// @param account The account address
+    /// @return True if the account is an agent
+    function isAgent(address account) external view override returns (bool) {
+        return AGENT.balanceOf(account) > 0;
+    }
+
     /// @notice Creates a discovery report
     /// @param title The title of the discovery
     /// @param contentURI The URI of the content

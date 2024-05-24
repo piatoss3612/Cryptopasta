@@ -1,8 +1,9 @@
-export default function Home({ params }: { params: { account: string } }) {
-  return (
-    <div>
-      <h1>Agent Page</h1>
-      <p>Account: {params.account}</p>
-    </div>
-  );
+import Profile from "@/components/agent/profile";
+
+export default function Home({
+  params,
+}: {
+  params: { account: `0x${string}` };
+}) {
+  return <Profile account={params.account} />;
 }

@@ -60,6 +60,10 @@ interface CryptopastaList {
   transferSingles: [{ cryptopasta_id: string }];
 }
 
+interface MissionLogList {
+  transfers: [{ tokenId: string }];
+}
+
 interface Message {
   id?: string;
   content: string;
@@ -139,6 +143,7 @@ export type {
   Mission,
   Missions,
   CryptopastaList,
+  MissionLogList,
   GetMissionsRequest,
   GetMissionsResponse,
   GetEntriesResponse,

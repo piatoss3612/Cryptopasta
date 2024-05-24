@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
 import { request, gql } from "graphql-request";
-import { CryptopastaList } from "@/types";
+import { MissionLogList } from "@/types";
 
-const THE_GRAPH_CRYPTOPASTA_QUERY_URL =
-  "https://api.studio.thegraph.com/query/71401/cryptopasta/v1.0.0";
+const THE_GRAPH_MISSION_LOG_QUERY_URL =
+  "https://api.studio.thegraph.com/query/71401/mission-log/version/latest";
 
 const GET = async (req: NextRequest) => {
   try {
@@ -25,19 +25,19 @@ const GET = async (req: NextRequest) => {
 
     const query = gql`
       {
-        transferSingles(
-          orderBy: cryptopasta_id,
-          where: { to: "${agentAddress}" },
+        transfers(
+          orderBy: id, 
           skip: ${(pageNum - 1) * limitNum},
           first: ${limitNum}
+          where: {to: "${agentAddress}"}
         ) {
-          cryptopasta_id
+          tokenId
         }
       }
     `;
 
-    const response = await request<CryptopastaList>(
-      THE_GRAPH_CRYPTOPASTA_QUERY_URL,
+    const response = await request<MissionLogList>(
+      THE_GRAPH_MISSION_LOG_QUERY_URL,
       query
     );
 

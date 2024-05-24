@@ -86,11 +86,13 @@ export interface MissionBoardInterface extends Interface {
       | "buyReport"
       | "claimSales"
       | "createReport"
+      | "getBalance"
       | "getDiscoveryReport"
       | "getRating"
       | "getSales"
       | "hasFreeTrial"
       | "hasRated"
+      | "isAgent"
       | "owner"
       | "rateReport"
       | "ratingDecimals"
@@ -133,6 +135,10 @@ export interface MissionBoardInterface extends Interface {
     values: [string, string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "getBalance",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getDiscoveryReport",
     values: [BigNumberish]
   ): string;
@@ -151,6 +157,10 @@ export interface MissionBoardInterface extends Interface {
   encodeFunctionData(
     functionFragment: "hasRated",
     values: [AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isAgent",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -207,6 +217,7 @@ export interface MissionBoardInterface extends Interface {
     functionFragment: "createReport",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getBalance", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getDiscoveryReport",
     data: BytesLike
@@ -218,6 +229,7 @@ export interface MissionBoardInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "hasRated", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "isAgent", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "rateReport", data: BytesLike): Result;
   decodeFunctionResult(
@@ -435,6 +447,12 @@ export interface MissionBoard extends BaseContract {
     "payable"
   >;
 
+  getBalance: TypedContractMethod<
+    [account: AddressLike],
+    [[bigint, bigint] & { ethBalance: bigint; usdtBalance: bigint }],
+    "view"
+  >;
+
   getDiscoveryReport: TypedContractMethod<
     [reportId: BigNumberish],
     [IMissionBoard.DiscoveryReportStructOutput],
@@ -460,6 +478,8 @@ export interface MissionBoard extends BaseContract {
     [boolean],
     "view"
   >;
+
+  isAgent: TypedContractMethod<[account: AddressLike], [boolean], "view">;
 
   owner: TypedContractMethod<[], [string], "view">;
 
@@ -536,6 +556,13 @@ export interface MissionBoard extends BaseContract {
     "payable"
   >;
   getFunction(
+    nameOrSignature: "getBalance"
+  ): TypedContractMethod<
+    [account: AddressLike],
+    [[bigint, bigint] & { ethBalance: bigint; usdtBalance: bigint }],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "getDiscoveryReport"
   ): TypedContractMethod<
     [reportId: BigNumberish],
@@ -566,6 +593,9 @@ export interface MissionBoard extends BaseContract {
     [boolean],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "isAgent"
+  ): TypedContractMethod<[account: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;

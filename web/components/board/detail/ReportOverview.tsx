@@ -12,18 +12,18 @@ import {
   SkeletonText,
   Text,
   VStack,
-  useToast,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import MDEditor from "@uiw/react-md-editor";
 import Equipment from "@/public/equipment.jpg";
+import { useRouter } from "next/navigation";
 
 interface ReportOverviewProps {
   report: Report;
 }
 
 const ReportOverview = ({ report }: ReportOverviewProps) => {
-  const toast = useToast();
+  const navigator = useRouter();
   const abbrReporter = abbreviateAddress(report.reporter);
   const localTimestamp = new Date(
     parseInt(report.blockTimestamp) * 1000
@@ -57,14 +57,7 @@ const ReportOverview = ({ report }: ReportOverviewProps) => {
           mb={4}
           as={Link}
           onClick={async () => {
-            navigator.clipboard.writeText(report.reporter);
-            toast({
-              title: "Address copied",
-              description: "Address copied to clipboard",
-              status: "success",
-              duration: 3000,
-              isClosable: true,
-            });
+            navigator.push(`/agent/${report.reporter}`);
           }}
         >
           {abbrReporter}

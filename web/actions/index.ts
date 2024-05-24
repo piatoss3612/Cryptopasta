@@ -2,6 +2,7 @@ import {
   CryptopastaList,
   GetEntriesResponse,
   GetMissionsResponse,
+  MissionLogList,
   Missions,
   PinResponse,
   Report,
@@ -64,12 +65,14 @@ const pinJsonToIPFS = async (
 
 const getReportList = async (
   page?: number,
-  limit?: number
+  limit?: number,
+  reporter?: string
 ): Promise<ReportList> => {
   const response = await axios.get<ReportList>("/api/report/list", {
     params: {
       page,
       limit,
+      reporter,
     },
   });
 
@@ -105,6 +108,26 @@ const getCryptopastaList = async (
 
   if (response.status !== 200) {
     throw new Error("Failed to fetch cryptopasta list");
+  }
+
+  return response.data;
+};
+
+const getMissionLogList = async (
+  agentAddress: string,
+  page?: number,
+  limit?: number
+): Promise<MissionLogList> => {
+  const response = await axios.get<MissionLogList>("/api/missionlog", {
+    params: {
+      agent_address: agentAddress,
+      page,
+      limit,
+    },
+  });
+
+  if (response.status !== 200) {
+    throw new Error("Failed to fetch mission log list");
   }
 
   return response.data;
@@ -174,6 +197,7 @@ export {
   getReportById,
   getTokenMetadata,
   getCryptopastaList,
+  getMissionLogList,
   getMissions,
   getEntries,
 };

@@ -1,7 +1,7 @@
 import { getTokenMetadata } from "@/actions";
 import { useViem } from "@/hooks";
-import { AgentRegistryAbi } from "@/libs/abis";
-import { AGENT_REGISTRY } from "@/libs/constant";
+import { AgentRegistryAbi, AgentTokenAbi } from "@/libs/abis";
+import { AGENT_REGISTRY, AGENT_TOKEN } from "@/libs/constant";
 import { isZeroAddress, loadImage } from "@/libs/utils";
 import { AgentRegisterResponse } from "@/types";
 import {
@@ -9,7 +9,6 @@ import {
   usePrivy,
   useWallets,
   useMfaEnrollment,
-  WalletWithMetadata,
   Wallet,
 } from "@privy-io/react-auth";
 import { useQuery } from "@tanstack/react-query";
@@ -32,7 +31,7 @@ interface AgentContextType {
   walletClient: WalletClient | null;
   account: `0x${string}` | undefined;
   avatar: string;
-  getPortraitURI: (portraitId: bigint) => Promise<string>;
+  getAgentURI: (account: `0x${string}`) => Promise<string>;
   register: (portraitId: bigint) => Promise<AgentRegisterResponse>;
 }
 
@@ -91,30 +90,35 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
     });
   }, [client, wallet]);
 
-  const getAccountTokenId = useCallback(async (): Promise<bigint> => {
-    if (!client) {
-      throw new Error("Client not found");
-    }
+  const getAccountTokenId = useCallback(
+    async (account: `0x${string}`): Promise<bigint> => {
+      if (!client) {
+        throw new Error("Client not found");
+      }
 
-    if (!wallet) {
-      throw new Error("Wallet not found");
-    }
+      if (!wallet) {
+        throw new Error("Wallet not found");
+      }
 
-    return await client.readContract({
-      address: AGENT_REGISTRY,
-      abi: AgentRegistryAbi,
-      functionName: "accountToTokenId",
-      args: [wallet.address as `0x${string}`],
-    });
-  }, [client, wallet]);
-
-  const getPortraitURI = useCallback(
-    async (portraitId: bigint): Promise<string> => {
       return await client.readContract({
         address: AGENT_REGISTRY,
         abi: AgentRegistryAbi,
-        functionName: "portrait",
-        args: [portraitId],
+        functionName: "accountToTokenId",
+        args: [account],
+      });
+    },
+    [client, wallet]
+  );
+
+  const getAgentURI = useCallback(
+    async (account: `0x${string}`): Promise<string> => {
+      const tokenId = await getAccountTokenId(account);
+
+      return await client.readContract({
+        address: AGENT_TOKEN,
+        abi: AgentTokenAbi,
+        functionName: "tokenURI",
+        args: [tokenId],
       });
     },
     [client]
@@ -127,17 +131,12 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
     refetchInterval: 5000,
   });
 
-  const { data: tokenId } = useQuery({
-    queryKey: ["tokenId"],
-    queryFn: getAccountTokenId,
-    enabled: !!client && !!wallet && !!account,
-    refetchInterval: 5000,
-  });
-
   const { data: portrait } = useQuery({
     queryKey: ["portrait"],
-    queryFn: async () => getPortraitURI(tokenId!),
-    enabled: !!client && !!wallet && (!!tokenId || tokenId === BigInt(0)),
+    queryFn: async () => {
+      return await getAgentURI(account!);
+    },
+    enabled: !!client && !!wallet && !!account,
     refetchInterval: 5000,
   });
 
@@ -193,7 +192,7 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (ready && authenticated) {
-      const embeddedWallet = wallets.find(
+      const embeddedWallet: ConnectedWallet | undefined = wallets.find(
         (wallet) => wallet.walletClientType === "privy"
       );
       if (embeddedWallet) {
@@ -228,7 +227,7 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
         account,
         register,
         avatar,
-        getPortraitURI,
+        getAgentURI,
       }}
     >
       {children}

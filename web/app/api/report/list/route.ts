@@ -3,7 +3,7 @@ import { request, gql } from "graphql-request";
 import { ReportList } from "@/types";
 
 const THE_GRAPH_MISSION_BOARD_QUERY_URL =
-  "https://api.studio.thegraph.com/query/71401/bulletin-board/version/latest";
+  "https://api.studio.thegraph.com/query/71401/bulletin-board/v1.0.0";
 
 const GET = async (req: NextRequest) => {
   try {
@@ -11,6 +11,7 @@ const GET = async (req: NextRequest) => {
 
     const page = url.searchParams.get("page");
     const limit = url.searchParams.get("limit");
+    const reporter = url.searchParams.get("reporter");
     let pageNum = page ? parseInt(page, 10) : 1;
     let limitNum = limit ? parseInt(limit, 10) : 10;
 
@@ -22,100 +23,14 @@ const GET = async (req: NextRequest) => {
       limitNum = 10;
     }
 
-    // const dummyReportList: ReportList = {
-    //   reportDiscoveries: [],
-    // };
-
-    // const dummyReportList: ReportList = {
-    //   reportDiscoveries: [
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //     {
-    //       reportId: "1",
-    //       reporter: "0x1234567890",
-    //       priceInUSD: "1000",
-    //       title: "Test Report",
-    //       contentURI: "https://example.com",
-    //       blockTimestamp: "1630368000",
-    //     },
-    //   ],
-    // };
-
     const query = gql`
       {
         reportDiscoveries(
             first: ${limitNum},
             skip: ${(pageNum - 1) * limitNum},
+            where: {
+              reporter_contains: "${reporter || ""}"
+            },
             orderBy: reportId,
             orderDirection: desc
         ) {

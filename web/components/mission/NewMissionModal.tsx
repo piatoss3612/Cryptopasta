@@ -14,6 +14,7 @@ import {
   Text,
   Center,
   SimpleGrid,
+  Spinner,
 } from "@chakra-ui/react";
 import { useAgent } from "@/hooks";
 import { CryptopastaList } from "@/types";
@@ -168,6 +169,11 @@ const NewMissionModal = ({
               </Center>
             )}
           </VStack>
+          {isLoading && (
+            <Center>
+              <Spinner size="xl" />
+            </Center>
+          )}
         </ModalBody>
         <ModalFooter>
           <Button colorScheme="blue" mr={3} onClick={onClose}>
