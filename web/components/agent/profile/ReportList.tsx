@@ -4,6 +4,7 @@ import { Box, VStack, Text, useToast, Button, Center } from "@chakra-ui/react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import ReportCard from "./ReportCard";
+import { useRouter } from "next/navigation";
 
 interface ReportListBoxProps {
   account: string;
@@ -13,6 +14,7 @@ const ReportListBox = ({ account }: ReportListBoxProps) => {
   const PAGE_ITEM_LIMIT = 10;
 
   const toast = useToast();
+  const navigator = useRouter();
   const loadMoreRef = useRef(null);
 
   const queryReportList = async ({ pageParam }: { pageParam: any }) => {
@@ -68,25 +70,40 @@ const ReportListBox = ({ account }: ReportListBoxProps) => {
   }, [isError, error, toast]);
 
   return (
-    <VStack spacing={4} w="full" mt={4}>
-      {data?.pages.map((page) =>
-        page.reportDiscoveries.map((report) => (
-          <ReportCard
-            key={report.id}
-            id={report.id}
-            reportId={report.reportId}
-            reporter={report.reporter}
-            title={report.title}
-            timestamp={report.blockTimestamp}
-          />
-        ))
+    <Box>
+      {!hasData && (
+        <VStack h="100%" justify="center" align="center">
+          <Text fontSize="2xl">No Report</Text>
+          <Button
+            bg="antiFlashWhite.500"
+            color="black"
+            mt={2}
+            onClick={() => navigator.push("/report")}
+          >
+            Submit a Report
+          </Button>
+        </VStack>
       )}
-      {hasNextPage && (
-        <Center m={4} ref={loadMoreRef}>
-          <Text>Load More</Text>
-        </Center>
-      )}
-    </VStack>
+      <VStack spacing={4} m={4}>
+        {data?.pages.map((page) =>
+          page.reportDiscoveries.map((report) => (
+            <ReportCard
+              key={report.id}
+              id={report.id}
+              reportId={report.reportId}
+              reporter={report.reporter}
+              title={report.title}
+              timestamp={report.blockTimestamp}
+            />
+          ))
+        )}
+        {hasNextPage && (
+          <Center m={4} ref={loadMoreRef}>
+            <Text>Load More</Text>
+          </Center>
+        )}
+      </VStack>
+    </Box>
   );
 };
 

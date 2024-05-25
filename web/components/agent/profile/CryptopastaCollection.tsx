@@ -99,7 +99,7 @@ const CryptopastaCollection = ({ account }: CryptopastaCollectionProps) => {
     <Box>
       {!isLoading && !hasData && (
         <VStack h="100%" justify="center" align="center">
-          <Text fontSize="2xl">No report available.</Text>
+          <Text fontSize="2xl">No Cryptopasta</Text>
           <Button
             bg="antiFlashWhite.500"
             color="black"
