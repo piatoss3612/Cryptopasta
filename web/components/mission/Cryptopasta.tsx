@@ -32,13 +32,13 @@ const Cryptopasta = ({
   };
 
   const { data: tokenURI } = useQuery({
-    queryKey: ["tokenURI"],
+    queryKey: ["tokenURI", id],
     queryFn: () => getTokenURI(BigInt(id)),
     enabled: id !== "",
   });
 
   const { data: metadata } = useQuery({
-    queryKey: ["metadata"],
+    queryKey: ["metadata", tokenURI],
     queryFn: async () => getTokenMetadata(tokenURI!),
     enabled: !!tokenURI,
   });

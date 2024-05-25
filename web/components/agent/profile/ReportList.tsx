@@ -33,6 +33,8 @@ const ReportListBox = ({ account }: ReportListBoxProps) => {
 
         return pages.length + 1;
       },
+      refetchInterval: 5000,
+      staleTime: 0,
     });
 
   const hasData =

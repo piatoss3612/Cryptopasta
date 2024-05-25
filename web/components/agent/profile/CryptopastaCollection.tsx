@@ -48,6 +48,8 @@ const CryptopastaCollection = ({ account }: CryptopastaCollectionProps) => {
       },
       placeholderData: keepPreviousData,
       enabled: !isZeroAddress(account),
+      refetchInterval: 5000,
+      staleTime: 0,
     });
 
   // remove duplicate cryptopasta

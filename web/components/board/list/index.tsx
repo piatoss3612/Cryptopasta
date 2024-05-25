@@ -27,24 +27,32 @@ const Reports = () => {
     return getReportList(pageParam, PAGE_ITEM_LIMIT);
   };
 
-  const { data, fetchNextPage, hasNextPage, isLoading, isError, error } =
-    useInfiniteQuery<ReportList, Error>({
-      queryKey: ["reports"],
-      queryFn: queryReportList,
-      initialPageParam: 1,
-      getNextPageParam: (lastPage: ReportList, pages: ReportList[]) => {
-        if (!lastPage || !lastPage.reportDiscoveries) {
-          return undefined;
-        }
+  const {
+    data,
+    fetchNextPage,
+    fetchPreviousPage,
+    hasNextPage,
+    isLoading,
+    isError,
+    error,
+  } = useInfiniteQuery<ReportList, Error>({
+    queryKey: ["reports"],
+    queryFn: queryReportList,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage: ReportList, pages: ReportList[]) => {
+      if (!lastPage || !lastPage.reportDiscoveries) {
+        return undefined;
+      }
 
-        if (lastPage.reportDiscoveries.length < PAGE_ITEM_LIMIT) {
-          return undefined;
-        }
+      if (lastPage.reportDiscoveries.length < PAGE_ITEM_LIMIT) {
+        return undefined;
+      }
 
-        return pages.length + 1;
-      },
-      placeholderData: keepPreviousData,
-    });
+      return pages.length + 1;
+    },
+    placeholderData: keepPreviousData,
+    refetchInterval: 5000,
+  });
 
   const hasData =
     data && data.pages.length > 0 && data.pages[0].reportDiscoveries.length > 0;
@@ -116,6 +124,12 @@ const Reports = () => {
             ))}
           </React.Fragment>
         ))}
+        <Button
+          onClick={async () => await fetchPreviousPage()}
+          isLoading={isLoading}
+        >
+          Refresh
+        </Button>
       </VStack>
       <Center m={4} ref={loadMoreRef}>
         {hasNextPage && <Text>Load More</Text>}

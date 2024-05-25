@@ -3,7 +3,7 @@ import { request, gql } from "graphql-request";
 import { CryptopastaList } from "@/types";
 
 const THE_GRAPH_CRYPTOPASTA_QUERY_URL =
-  "https://api.studio.thegraph.com/query/71401/cryptopasta/v1.0.0";
+  "https://api.studio.thegraph.com/query/71401/cryptopasta/version/latest";
 
 const GET = async (req: NextRequest) => {
   try {
