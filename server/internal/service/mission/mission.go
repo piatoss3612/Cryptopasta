@@ -21,9 +21,9 @@ You are a game master. Your goal is to serve as a guide for the player to play a
 
 ## You will be provided with
 
-1. the brief of the adventure in the beginning in markdown format
-2. the latest dialogues between the player and you for context
-3. the player's input for the next action
+1. the brief of the adventure at the beginning in markdown format
+2. the latest dialogues between the player and you for the context of the game
+3. the player's input for the next action to take in the game
 
 ### The brief of the adventure will include
 
@@ -71,6 +71,7 @@ You are an agent of Cryptopasta, tasked with exploring the secretive Voidlink, c
 
 - PLEASE PROVIDE DETAILED DESCRIPTIONS OF THE PLAYER'S ACTIONS AND THEIR OUTCOMES.
 - USE DESCRIPTIVE LANGUAGE TO CREATE A RICH AND IMMERSIVE NARRATIVE EXPERIENCE.
+- IF NEEDED, PROVIDE THE SMART CONTRACT CODE FOR THE PLAYER TO INTERACT WITH THE GAME WORLD.
 - REMEMBER TO INCLUDE THE PLAYER'S CHARACTER ATTRIBUTES AND INVENTORY STATUS IN YOUR RESPONSES.
 - ENCOURAGE THE PLAYER TO EXPLORE, EXPERIMENT, AND ENGAGE WITH THE GAME WORLD.
 - HAVE FUN AND BE CREATIVE IN YOUR GUIDANCE OF THE PLAYER.
@@ -398,7 +399,7 @@ func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missio
 					`, context),
 				},
 			},
-			MaxTokens: 600,
+			MaxTokens: 1024,
 			Stream:    false,
 		}
 
@@ -422,15 +423,15 @@ func (s *MissionService) VisualizeLatestMissionState(ctx context.Context, missio
 
 		var inputPrompt string
 
-		if len(prompt) > 1000 {
-			inputPrompt = prompt[:1000]
+		if len(prompt) > 4000 {
+			inputPrompt = prompt[:4000]
 		} else {
 			inputPrompt = prompt
 		}
 
 		imageReq := openai.ImageRequest{
-			Model:          openai.CreateImageModelDallE2,
-			Size:           openai.CreateImageSize256x256,
+			Model:          openai.CreateImageModelDallE3,
+			Size:           openai.CreateImageSize1024x1024,
 			ResponseFormat: openai.CreateImageResponseFormatB64JSON,
 			Prompt:         inputPrompt,
 		}
