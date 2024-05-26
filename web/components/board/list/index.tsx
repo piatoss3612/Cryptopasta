@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Box,
-  VStack,
-  Text,
-  Center,
-  useToast,
-  Spinner,
-  Button,
-} from "@chakra-ui/react";
+import { Box, VStack, Text, Center, useToast, Button } from "@chakra-ui/react";
 import ReportCard from "./ReportCard";
 import React, { useEffect, useRef } from "react";
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
@@ -52,6 +44,7 @@ const Reports = () => {
     },
     placeholderData: keepPreviousData,
     refetchInterval: 5000,
+    gcTime: 1000 * 60,
   });
 
   const hasData =

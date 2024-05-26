@@ -33,7 +33,7 @@ const ClaimBox = ({ reportId }: ClaimBoxProps) => {
   };
 
   const { data: sales } = useQuery({
-    queryKey: ["getSales"],
+    queryKey: ["getSales", reportId],
     queryFn: getSales,
     refetchInterval: 3000,
   });

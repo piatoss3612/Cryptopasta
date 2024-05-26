@@ -61,13 +61,13 @@ const RatingBox = ({ reportId }: RatingBoxProps) => {
   };
 
   const { data: rating } = useQuery({
-    queryKey: ["rating"],
+    queryKey: ["rating", reportId],
     queryFn: getRating,
     refetchInterval: 3000,
   });
 
   const { data: hasRated } = useQuery({
-    queryKey: ["hasRated"],
+    queryKey: ["hasRated", account, reportId],
     queryFn: getHasRated,
     refetchInterval: 3000,
     enabled: !isZeroAddress(account),

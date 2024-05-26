@@ -37,7 +37,7 @@ const PurchaseBox = ({ reportId, priceInUSD }: PurchaseBoxProps) => {
   const priceInUSDValue = formatUnits(BigInt(priceInUSD), 6);
 
   const { data: priceInETH } = useQuery({
-    queryKey: ["priceInETH"],
+    queryKey: ["priceInETH", priceInUSD],
     queryFn: async () => {
       return await getUsdPriceInETH(BigInt(priceInUSD));
     },
@@ -45,7 +45,7 @@ const PurchaseBox = ({ reportId, priceInUSD }: PurchaseBoxProps) => {
   });
 
   const { data: priceInUSDT } = useQuery({
-    queryKey: ["priceInUSDT"],
+    queryKey: ["priceInUSDT", priceInUSD],
     queryFn: async () => {
       return await getUsdPriceInUSDT(BigInt(priceInUSD));
     },

@@ -72,8 +72,8 @@ const NewMissionModal = ({
         return pages.length + 1;
       },
       enabled: isOpen && !isZeroAddress(account),
-      refetchInterval: 10000,
-      staleTime: 0,
+      refetchInterval: 5000,
+      gcTime: 1000 * 60,
     });
 
   // remove duplicate cryptopasta

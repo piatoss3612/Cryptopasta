@@ -1,7 +1,7 @@
 import { Box, HStack, Image, SimpleGrid, Text, VStack } from "@chakra-ui/react";
 import React from "react";
 import equipment from "@/public/equipment.jpg";
-import { useViem } from "@/hooks";
+import { useAgent, useViem } from "@/hooks";
 import { CRYPTOPASTA } from "@/libs/constant";
 import { CryptopastaAbi } from "@/libs/abis";
 import { useQuery } from "@tanstack/react-query";
@@ -12,6 +12,7 @@ interface CryptopastaProps {
 }
 
 const Cryptopasta = ({ id }: CryptopastaProps) => {
+  const { account } = useAgent();
   const { client } = useViem();
 
   const getTokenURI = async (id: bigint): Promise<string> => {
@@ -20,6 +21,15 @@ const Cryptopasta = ({ id }: CryptopastaProps) => {
       abi: CryptopastaAbi,
       functionName: "uri",
       args: [id],
+    });
+  };
+
+  const getBalance = async (id: bigint): Promise<bigint> => {
+    return await client.readContract({
+      address: CRYPTOPASTA,
+      abi: CryptopastaAbi,
+      functionName: "balanceOf",
+      args: [account as `0x${string}`, id],
     });
   };
 
@@ -35,8 +45,15 @@ const Cryptopasta = ({ id }: CryptopastaProps) => {
     enabled: !!tokenURI,
   });
 
+  const { data: balance } = useQuery({
+    queryKey: ["balance", CRYPTOPASTA, id],
+    queryFn: () => getBalance(BigInt(id)),
+    enabled: !!account && id !== "",
+  });
+
   const name = metadata?.name.slice(0, 20) || "Unknown";
   const image = metadata?.image || equipment.src;
+  const balanceString = balance?.toString() || "0";
 
   return (
     <Box
@@ -48,13 +65,25 @@ const Cryptopasta = ({ id }: CryptopastaProps) => {
       border={"1px solid #E2E8F0"}
     >
       <VStack align="stretch" cursor="pointer">
-        <Box width="100%" height="auto">
+        <Box position="relative" width="100%" height="auto">
           <Image
             src={image}
             borderRadius="md"
             alt={name}
             fallbackSrc={equipment.src}
           />
+          <Box
+            position="absolute"
+            bottom="2"
+            right="2"
+            padding="1"
+            borderRadius="md"
+            bg="blackAlpha.800"
+          >
+            <Text color="white" fontSize="sm">
+              x {balanceString}
+            </Text>
+          </Box>
         </Box>
         <Text fontWeight="bold" fontSize="xl" textAlign="center">
           {id}. {name}

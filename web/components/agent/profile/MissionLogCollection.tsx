@@ -46,7 +46,7 @@ const MissionLogCollection = ({ account }: MissionLogCollectionProps) => {
       placeholderData: keepPreviousData,
       enabled: !isZeroAddress(account),
       refetchInterval: 5000,
-      staleTime: 0,
+      gcTime: 1000 * 60,
     });
 
   // remove duplicate cryptopasta

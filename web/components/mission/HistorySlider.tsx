@@ -85,7 +85,8 @@ const HistorySlider = ({
       },
       enabled: isOpen && !isZeroAddress(account),
       placeholderData: keepPreviousData,
-      refetchInterval: 10000,
+      refetchInterval: 5000,
+      gcTime: 1000 * 60,
     });
 
   // Update Missions

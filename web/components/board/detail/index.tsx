@@ -16,7 +16,7 @@ const ReportDetail = ({ id }: ReportDetailProps) => {
   const toast = useToast();
   const navigator = useRouter();
   const { data, isLoading, error, isError } = useQuery({
-    queryKey: ["report-detail"],
+    queryKey: ["report-detail", id],
     queryFn: async () => {
       return getReportById(id);
     },

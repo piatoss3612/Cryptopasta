@@ -30,7 +30,7 @@ const ReportOverview = ({ report }: ReportOverviewProps) => {
   ).toLocaleString();
 
   const { data, isLoading, error, isError } = useQuery({
-    queryKey: ["report-overview"],
+    queryKey: ["report-overview", report.reportId],
     queryFn: async () => {
       return getTokenMetadata(report.contentURI);
     },
