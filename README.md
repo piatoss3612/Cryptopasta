@@ -1,12 +1,8 @@
 <div align="center">
 
-<h1> Cryptopasta </h1>
+<h1>Cryptopasta</h1>
 <img src="./assets/logo.jpg" width="160px" alt="Cryptopasta logo">
-<p align="center">
-    Cryptopasta is an organization dedicated to uncovering the truth behind urban legends that circulate on the blockchain.</br>
-    Become an agent of Cryptopasta, the creator of new legends, and embark on a thrilling journey</br>
-    through a text-based adventure game.
-</p>
+<h3>Dive into Blockchain Mysteries with Cryptopasta</h3>
 </div>
 
 ## Table of Contents
@@ -34,7 +30,7 @@ Ensure you have the following installed:
 - [Node.js](https://nodejs.org/)
 - [Docker](https://www.docker.com/)
 - [Git](https://git-scm.com/)
-- [Make(Optional)](https://www.gnu.org/software/make/)
+- [Make (Optional)](https://www.gnu.org/software/make/)
 
 ### Installation
 
@@ -81,6 +77,10 @@ $ make up
 Inspired by the captivating world of Creepypasta, **Cryptopasta** brings urban legend storytelling to the blockchain realm. Imagine a hidden space between blockchain layers, inhabited by unknown entities, or a 'meme killer' that targets and eliminates meme coins.
 
 Cryptopasta invites you to become an agent, crafting your own lore and exploring the blockchain through a thrilling text-based adventure game. Accessible to all, regardless of technical expertise, this game makes learning about blockchain concepts and terminology both fun and interactive.
+
+<div align="center">
+<img src="./assets/space.jpg" width="400px" alt="space">
+</div>
 
 ## Problem Statement
 
@@ -136,15 +136,15 @@ Blockchain realms are often enigmatic, filled with complex concepts and terminol
 
 #### Solution
 
-- Opted for OpenAI's GPT-4o model, which is recently released, more powerful and efficient for testing and development.
-- GPT-4o enhances game play, making it more natural and engaging, providing a better user experience.
+- Opted for OpenAI's GPT-4o model, which is more powerful and efficient for testing and development.
+- GPT-4o enhances gameplay, making it more natural and engaging, providing a better user experience.
 
 ### 3. AI Integration with Blockchain
 
 #### Challenge
 
 - Initially designed to integrate AI with the blockchain for transparency, immutability, and interaction cost tracking.
-- This approach required users to pay for each AI interaction, which could be costly and deter game play.
+- This approach required users to pay for each AI interaction, which could be costly and deter gameplay.
 - Chainlink functions are not supported on the zkSync network and cannot be used with native account abstraction of zkSync.
 
 #### Solution
@@ -153,7 +153,7 @@ Blockchain realms are often enigmatic, filled with complex concepts and terminol
 - The game is played off-chain, with only selected storylines tokenized and stored on the blockchain.
 - This approach ensures users can enjoy the game without incurring high transaction fees, making it more accessible and engaging.
 
-### 4. Websocket vs Server Sent Events (SSE)
+### 4. WebSocket vs Server-Sent Events (SSE)
 
 #### Challenge
 

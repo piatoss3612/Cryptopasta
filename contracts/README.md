@@ -30,6 +30,21 @@
 | MissionBoard        | Marketplace for agents to create and accept missions                      |
 | Cryptopasta         | ERC1155 token of MissionBoard for agents to trade or interact with        |
 
+## Account Abstraction
+
+### AgentAccount
+
+- zkSync native account abstraction (AA) for agents
+- Multicall support for multiple transactions in a single call
+- ERC721Receiver and ERC1155Receiver support for receiving tokens
+
+### AgentPaymaster
+
+- Pay gas fees for agents in a daily limited manner which resets on every 6 AM UTC
+- Only available for agents with holding `AgentToken`
+- Fixed ERC20 token support for paying gas fees with refundable mechanism
+- Utilizes `PriceConverter` to convert ETH to USDT for gas fees
+
 ## Requirements
 
 - [node.js](https://nodejs.org/en/download/)

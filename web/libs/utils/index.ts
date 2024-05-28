@@ -69,7 +69,7 @@ const getMissionLogMintParams = (
     abi: MissionLogAbi,
     functionName: "mint",
     args: [uri],
-    gas: BigInt(10000000), // estimateGas on aa account is just not working, so we have to set it manually
+    gas: BigInt(30000000), // estimateGas on aa account is just not working, so we have to set it manually
   } as TransactionRequest;
 };
 

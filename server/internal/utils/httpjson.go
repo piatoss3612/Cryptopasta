@@ -11,7 +11,7 @@ var (
 	ErrNotSingleJSONValue = errors.New("request body must contain a single JSON value")
 )
 
-const MaxBodyBytes = 1024 * 1024 // 1MB
+const MaxBodyBytes = 1024 * 1024 * 10 // 10MB
 
 func ReadJSON(w http.ResponseWriter, r *http.Request, data interface{}) error {
 	r.Body = http.MaxBytesReader(w, r.Body, MaxBodyBytes)

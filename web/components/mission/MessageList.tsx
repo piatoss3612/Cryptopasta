@@ -153,17 +153,11 @@ const MessageList = ({
               alignItems="center"
               w="100%"
             >
-              <Card
-                backgroundColor={message.isUser ? "blue.100" : "gray.100"}
-                color="black"
-                maxW={"72%"}
-                mx={isFullscreen ? 0 : 4}
-              >
-                {message.isImage ? (
+              {message.isImage ? (
+                <Card mx={isFullscreen ? 0 : 4} p={2} maxW="40%">
                   <Image
                     src={`data:image/png;base64,${message.b64Image}`}
                     alt="Image"
-                    boxSize="100%"
                     objectFit="cover"
                     fallbackSrc={equipment.src}
                     cursor="pointer"
@@ -174,7 +168,15 @@ const MessageList = ({
                       )
                     }
                   />
-                ) : (
+                </Card>
+              ) : (
+                <Card
+                  backgroundColor={message.isUser ? "blue.100" : "gray.100"}
+                  color="black"
+                  maxW={"72%"}
+                  mx={isFullscreen ? 0 : 4}
+                  p={2}
+                >
                   <CardBody>
                     {message.isTyping ? (
                       <Typist
@@ -189,8 +191,8 @@ const MessageList = ({
                       <Markdown content={message.content} />
                     )}
                   </CardBody>
-                )}
-              </Card>
+                </Card>
+              )}
             </Box>
             {message.isUser && (
               <Avatar name="User" src={userAvatar} loading="eager" />
