@@ -11,6 +11,7 @@ import {
 import equipment from "@/public/equipment.jpg";
 import { abbreviateAddress } from "@/libs/utils";
 import AgentAssets from "./AgentAssets";
+import { useRouter } from "next/navigation";
 
 interface AgentInfoProps {
   account: `0x${string}`;
@@ -19,8 +20,13 @@ interface AgentInfoProps {
 }
 
 const AgentInfo = ({ account, portrait, isOwnProfile }: AgentInfoProps) => {
+  const navigator = useRouter();
   const abbrAccount = abbreviateAddress(account);
   const [isLargerThanMd] = useMediaQuery("(min-width: 48em)");
+
+  const handleAgentAddressClick = () => {
+    navigator.push(`https://sepolia.explorer.zksync.io/address/${account}`);
+  };
 
   return (
     <Box bg="gray.800" borderRadius="md" p={6}>
@@ -42,7 +48,7 @@ const AgentInfo = ({ account, portrait, isOwnProfile }: AgentInfoProps) => {
           align="start"
           justifyContent={"center"}
         >
-          <Text fontSize="md" fontFamily={""}>
+          <Text fontSize="md" fontFamily={""} onClick={handleAgentAddressClick}>
             {isLargerThanMd ? account : abbrAccount}
           </Text>
           {isOwnProfile && <AgentAssets account={account} />}

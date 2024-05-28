@@ -34,6 +34,25 @@ interface Form2Data {
   preview: string | ArrayBuffer | null;
 }
 
+const initialForm1: Form1Data = {
+  title: "",
+  description: `
+  ## Game Title
+
+  ### 1. The setting of the game
+  
+  ### 2. Characters, items, and enemies in the game
+  
+  ### 3. Events and challenges the player will face
+  
+  ### 4. The player's goal
+  
+  ### 5. (optional) Hints or tips for the player
+  
+  ### 6. (optional) References to external resources for additional context`,
+  price: 0,
+};
+
 const Report = () => {
   const TOTAL_STEPS = 3;
   const { client } = useViem();
@@ -56,11 +75,7 @@ const Report = () => {
   };
 
   // form1 state
-  const [form1, setForm1] = useState<Form1Data>({
-    title: "",
-    description: "",
-    price: 0,
-  });
+  const [form1, setForm1] = useState<Form1Data>(initialForm1);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setForm1({ ...form1, title: event.target.value });
