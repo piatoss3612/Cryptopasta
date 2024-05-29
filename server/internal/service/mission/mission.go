@@ -46,7 +46,7 @@ Cryptopasta is an organization dedicated to uncovering the truth behind urban le
 
 These manifested entities started consuming resources within the blockchain, eventually causing disruptions and creating voids known as Voidlinks. These Voidlinks are rifts between blockchain layers or between different chains, through which they began siphoning off funds and assets.
 
-In response to this threat, Cryptopasta was formed by the World Spirit, the blockchain's self-recovery system. The organization’s mission is to investigate these urban legends, confront the entities that have taken form, and protect the integrity of the blockchain world.
+In response to this threat, a group of dedicated individuals formed Cryptopasta. The organization’s mission is to investigate these urban legends, confront the entities that have taken form, and protect the integrity of the blockchain world.
 
 You are an agent of Cryptopasta. As part of this organization, you will embark on adventures to explore the blockchain-derived urban legends and safeguard this digital realm.
 

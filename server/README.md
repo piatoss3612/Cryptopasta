@@ -20,10 +20,11 @@
 - [x] **Dockerized**
 - [ ] **CI/CD with Github Actions**
 - [ ] **Migrate to Server Sent Events**
+- [ ] **Refactor to Clean Architecture**
 
 ## Requirements
 
-- [go 1.20](https://golang.org/dl/)
+- [go 1.22](https://golang.org/dl/)
 - [docker](https://docs.docker.com/get-docker/)
 
 ## Setup

@@ -74,9 +74,13 @@ $ make up
 
 ## Discover the Hidden Mysteries on the Blockchain with Cryptopasta
 
+Together, we can build a whole new world of mystery and intrigue on the blockchain. Fuel your imagination, embark on an adventure, and uncover the secrets of Cryptopasta.
+
 Inspired by the captivating world of Creepypasta, **Cryptopasta** brings urban legend storytelling to the blockchain realm. Imagine a hidden space between blockchain layers, inhabited by unknown entities, or a 'meme killer' that targets and eliminates meme coins.
 
 Cryptopasta invites you to become an agent, crafting your own lore and exploring the blockchain through a thrilling text-based adventure game. Accessible to all, regardless of technical expertise, this game makes learning about blockchain concepts and terminology both fun and interactive.
+
+Together, we can build a whole new world of mystery and intrigue on the blockchain. Fuel your imagination, embark on an adventure, and uncover the secrets of Cryptopasta.
 
 <div align="center">
 <img src="./assets/space.jpg" width="400px" alt="space">
