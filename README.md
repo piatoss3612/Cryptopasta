@@ -3,6 +3,10 @@
 <h1>Cryptopasta</h1>
 <img src="./assets/logo.jpg" width="160px" alt="Cryptopasta logo">
 <h3>Dive into Blockchain Mysteries with Cryptopasta</h3>
+<ul style="list-style: none;">
+<li><a href="https://youtu.be/4ZNB5EnIwGM">Introduction</a></li>
+<li><a href="https://youtu.be/3gn0ZRTE6lc">Demo Video</a></li>
+</ul>
 </div>
 
 ## Table of Contents
@@ -12,6 +16,7 @@
   - [Installation](#installation)
 - [Discover the Hidden Mysteries on the Blockchain with Cryptopasta](#discover-the-hidden-mysteries-on-the-blockchain-with-cryptopasta)
 - [Problem Statement](#problem-statement)
+- [Goals](#goals)
 - [Features](#features)
   - [1. Accessibility](#1-accessibility)
   - [2. Content](#2-content)
@@ -46,21 +51,13 @@ $ git clone https://github.com/piatoss3612/Cryptopasta.git
 $ cd Cryptopasta
 ```
 
-3. Deploy smart contracts
+3. [Deploy smart contracts](./contracts/README.md)
 
-- [README](./contracts/README.md)
+4. [Setup the server](./server/README.md)
 
-4. Setup the server
+5. [Setup the subgraphs](./subgraphs/README.md)
 
-- [README](./server/README.md)
-
-5. Setup the subgraphs
-
-- [README](./subgraphs/README.md)
-
-6. Setup the web app
-
-- [README](./web/README.md)
+6. [Setup the web app](./web/README.md)
 
 7. Run the docker-compose
 
@@ -99,6 +96,7 @@ Blockchain realms are often enigmatic, filled with complex concepts and terminol
   - Users can create smart contract accounts and interact with the blockchain without needing to understand the underlying technology.
   - Transaction fees can be sponsored by a Paymaster, making it easier for users to use the dApp.
   - The native account abstraction (AA) of zkSync allows transactions to be processed at the protocol level without third-party involvement.
+  - **more details**: [contracts](./contracts/README.md)
 - **User-friendly Interface**: The UI is designed to be intuitive, guiding users through the game with ease.
 - **USD Pricing**: Implement USD-based pricing for transactions to enhance user convenience and reduce complexity associated with cryptocurrency price fluctuations.
 
