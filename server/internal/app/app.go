@@ -24,9 +24,9 @@ func New(addr string, handler http.Handler) *App {
 	}
 }
 
-func (a *App) Run(shutdownFuncs ...func()) error {
-	if len(shutdownFuncs) > 0 {
-		a.RegisterOnShutdown(shutdownFuncs[0])
+func (a *App) Run(cleanupFuncs ...func()) error {
+	if len(cleanupFuncs) > 0 {
+		a.RegisterOnShutdown(cleanupFuncs[0])
 	}
 
 	slog.Info("Starting the server...", "addr", a.Addr)

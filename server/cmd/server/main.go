@@ -11,7 +11,6 @@ import (
 	"cryptopasta/internal/pinata"
 	"cryptopasta/pkg/mongo"
 	"cryptopasta/pkg/zksync"
-	"log"
 	"log/slog"
 
 	openai "github.com/sashabaranov/go-openai"
@@ -41,51 +40,40 @@ func main() {
 		}
 	}()
 
+	// load config
 	cfg := config.LoadConfig()
 
+	// create services
 	llm := openai.NewClient(cfg.OpenaiApiKey)
-
-	mongoClient, err := mongo.NewClient(context.Background(), cfg.MongoUri)
-	if err != nil {
-		log.Fatal("failed to create mongo client", "err", err)
-	}
-
+	mongoClient := mongo.MustNewClient(context.Background(), cfg.MongoUri)
 	tx := mongo.NewTx(mongoClient, "cryptopasta")
+	zkClient := zksync.MustNewClient(context.Background())
+	agentRegistry := zksync.MustNewAgentRegistry(cfg.AgentRegistryAddr, zkClient)
+	missionBoard := zksync.MustNewMissionBoard(cfg.MissionBoardAddr, zkClient)
 
-	zkClient, err := zksync.NewClient(context.Background())
-	if err != nil {
-		log.Fatal("failed to create zksync client", "err", err)
-	}
-
-	agentRegistry, err := zksync.NewAgentRegistry(cfg.AgentRegistryAddr, zkClient)
-	if err != nil {
-		log.Fatal("failed to create agent registry", "err", err)
-	}
-
-	missionBoard, err := zksync.NewMissionBoard(cfg.MissionBoardAddr, zkClient)
-	if err != nil {
-		log.Fatal("failed to create mission board", "err", err)
-	}
-
-	a := agent.NewService(zkClient, agentRegistry, cfg.PrivateKey)
+	a := agent.NewService(zkClient, agentRegistry, tx, cfg.PrivateKey)
 	j := jwt.NewService(cfg.PrivyAppID, cfg.PrivyVerificationKey)
 	m := mission.NewService(llm, missionBoard, tx)
 	p := pinata.NewService(cfg.PinataApiKey, cfg.PinataSecretKey)
 
-	cfg = nil
+	cfg.Clear()
 
-	pingRoute := route.NewPingRoutes()
-	agentRoute := route.NewAgentRoutes(j, a)
-	pinataRoute := route.NewPinataRoutes(j, p)
-	missionRoutes := route.NewMissionRoutes(j, m)
+	// create router
+	r := app.NewRouter(
+		route.NewPingRoutes(),
+		route.NewAgentRoutes(j, a),
+		route.NewPinataRoutes(j, p),
+		route.NewMissionRoutes(a, j, m),
+	)
 
-	r := app.NewRouter(pingRoute, agentRoute, pinataRoute, missionRoutes)
-
-	app.New(":8080", r).Run(func() {
-		// cleanup
+	// cleanup function on server shutdown
+	cleanup := func() {
 		zkClient.Close()
 		mongoClient.Disconnect(context.Background())
 
 		slog.Info("server stopped gracefully")
-	})
+	}
+
+	// run server
+	app.New(":8080", r).Run(cleanup)
 }

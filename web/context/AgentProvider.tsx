@@ -157,9 +157,9 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error("Wallet not found");
       }
 
-      if (account && !isZeroAddress(account)) {
-        throw new Error("Agent already registered");
-      }
+      // if (account && !isZeroAddress(account)) {
+      //   throw new Error("Agent already registered");
+      // }
 
       const accessToken = await getAccessToken();
 

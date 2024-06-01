@@ -145,7 +145,6 @@ const getTokenMetadata = async (uri: string): Promise<TokenMetadata> => {
 
 const getMissions = async (
   accessToken: string,
-  agentID: string,
   lastMissionID?: string,
   limit?: number
 ): Promise<Missions> => {
@@ -153,7 +152,6 @@ const getMissions = async (
     "http://localhost:8080/mission",
     {
       params: {
-        agentID,
         lastMissionID,
         limit,
       },

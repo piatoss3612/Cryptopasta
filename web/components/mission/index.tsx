@@ -273,19 +273,15 @@ const MissionRoom = () => {
         setMessages([]);
         setCurrentTypingId(null);
 
-        const response = await axios.post(
-          `http://localhost:8080/mission?sessionID=${sessionID}`,
-          {
-            agent_id: account,
-            report_id: reportID,
+        // reportID for query params
+        const url = `http://localhost:8080/mission?sessionID=${sessionID}&reportID=${reportID}`;
+
+        const response = await axios.post(url, undefined, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
           },
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        });
 
         if (response.status !== 200) {
           throw new Error("Failed to create mission");

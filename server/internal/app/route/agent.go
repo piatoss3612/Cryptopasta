@@ -45,8 +45,16 @@ func (a *AgentRoute) Handler() http.Handler {
 //	@Router			/agent [post]
 //	@Security		BearerAuth
 func (a *AgentRoute) register(w http.ResponseWriter, r *http.Request) {
+	// 1. get user id from jwt token
+	claims, ok := jwt.FromContext(r.Context())
+	if !ok || claims == nil {
+		utils.WriteError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
 
-	// 1. decode request body
+	userID := claims.UserId // TODO: validate user id
+
+	// 2. decode request body
 	var req AgentRegisterRequest
 
 	err := utils.ReadJSON(w, r, &req)
@@ -56,18 +64,17 @@ func (a *AgentRoute) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 2. register agent
-	account, tokenId, err := a.r.RegisterAgent(r.Context(), req.AgentAddress, req.PortraitId)
+	// 3. register agent
+	agent, err := a.r.RegisterAgent(r.Context(), userID, req.AgentAddress, req.PortraitId)
 	if err != nil {
 		slog.Error("agent registration failed", "error", err)
 		utils.WriteError(w, http.StatusBadRequest, "agent registration failed")
 		return
 	}
 
-	// 3. send response
+	// 4. send response
 	_ = utils.WriteJSON(w, http.StatusCreated, AgentRegisterResponse{
-		AgentAccount: account.Hex(),
-		TokenId:      tokenId.String(),
+		AgentAccount: agent.AccountAddress,
 	})
 }
 
@@ -78,5 +85,4 @@ type AgentRegisterRequest struct {
 
 type AgentRegisterResponse struct {
 	AgentAccount string `json:"agent_account"`
-	TokenId      string `json:"token_id"`
 }

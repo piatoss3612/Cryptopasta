@@ -2,6 +2,7 @@ package route
 
 import (
 	"context"
+	"cryptopasta/internal/agent"
 	"cryptopasta/internal/app/middleware"
 	"cryptopasta/internal/app/websocket"
 	"cryptopasta/internal/jwt"
@@ -17,12 +18,13 @@ import (
 )
 
 type MissionRoutes struct {
+	a *agent.Service
 	j *jwt.Service
 	m *mission.Service
 }
 
-func NewMissionRoutes(j *jwt.Service, m *mission.Service) *MissionRoutes {
-	return &MissionRoutes{j: j, m: m}
+func NewMissionRoutes(a *agent.Service, j *jwt.Service, m *mission.Service) *MissionRoutes {
+	return &MissionRoutes{a: a, j: j, m: m}
 }
 
 func (m *MissionRoutes) Pattern() string {
@@ -63,16 +65,27 @@ func (m *MissionRoutes) Handler() http.Handler {
 //	@Router			/mission [get]
 //	@Security		BearerAuth
 func (m *MissionRoutes) getMissions(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-
-	agentID := query.Get("agentID")
-	lastMissionID := query.Get("lastMissionID")
-	limit := query.Get("limit")
-
-	if agentID == "" {
-		utils.WriteError(w, http.StatusBadRequest, "missing agent id")
+	// 1. get user id from jwt token
+	claims, ok := jwt.FromContext(r.Context())
+	if !ok || claims == nil {
+		utils.WriteError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
+
+	userID := claims.UserId
+
+	// 2. get agent address
+	agent, err := m.a.FindAgent(r.Context(), userID)
+	if err != nil {
+		slog.Error("error finding agent", "error", err)
+		utils.WriteError(w, http.StatusBadRequest, "no matching agent found")
+		return
+	}
+
+	query := r.URL.Query()
+
+	lastMissionID := query.Get("lastMissionID")
+	limit := query.Get("limit")
 
 	var limitInt int
 	if limit != "" {
@@ -84,9 +97,7 @@ func (m *MissionRoutes) getMissions(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	agentID = strings.ToLower(agentID)
-
-	missions, err := m.m.GetMissionsByAgentID(r.Context(), agentID, lastMissionID, limitInt)
+	missions, err := m.m.GetMissionsByAgentID(r.Context(), strings.ToLower(agent.AccountAddress), lastMissionID, limitInt)
 	if err != nil {
 		slog.Error("error getting missions", "error", err)
 		utils.WriteError(w, http.StatusInternalServerError, "error getting missions")
@@ -176,7 +187,7 @@ func (m *MissionRoutes) connectWebSocket(w http.ResponseWriter, r *http.Request)
 //	@Accept			json
 //	@Produce		json
 //	@Param			sessionID	query		string					true	"Session ID"
-//	@Param			request		body		CreateMissionRequest	true	"Create Mission Request"
+//	@Param			reportID	query		string					true	"Report ID"
 //	@Success		200			{object}	mission.Mission			"OK"
 //	@Failure		400			{string}	string					"Bad Request"
 //	@Failure		401			{string}	string					"Unauthorized"
@@ -184,21 +195,35 @@ func (m *MissionRoutes) connectWebSocket(w http.ResponseWriter, r *http.Request)
 //	@Router			/mission [post]
 //	@Security		BearerAuth
 func (m *MissionRoutes) createMission(w http.ResponseWriter, r *http.Request) {
-	sessionID := r.URL.Query().Get("sessionID")
+	// 1. get user id from jwt token
+	claims, ok := jwt.FromContext(r.Context())
+	if !ok || claims == nil {
+		utils.WriteError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
 
-	// 2. validate session id
+	userID := claims.UserId
+
+	// 2. get agent address
+	agent, err := m.a.FindAgent(r.Context(), userID)
+	if err != nil {
+		slog.Error("error finding agent", "error", err)
+		utils.WriteError(w, http.StatusBadRequest, "no matching agent found")
+		return
+	}
+
+	sessionID := r.URL.Query().Get("sessionID")
+	reportID := r.URL.Query().Get("reportID")
+
+	// 3. validate session id and report id
 	id := websocket.ID(sessionID)
 	if !id.Valid() {
 		utils.WriteError(w, http.StatusBadRequest, "invalid session id")
 		return
 	}
 
-	// 3. read request body
-	var req CreateMissionRequest
-
-	if err := utils.ReadJSON(w, r, &req); err != nil {
-		slog.Error("error reading request body", "error", err)
-		utils.WriteError(w, http.StatusBadRequest, "invalid request body")
+	if reportID == "" {
+		utils.WriteError(w, http.StatusBadRequest, "missing report id")
 		return
 	}
 
@@ -217,11 +242,12 @@ func (m *MissionRoutes) createMission(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
+	// 4. create mission in background and send response via websocket
 	go func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 		defer cancel()
 
-		mission, err := m.m.CreateMission(ctx, req.AgentID, req.ReportID, chatFn)
+		mission, err := m.m.CreateMission(ctx, agent.AccountAddress, reportID, chatFn)
 		if err != nil {
 			slog.Error("error creating mission", "error", err)
 			websocket.Send(websocket.Message{
@@ -356,11 +382,6 @@ type GetMissionsResponse struct {
 type GetEntriesResponse struct {
 	MissionID string          `json:"missionID"`
 	Entries   []mission.Entry `json:"entries"`
-}
-
-type CreateMissionRequest struct {
-	AgentID  string `json:"agent_id"`
-	ReportID string `json:"report_id"`
 }
 
 type ActOnMissionRequest struct {

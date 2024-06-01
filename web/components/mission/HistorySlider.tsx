@@ -57,12 +57,7 @@ const HistorySlider = ({
         throw new Error("Failed to get access token");
       }
 
-      return await getMissions(
-        accessToken,
-        account!,
-        pageParam,
-        MISSIONS_LIMIT
-      );
+      return await getMissions(accessToken, pageParam, MISSIONS_LIMIT);
     },
     []
   );

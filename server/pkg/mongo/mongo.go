@@ -2,10 +2,20 @@ package mongo
 
 import (
 	"context"
+	"log"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+func MustNewClient(ctx context.Context, uri string) *mongo.Client {
+	client, err := NewClient(ctx, uri)
+	if err != nil {
+		log.Fatal("failed to create mongo client", "err", err)
+	}
+
+	return client
+}
 
 func NewClient(ctx context.Context, uri string) (*mongo.Client, error) {
 	clientOptions := options.Client().ApplyURI(uri)

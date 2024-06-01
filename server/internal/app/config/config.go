@@ -18,6 +18,18 @@ type Config struct {
 	MongoUri             string `json:"mongoUri"`
 }
 
+func (cfg *Config) Clear() {
+	cfg.PrivateKey = ""
+	cfg.AgentRegistryAddr = ""
+	cfg.MissionBoardAddr = ""
+	cfg.PrivyAppID = ""
+	cfg.PrivyVerificationKey = ""
+	cfg.PinataApiKey = ""
+	cfg.PinataSecretKey = ""
+	cfg.OpenaiApiKey = ""
+	cfg.MongoUri = ""
+}
+
 func LoadConfig() *Config {
 	viper.SetConfigFile("config.json")
 	viper.AddConfigPath(".")

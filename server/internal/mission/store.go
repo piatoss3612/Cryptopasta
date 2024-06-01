@@ -11,16 +11,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type MissionStore struct {
+type Store struct {
 	client *mongo.Client
 	dbname string
 }
 
-func NewMissionStore(client *mongo.Client, dbname string) *MissionStore {
-	return &MissionStore{client: client, dbname: dbname}
+func NewStore(client *mongo.Client, dbname string) *Store {
+	return &Store{client: client, dbname: dbname}
 }
 
-func (s *MissionStore) CreateMission(ctx context.Context, title, agentID, reportID string) (*Mission, error) {
+func (s *Store) CreateMission(ctx context.Context, title, agentID, reportID string) (*Mission, error) {
 	collection := s.client.Database(s.dbname).Collection("missions")
 
 	mission := Mission{
@@ -42,7 +42,7 @@ func (s *MissionStore) CreateMission(ctx context.Context, title, agentID, report
 	return &mission, nil
 }
 
-func (s *MissionStore) CreateEntry(ctx context.Context, missionID string, messages []Message) (string, error) {
+func (s *Store) CreateEntry(ctx context.Context, missionID string, messages []Message) (string, error) {
 	collection := s.client.Database(s.dbname).Collection("entries")
 
 	if len(messages) == 0 {
@@ -66,7 +66,7 @@ func (s *MissionStore) CreateEntry(ctx context.Context, missionID string, messag
 	return objID.Hex(), nil
 }
 
-func (s *MissionStore) UpdateEntry(ctx context.Context, id string, messages []Message) error {
+func (s *Store) UpdateEntry(ctx context.Context, id string, messages []Message) error {
 	collection := s.client.Database(s.dbname).Collection("entries")
 
 	objID, err := primitive.ObjectIDFromHex(id)

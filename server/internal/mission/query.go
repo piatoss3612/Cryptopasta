@@ -14,16 +14,16 @@ const (
 	DefaultLimit = 10
 )
 
-type MissionQuery struct {
+type Query struct {
 	client *mongo.Client
 	dbname string
 }
 
-func NewMissionQuery(client *mongo.Client, dbname string) *MissionQuery {
-	return &MissionQuery{client: client, dbname: dbname}
+func NewQuery(client *mongo.Client, dbname string) *Query {
+	return &Query{client: client, dbname: dbname}
 }
 
-func (q *MissionQuery) FindMissionByID(ctx context.Context, id string) (*Mission, error) {
+func (q *Query) FindMissionByID(ctx context.Context, id string) (*Mission, error) {
 	collection := q.client.Database(q.dbname).Collection("missions")
 
 	objID, err := primitive.ObjectIDFromHex(id)
@@ -46,7 +46,7 @@ func (q *MissionQuery) FindMissionByID(ctx context.Context, id string) (*Mission
 	return &mission, nil
 }
 
-func (q *MissionQuery) MissionExists(ctx context.Context, id string) (bool, error) {
+func (q *Query) MissionExists(ctx context.Context, id string) (bool, error) {
 	collection := q.client.Database(q.dbname).Collection("missions")
 
 	objID, err := primitive.ObjectIDFromHex(id)
@@ -64,7 +64,7 @@ func (q *MissionQuery) MissionExists(ctx context.Context, id string) (bool, erro
 	return count > 0, nil
 }
 
-func (q *MissionQuery) FindMissionsByAgentID(ctx context.Context, agentID, lastMissionID string, limit int) ([]Mission, error) {
+func (q *Query) FindMissionsByAgentID(ctx context.Context, agentID, lastMissionID string, limit int) ([]Mission, error) {
 	collection := q.client.Database(q.dbname).Collection("missions")
 
 	filter := bson.M{"agentID": agentID}
@@ -101,7 +101,7 @@ func (q *MissionQuery) FindMissionsByAgentID(ctx context.Context, agentID, lastM
 	return missions, nil
 }
 
-func (q *MissionQuery) FindEntriesByMissionID(ctx context.Context, missionID string, isSummary ...bool) ([]Entry, error) {
+func (q *Query) FindEntriesByMissionID(ctx context.Context, missionID string, isSummary ...bool) ([]Entry, error) {
 	collection := q.client.Database(q.dbname).Collection("entries")
 
 	filter := bson.M{"missionID": missionID}
@@ -129,7 +129,7 @@ func (q *MissionQuery) FindEntriesByMissionID(ctx context.Context, missionID str
 	return entries, nil
 }
 
-func (q *MissionQuery) EntryExists(ctx context.Context, id string) (bool, error) {
+func (q *Query) EntryExists(ctx context.Context, id string) (bool, error) {
 	collection := q.client.Database(q.dbname).Collection("entries")
 
 	objID, err := primitive.ObjectIDFromHex(id)
@@ -147,7 +147,7 @@ func (q *MissionQuery) EntryExists(ctx context.Context, id string) (bool, error)
 	return count > 0, nil
 }
 
-func (q *MissionQuery) FindEntryByID(ctx context.Context, id string) (*Entry, error) {
+func (q *Query) FindEntryByID(ctx context.Context, id string) (*Entry, error) {
 	collection := q.client.Database(q.dbname).Collection("entries")
 
 	objID, err := primitive.ObjectIDFromHex(id)

@@ -21,8 +21,8 @@ type ChatMessageFunc func(message string) error
 type Service struct {
 	llm   *openai.Client
 	mb    *contracts.MissionBoard
-	query *MissionQuery
-	store *MissionStore
+	query *Query
+	store *Store
 	tx    *mongo.Tx
 }
 
@@ -30,8 +30,8 @@ func NewService(llm *openai.Client, mb *contracts.MissionBoard, tx *mongo.Tx) *S
 	return &Service{
 		llm:   llm,
 		mb:    mb,
-		query: NewMissionQuery(tx.Client, tx.DBName),
-		store: NewMissionStore(tx.Client, tx.DBName),
+		query: NewQuery(tx.Client, tx.DBName),
+		store: NewStore(tx.Client, tx.DBName),
 		tx:    tx,
 	}
 }
@@ -65,6 +65,8 @@ func (s *Service) CreateMission(ctx context.Context, agentID, reportID string, c
 		if err != nil {
 			return nil, err
 		}
+
+		// TODO: check if the agent has report tokens
 
 		title := report.Title
 		uri := report.ContentURI
