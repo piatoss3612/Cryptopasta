@@ -7,5 +7,5 @@
     "pinataApiKey": "",
     "pinataSecretKey": "",
     "openaiApiKey": "",
-    "mongoUri": ""
+    "mongoUri": "mongodb://root:example@mongo1:27017,mongo2:27018/?replicaSet=rs0&authSource=admin"
 }

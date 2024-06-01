@@ -15,6 +15,11 @@ $ cp .env.local.example .env.local
 
 - Update the `.env.local` file with your own values.
 
+```.env
+NEXT_PUBLIC_PRIVY_APP_ID= # Privy app id (required)
+NEXT_PUBLIC_ZKSYNC_SEPOLIA_RPC_URL = # ZkSync Sepolia RPC URL (required)
+```
+
 ### 2. Install dependencies
 
 ```bash

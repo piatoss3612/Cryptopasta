@@ -19,30 +19,30 @@ const (
 	zkSyncSepoliaRpcUrl = "https://sepolia.era.zksync.dev"
 )
 
-type AgentService struct {
+type Service struct {
 	client     clients.Client
 	registry   *contracts.AgentRegistry
 	privateKey *ecdsa.PrivateKey
 }
 
-func NewAgentService(client clients.Client, registry *contracts.AgentRegistry, privateKeyStr string) *AgentService {
+func NewService(client clients.Client, registry *contracts.AgentRegistry, privateKeyStr string) *Service {
 	privateKey, err := crypto.HexToECDSA(privateKeyStr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return &AgentService{
+	return &Service{
 		client:     client,
 		registry:   registry,
 		privateKey: privateKey,
 	}
 }
 
-func (a *AgentService) RegisterAgent(ctx context.Context, agentAddr string, portraitId string) (common.Address, *big.Int, error) {
+func (svc *Service) RegisterAgent(ctx context.Context, agentAddr string, portraitId string) (common.Address, *big.Int, error) {
 	agent := common.HexToAddress(agentAddr)
-	callOpts := a.callOpts(ctx)
+	callOpts := svc.callOpts(ctx)
 
-	ok, err := a.registry.IsRegisteredAgent(callOpts, agent)
+	ok, err := svc.registry.IsRegisteredAgent(callOpts, agent)
 	if err != nil {
 		return common.Address{}, nil, err
 	}
@@ -51,7 +51,7 @@ func (a *AgentService) RegisterAgent(ctx context.Context, agentAddr string, port
 		return common.Address{}, nil, errors.New("agent already registered")
 	}
 
-	ok, err = a.registry.IsRegisteredAccount(callOpts, agent)
+	ok, err = svc.registry.IsRegisteredAccount(callOpts, agent)
 	if err != nil {
 		return common.Address{}, nil, err
 	}
@@ -65,17 +65,17 @@ func (a *AgentService) RegisterAgent(ctx context.Context, agentAddr string, port
 		return common.Address{}, nil, errors.New("invalid portrait id")
 	}
 
-	auth, err := a.txOpts(ctx)
+	auth, err := svc.txOpts(ctx)
 	if err != nil {
 		return common.Address{}, nil, err
 	}
 
-	tx, err := a.registry.Register(auth, agent, portraitIdBigInt)
+	tx, err := svc.registry.Register(auth, agent, portraitIdBigInt)
 	if err != nil {
 		return common.Address{}, nil, err
 	}
 
-	receipt, err := a.client.WaitMined(ctx, tx.Hash())
+	receipt, err := svc.client.WaitMined(ctx, tx.Hash())
 	if err != nil {
 		return common.Address{}, nil, err
 	}
@@ -87,7 +87,7 @@ func (a *AgentService) RegisterAgent(ctx context.Context, agentAddr string, port
 	var event *contracts.AgentRegistryAgentRegistered
 
 	for _, log := range receipt.Logs {
-		event, err = a.registry.ParseAgentRegistered(log.Log)
+		event, err = svc.registry.ParseAgentRegistered(log.Log)
 		if err == nil {
 			break
 		}
@@ -103,13 +103,13 @@ func (a *AgentService) RegisterAgent(ctx context.Context, agentAddr string, port
 	return account, tokenId, nil
 }
 
-func (a *AgentService) callOpts(ctx context.Context) *bind.CallOpts {
+func (a *Service) callOpts(ctx context.Context) *bind.CallOpts {
 	return &bind.CallOpts{
 		Context: ctx,
 	}
 }
 
-func (a *AgentService) txOpts(ctx context.Context) (*bind.TransactOpts, error) {
+func (a *Service) txOpts(ctx context.Context) (*bind.TransactOpts, error) {
 	address := crypto.PubkeyToAddress(a.privateKey.PublicKey)
 
 	nonce, err := a.client.PendingNonceAt(ctx, address)

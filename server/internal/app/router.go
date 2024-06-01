@@ -1,7 +1,7 @@
-package rest
+package app
 
 import (
-	"cryptopasta/internal/rest/middleware"
+	"cryptopasta/internal/app/middleware"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"

@@ -37,6 +37,20 @@ $ cp config.json.example config.json
 
 - Update the `config.json` file with your own values.
 
+```json
+{
+  "privateKey": "", // Your wallet private key used deploying the AgentRegistry contract
+  "agentRegistryAddr": "", // The deployed AgentRegistry contract address
+  "missionBoardAddr": "", // The deployed MissionBoard contract
+  "privy_app_id": "", // Your Privy app id
+  "privy_verification_key": "", // Your Privy verification key for JWT verification
+  "pinataApiKey": "", // Your Pinata API key
+  "pinataSecretKey": "", // Your Pinata secret key
+  "openaiApiKey": "", // Your Open AI API key
+  "mongoUri": "" // Your MongoDB URI i
+}
+```
+
 ### 2. Setup MongoDB replica set
 
 - Run the following script to generate the keyfile for the replica set.

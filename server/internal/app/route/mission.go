@@ -2,11 +2,11 @@ package route
 
 import (
 	"context"
-	"cryptopasta/internal/rest/middleware"
-	"cryptopasta/internal/rest/websocket"
-	"cryptopasta/internal/service/jwt"
-	"cryptopasta/internal/service/mission"
-	"cryptopasta/internal/utils"
+	"cryptopasta/internal/app/middleware"
+	"cryptopasta/internal/app/websocket"
+	"cryptopasta/internal/jwt"
+	"cryptopasta/internal/mission"
+	"cryptopasta/pkg/utils"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -17,11 +17,11 @@ import (
 )
 
 type MissionRoutes struct {
-	j *jwt.JwtService
-	m *mission.MissionService
+	j *jwt.Service
+	m *mission.Service
 }
 
-func NewMissionRoutes(j *jwt.JwtService, m *mission.MissionService) *MissionRoutes {
+func NewMissionRoutes(j *jwt.Service, m *mission.Service) *MissionRoutes {
 	return &MissionRoutes{j: j, m: m}
 }
 

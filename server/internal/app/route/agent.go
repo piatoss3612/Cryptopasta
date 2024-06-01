@@ -1,10 +1,10 @@
 package route
 
 import (
-	"cryptopasta/internal/rest/middleware"
-	"cryptopasta/internal/service/agent"
-	"cryptopasta/internal/service/jwt"
-	"cryptopasta/internal/utils"
+	"cryptopasta/internal/agent"
+	"cryptopasta/internal/app/middleware"
+	"cryptopasta/internal/jwt"
+	"cryptopasta/pkg/utils"
 	"log/slog"
 	"net/http"
 
@@ -12,11 +12,11 @@ import (
 )
 
 type AgentRoute struct {
-	j *jwt.JwtService
-	r *agent.AgentService
+	j *jwt.Service
+	r *agent.Service
 }
 
-func NewAgentRoutes(j *jwt.JwtService, r *agent.AgentService) *AgentRoute {
+func NewAgentRoutes(j *jwt.Service, r *agent.Service) *AgentRoute {
 	return &AgentRoute{j: j, r: r}
 }
 

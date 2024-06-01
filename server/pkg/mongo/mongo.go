@@ -1,4 +1,4 @@
-package db
+package mongo
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func NewMongoClient(ctx context.Context, uri string) (*mongo.Client, error) {
+func NewClient(ctx context.Context, uri string) (*mongo.Client, error) {
 	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
@@ -22,16 +22,16 @@ func NewMongoClient(ctx context.Context, uri string) (*mongo.Client, error) {
 	return client, nil
 }
 
-type MongoTx struct {
+type Tx struct {
 	Client *mongo.Client
 	DBName string
 }
 
-func NewMongoTx(client *mongo.Client, dbname string) *MongoTx {
-	return &MongoTx{Client: client, DBName: dbname}
+func NewTx(client *mongo.Client, dbname string) *Tx {
+	return &Tx{Client: client, DBName: dbname}
 }
 
-func (tx *MongoTx) Execute(ctx context.Context, callback func(ctx context.Context) (interface{}, error)) (interface{}, error) {
+func (tx *Tx) Execute(ctx context.Context, callback func(ctx context.Context) (interface{}, error)) (interface{}, error) {
 	session, err := tx.Client.StartSession()
 	if err != nil {
 		return nil, err

@@ -5,8 +5,6 @@ definitions:
         type: integer
       id:
         type: string
-      image:
-        type: string
       messages:
         items:
           $ref: '#/definitions/mission.Message'
@@ -18,8 +16,12 @@ definitions:
     type: object
   mission.Message:
     properties:
+      b64Image:
+        type: string
       content:
         type: string
+      isImage:
+        type: boolean
       isReport:
         type: boolean
       isUser:
@@ -73,15 +75,6 @@ definitions:
       report_id:
         type: string
     type: object
-  route.GetMissionsRequest:
-    properties:
-      agent_id:
-        type: string
-      last_mission_id:
-        type: string
-      limit:
-        type: integer
-    type: object
   route.GetMissionsResponse:
     properties:
       cursor:
@@ -129,8 +122,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/route.AgentRegisterResponse'
         "400":
@@ -152,12 +145,19 @@ paths:
       - application/json
       description: Get missions by agent id
       parameters:
-      - description: Get Missions Request
-        in: body
-        name: request
+      - description: Agent ID
+        in: query
+        name: agentID
         required: true
-        schema:
-          $ref: '#/definitions/route.GetMissionsRequest'
+        type: string
+      - description: Last Mission ID
+        in: query
+        name: lastMissionID
+        type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:

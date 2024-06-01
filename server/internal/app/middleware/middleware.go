@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"cryptopasta/internal/service/jwt"
-	"cryptopasta/internal/utils"
+	"cryptopasta/internal/jwt"
+	"cryptopasta/pkg/utils"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -31,7 +31,7 @@ func NewHttpRateLimit() func(next http.Handler) http.Handler {
 	)
 }
 
-func JwtTokenRequired(j *jwt.JwtService) func(next http.Handler) http.Handler {
+func JwtTokenRequired(j *jwt.Service) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Add("Vary", "Authorization")
@@ -74,7 +74,7 @@ func JwtTokenRequired(j *jwt.JwtService) func(next http.Handler) http.Handler {
 				return
 			}
 
-			next.ServeHTTP(w, r.WithContext(j.NewContext(r.Context(), claims)))
+			next.ServeHTTP(w, r.WithContext(jwt.NewContext(r.Context(), claims)))
 		})
 	}
 }

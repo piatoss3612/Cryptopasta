@@ -54,8 +54,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/route.AgentRegisterResponse"
                         }
@@ -95,13 +95,23 @@ const docTemplate = `{
                 "summary": "Get Missions",
                 "parameters": [
                     {
-                        "description": "Get Missions Request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/route.GetMissionsRequest"
-                        }
+                        "type": "string",
+                        "description": "Agent ID",
+                        "name": "agentID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Last Mission ID",
+                        "name": "lastMissionID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -491,9 +501,6 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "image": {
-                    "type": "string"
-                },
                 "messages": {
                     "type": "array",
                     "items": {
@@ -511,8 +518,14 @@ const docTemplate = `{
         "mission.Message": {
             "type": "object",
             "properties": {
+                "b64Image": {
+                    "type": "string"
+                },
                 "content": {
                     "type": "string"
+                },
+                "isImage": {
+                    "type": "boolean"
                 },
                 "isReport": {
                     "type": "boolean"
@@ -594,20 +607,6 @@ const docTemplate = `{
                 },
                 "report_id": {
                     "type": "string"
-                }
-            }
-        },
-        "route.GetMissionsRequest": {
-            "type": "object",
-            "properties": {
-                "agent_id": {
-                    "type": "string"
-                },
-                "last_mission_id": {
-                    "type": "string"
-                },
-                "limit": {
-                    "type": "integer"
                 }
             }
         },

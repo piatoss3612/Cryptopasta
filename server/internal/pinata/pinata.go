@@ -31,14 +31,14 @@ type PinResponse struct {
 	Timestamp string `json:"Timestamp"`
 }
 
-type PinataService struct {
+type Service struct {
 	apiKey string
 	secret string
 	client *http.Client
 }
 
-func NewPinataService(apiKey, secret string, client ...*http.Client) *PinataService {
-	svc := &PinataService{
+func NewService(apiKey, secret string, client ...*http.Client) *Service {
+	svc := &Service{
 		apiKey: apiKey,
 		secret: secret,
 		client: http.DefaultClient,
@@ -51,7 +51,7 @@ func NewPinataService(apiKey, secret string, client ...*http.Client) *PinataServ
 	return svc
 }
 
-func (p *PinataService) PinFileToIpfs(ctx context.Context, file io.Reader, filename string) (*PinResponse, error) {
+func (s *Service) PinFileToIpfs(ctx context.Context, file io.Reader, filename string) (*PinResponse, error) {
 	body := &bytes.Buffer{}
 
 	m := multipart.NewWriter(body)
@@ -72,11 +72,7 @@ func (p *PinataService) PinFileToIpfs(ctx context.Context, file io.Reader, filen
 		return nil, err
 	}
 
-	req.Header.Set("Content-Type", m.FormDataContentType())
-	req.Header.Set("pinata_api_key", p.apiKey)
-	req.Header.Set("pinata_secret_api_key", p.secret)
-
-	resp, err := p.client.Do(req)
+	resp, err := s.doRequest(req)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +92,7 @@ func (p *PinataService) PinFileToIpfs(ctx context.Context, file io.Reader, filen
 	return &pinResp, nil
 }
 
-func (p *PinataService) PinJsonToIpfs(ctx context.Context, data *PinJsonToIpfsRequest) (*PinResponse, error) {
+func (s *Service) PinJsonToIpfs(ctx context.Context, data *PinJsonToIpfsRequest) (*PinResponse, error) {
 	body := &bytes.Buffer{}
 
 	if err := json.NewEncoder(body).Encode(data); err != nil {
@@ -108,11 +104,7 @@ func (p *PinataService) PinJsonToIpfs(ctx context.Context, data *PinJsonToIpfsRe
 		return nil, err
 	}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("pinata_api_key", p.apiKey)
-	req.Header.Set("pinata_secret_api_key", p.secret)
-
-	resp, err := p.client.Do(req)
+	resp, err := s.doRequest(req)
 	if err != nil {
 		return nil, err
 	}
@@ -130,6 +122,14 @@ func (p *PinataService) PinJsonToIpfs(ctx context.Context, data *PinJsonToIpfsRe
 	}
 
 	return &pinResp, nil
+}
+
+func (s *Service) doRequest(req *http.Request) (*http.Response, error) {
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("pinata_api_key", s.apiKey)
+	req.Header.Set("pinata_secret_api_key", s.secret)
+
+	return s.client.Do(req)
 }
 
 func errorFromResponse(resp *http.Response) error {

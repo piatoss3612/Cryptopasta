@@ -13,7 +13,7 @@ type App struct {
 	*http.Server
 }
 
-func NewApp(addr string, handler http.Handler) *App {
+func New(addr string, handler http.Handler) *App {
 	return &App{
 		Server: &http.Server{
 			Addr:         addr,

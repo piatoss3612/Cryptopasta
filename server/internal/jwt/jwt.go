@@ -13,29 +13,29 @@ const PrivyIssuer = "privy.io"
 
 type PrivyUserKey struct{}
 
-type JwtService struct {
+type Service struct {
 	PrivyAppID           string
 	PrivyVerificationKey string
 }
 
-func NewJwtService(privyAppID, privyVerificationKey string) *JwtService {
-	return &JwtService{
+func NewService(privyAppID, privyVerificationKey string) *Service {
+	return &Service{
 		PrivyAppID:           privyAppID,
 		PrivyVerificationKey: privyVerificationKey,
 	}
 }
 
-func (j *JwtService) ParseToken(tokenStr string) (*jwt.Token, error) {
-	return jwt.ParseWithClaims(tokenStr, &PrivyClaims{}, j.keyFunc)
+func (s *Service) ParseToken(tokenStr string) (*jwt.Token, error) {
+	return jwt.ParseWithClaims(tokenStr, &PrivyClaims{}, s.keyFunc)
 }
 
-func (j *JwtService) ValidateClaims(token *jwt.Token) (*PrivyClaims, error) {
+func (s *Service) ValidateClaims(token *jwt.Token) (*PrivyClaims, error) {
 	privyClaim, ok := token.Claims.(*PrivyClaims)
 	if !ok {
 		return nil, errors.New("jwt does not have all the necessary claims")
 	}
 
-	if privyClaim.AppId != j.PrivyAppID {
+	if privyClaim.AppId != s.PrivyAppID {
 		return nil, errors.New("aud claim must be your Privy App ID")
 	}
 
@@ -50,21 +50,21 @@ func (j *JwtService) ValidateClaims(token *jwt.Token) (*PrivyClaims, error) {
 	return privyClaim, nil
 }
 
-func (j *JwtService) NewContext(ctx context.Context, claims *PrivyClaims) context.Context {
+func NewContext(ctx context.Context, claims *PrivyClaims) context.Context {
 	return context.WithValue(ctx, PrivyUserKey{}, claims)
 }
 
-func (j *JwtService) FromContext(ctx context.Context) (*PrivyClaims, bool) {
+func FromContext(ctx context.Context) (*PrivyClaims, bool) {
 	claims, ok := ctx.Value(PrivyUserKey{}).(*PrivyClaims)
 	return claims, ok
 }
 
-func (j *JwtService) keyFunc(token *jwt.Token) (interface{}, error) {
+func (s *Service) keyFunc(token *jwt.Token) (interface{}, error) {
 	if token.Method.Alg() != "ES256" {
 		return nil, fmt.Errorf("unexpected JWT signing method=%v", token.Header["alg"])
 	}
 	// https://pkg.go.dev/github.com/dgrijalva/jwt-go#ParseECPublicKeyFromPEM
-	return jwt.ParseECPublicKeyFromPEM([]byte(j.PrivyVerificationKey))
+	return jwt.ParseECPublicKeyFromPEM([]byte(s.PrivyVerificationKey))
 }
 
 // Defining a Go type for Privy JWTs

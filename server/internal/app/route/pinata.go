@@ -1,10 +1,10 @@
 package route
 
 import (
-	"cryptopasta/internal/rest/middleware"
-	"cryptopasta/internal/service/jwt"
-	"cryptopasta/internal/service/pinata"
-	"cryptopasta/internal/utils"
+	"cryptopasta/internal/app/middleware"
+	"cryptopasta/internal/jwt"
+	"cryptopasta/internal/pinata"
+	"cryptopasta/pkg/utils"
 	"log/slog"
 	"net/http"
 
@@ -12,11 +12,11 @@ import (
 )
 
 type PinataRoute struct {
-	j *jwt.JwtService
-	p *pinata.PinataService
+	j *jwt.Service
+	p *pinata.Service
 }
 
-func NewPinataRoutes(j *jwt.JwtService, p *pinata.PinataService) *PinataRoute {
+func NewPinataRoutes(j *jwt.Service, p *pinata.Service) *PinataRoute {
 	return &PinataRoute{j: j, p: p}
 }
 
