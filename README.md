@@ -19,8 +19,7 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Discover the Hidden Mysteries on the Blockchain with Cryptopasta](#discover-the-hidden-mysteries-on-the-blockchain-with-cryptopasta)
-- [Problem Statement](#problem-statement)
-- [Goals](#goals)
+- [Inspiration](#inspiration)
 - [Features](#features)
   - [1. Accessibility](#1-accessibility)
   - [2. Content](#2-content)
@@ -77,7 +76,7 @@ $ make up
 
 Together, we can build a whole new world of mystery and intrigue on the blockchain. Fuel your imagination, embark on an adventure, and uncover the secrets of Cryptopasta.
 
-Inspired by the captivating world of Creepypasta, **Cryptopasta** brings urban legend storytelling to the blockchain realm. Imagine a hidden space between blockchain layers, inhabited by unknown entities, or a 'meme killer' that targets and eliminates meme coins.
+**Cryptopasta** brings urban legend storytelling to the blockchain realm. Imagine a hidden space between blockchain layers, inhabited by unknown entities, or a 'meme killer' that targets and eliminates meme coins.
 
 Cryptopasta invites you to become an agent, crafting your own lore and exploring the blockchain through a thrilling text-based adventure game. Accessible to all, regardless of technical expertise, this game makes learning about blockchain concepts and terminology both fun and interactive.
 
@@ -87,9 +86,24 @@ Together, we can build a whole new world of mystery and intrigue on the blockcha
 <img src="./assets/space.jpg" width="400px" alt="space">
 </div>
 
-## Problem Statement
+## Inspiration
 
-Blockchain realms are often enigmatic, filled with complex concepts and terminology that can be challenging for newcomers. Despite the abundance of educational resources, they can be uninspiring and dry, making it difficult for users to retain information. To address this issue, we have created Cryptopasta, a text-based adventure game that merges interactive storytelling with blockchain technology. By allowing users to craft their own stories and explore the blockchain realm, Cryptopasta makes learning fun and engaging. Our goal is to attract a wider audience to the blockchain space and inspire a new generation of blockchain enthusiasts.
+### The Challenge of Newcomer Onboarding
+
+Blockchain realms are often enigmatic, filled with complex concepts and terminology that can be challenging for newcomers. Despite the abundance of educational resources, they can be uninspiring and dry, making it difficult for users to retain information. As a result, many potential users are deterred from exploring the blockchain space, missing out on the excitement and opportunities it offers.
+
+### The Appeal of Urban Legends
+
+As a fan of urban fantasy like `SCP Foundation` and `Creepypasta`, I wondered what makes people fascinated by these stories. I found that there are two key factors:
+
+1. **Stimulation of Raw Emotions**: These stories evoke human raw emotions like fear, curiosity, and excitement.
+2. **Community-Driven Content**: They provide a wealth of base content that can be expanded by anyone, leading to derivative works such as fan art, fan fiction, and games created by the community.
+
+These insights led me to consider how we could leverage these elements to attract more users to the blockchain space by entertaining and educating them with engaging content.
+
+### The Idea of Cryptopasta
+
+Based on these insights, I decided to create a text-based adventure game that merges interactive storytelling with blockchain technology. By allowing users to craft their own stories and explore the blockchain realm, Cryptopasta makes learning fun and engaging. Our goal is to attract a wider audience to the blockchain space and inspire a new generation of blockchain enthusiasts. Furthermore, we aim to expand the world of Cryptopasta with derivative works created by the community.
 
 ## Features
 
