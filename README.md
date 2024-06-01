@@ -3,10 +3,14 @@
 <h1>Cryptopasta</h1>
 <img src="./assets/logo.jpg" width="160px" alt="Cryptopasta logo">
 <h3>Dive into Blockchain Mysteries with Cryptopasta</h3>
-<ul style="list-style: none;">
-<li><a href="https://youtu.be/4ZNB5EnIwGM">Introduction</a></li>
-<li><a href="https://youtu.be/3gn0ZRTE6lc">Demo Video</a></li>
-</ul>
+<div>
+<div>
+<a href="https://youtu.be/4ZNB5EnIwGM">Introduction</a>
+</div>
+<div>
+<a href="https://youtu.be/3gn0ZRTE6lc">Demo Video</a>
+</div>
+</div>
 </div>
 
 ## Table of Contents
@@ -98,7 +102,7 @@ Blockchain realms are often enigmatic, filled with complex concepts and terminol
   - The native account abstraction (AA) of zkSync allows transactions to be processed at the protocol level without third-party involvement.
   - **more details**: [contracts](./contracts/README.md)
 - **User-friendly Interface**: The UI is designed to be intuitive, guiding users through the game with ease.
-- **USD Pricing**: Implement USD-based pricing for transactions to enhance user convenience and reduce complexity associated with cryptocurrency price fluctuations.
+- **USD Pricing**: Implement USD-based pricing leveraging Chainlink Price Feeds for transactions to enhance user convenience and reduce complexity associated with cryptocurrency price fluctuations.
 
 ### 2. Content
 
@@ -147,7 +151,7 @@ Blockchain realms are often enigmatic, filled with complex concepts and terminol
 
 - Initially designed to integrate AI with the blockchain for transparency, immutability, and interaction cost tracking.
 - This approach required users to pay for each AI interaction, which could be costly and deter gameplay.
-- Chainlink functions are not supported on the zkSync network and cannot be used with native account abstraction of zkSync.
+- Chainlink functions is not supported on the zkSync Sepolia network, thus it is hard to use it and native account abstraction of zkSync together.
 
 #### Solution
 
