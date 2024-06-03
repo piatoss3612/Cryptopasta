@@ -24,6 +24,7 @@
   - [1. Accessibility](#1-accessibility)
   - [2. Content](#2-content)
   - [3. Interactivity](#3-interactivity)
+- [Examples of Cryptopasta](#examples-of-cryptopasta)
 - [Challenges and Solutions](#challenges-and-solutions)
 - [Future Work](#future-work)
 - [Team](#team)
@@ -129,6 +130,10 @@ Based on these insights, I decided to create a text-based adventure game that me
 - **Interactive Storytelling**: The game features an AI-powered, text-based adventure where users can craft their own stories and explore the blockchain realm. Each choice impacts the storyline, creating a unique experience for every player.
 - **Community Engagement**: Users can share their stories within the community, rate and comment on others' stories, and participate in discussions. This fosters a sense of community and collaboration, encouraging users to learn from one another.
 - **Ownership and Rewards**: Users retain ownership of their stories, which are tokenized on the blockchain. They can earn rewards for their contributions, such as creating popular stories or completing community challenges.
+
+## Examples of Cryptopasta
+
+- [Examples](./examples/README.md)
 
 ## Challenges and Solutions
 
