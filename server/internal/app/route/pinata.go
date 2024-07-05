@@ -13,10 +13,10 @@ import (
 
 type PinataRoute struct {
 	j *jwt.Service
-	p *pinata.Service
+	p pinata.Service
 }
 
-func NewPinataRoutes(j *jwt.Service, p *pinata.Service) *PinataRoute {
+func NewPinataRoutes(j *jwt.Service, p pinata.Service) *PinataRoute {
 	return &PinataRoute{j: j, p: p}
 }
 
