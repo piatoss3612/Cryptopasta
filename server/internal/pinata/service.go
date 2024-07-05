@@ -17,9 +17,6 @@ const (
 	FormFieldNameFile = "file"
 )
 
-// Implicit interface implementation.
-var _ Service = (*service)(nil)
-
 // service is the concrete implementation of the pinata service.
 type service struct {
 	apiKey string
@@ -60,12 +57,7 @@ func (s *service) PinFileToIpfs(ctx context.Context, file io.Reader, filename st
 
 	m.Close() // Close the multipart writer to write the ending boundary.
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, PinFileToIpfsUrl, body) // Create a new request.
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := s.doRequest(req) // Perform the request.
+	resp, err := s.doRequest(ctx, http.MethodPost, PinFileToIpfsUrl, body) // Perform the request.
 	if err != nil {
 		return nil, err
 	}
@@ -85,12 +77,7 @@ func (s *service) PinJsonToIpfs(ctx context.Context, data *PinJsonToIpfsRequest)
 		return nil, err
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, PinJsonToIpfsUrl, body) // Create a new request.
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := s.doRequest(req) // Perform the request.
+	resp, err := s.doRequest(ctx, http.MethodPost, PinJsonToIpfsUrl, body) // Perform the request.
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +89,13 @@ func (s *service) PinJsonToIpfs(ctx context.Context, data *PinJsonToIpfsRequest)
 	return readPinResponse(resp) // Read the response.
 }
 
-func (s *service) doRequest(req *http.Request) (*http.Response, error) {
+func (s *service) doRequest(ctx context.Context, method, url string, body io.Reader) (*http.Response, error) {
+	// Create a new request with the provided context.
+	req, err := http.NewRequestWithContext(ctx, method, url, body) // Create a new request.
+	if err != nil {
+		return nil, err
+	}
+
 	// Set the required headers.
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("pinata_api_key", s.apiKey)
@@ -143,3 +136,6 @@ func errorFromResponse(resp *http.Response) error {
 
 	return fmt.Errorf("pinata error: %v", data)
 }
+
+// Implicit interface implementation.
+var _ Service = (*service)(nil)

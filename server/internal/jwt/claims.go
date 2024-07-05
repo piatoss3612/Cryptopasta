@@ -6,9 +6,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// Implicit interface implementation.
-var _ jwt.Claims = (*PrivyClaims)(nil)
-
 // Defining a Go type for Privy claims.
 type PrivyClaims struct {
 	AppId      string `json:"aud,omitempty"`
@@ -46,3 +43,6 @@ func (c *PrivyClaims) GetAudience() (jwt.ClaimStrings, error) {
 func unixToTime(i int64) time.Time {
 	return time.Unix(i, 0)
 }
+
+// Implicit interface implementation.
+var _ jwt.Claims = (*PrivyClaims)(nil)

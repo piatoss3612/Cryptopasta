@@ -20,8 +20,6 @@ var (
 	ErrTokenExpired  = errors.New("token is expired")
 )
 
-var _ Service = (*service)(nil) // Ensure service implements the Service interface.
-
 // Service is the interface that provides methods for parsing and validating JWT tokens.
 // Generating a JWT token is handled by the Privy. The service only needs to parse and validate the token.
 type Service interface {
@@ -84,3 +82,5 @@ func (s *service) keyFunc(token *jwt.Token) (interface{}, error) {
 	// https://pkg.go.dev/github.com/dgrijalva/jwt-go#ParseECPublicKeyFromPEM
 	return jwt.ParseECPublicKeyFromPEM([]byte(s.PrivyVerificationKey))
 }
+
+var _ Service = (*service)(nil) // Ensure service implements the Service interface.

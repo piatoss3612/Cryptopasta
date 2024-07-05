@@ -5,11 +5,16 @@ import (
 	"cryptopasta/internal/agent"
 	"cryptopasta/internal/agent/registry"
 	"cryptopasta/internal/agent/repository"
+	"cryptopasta/internal/app"
 	"cryptopasta/internal/app/config"
+	"cryptopasta/internal/app/route"
+	"cryptopasta/internal/jwt"
+	"cryptopasta/internal/pinata"
 	"cryptopasta/pkg/db/mongo"
 	"cryptopasta/pkg/zksync"
 	"log"
 	"log/slog"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -42,11 +47,12 @@ func main() {
 	// load config
 	cfg := config.LoadConfig()
 
-	// create services
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
 	// llm := openai.NewClient(cfg.OpenaiApiKey)
-	mongoClient := mongo.MustNewClient(context.Background(), cfg.MongoUri)
-	// tx := mongo.NewTx(mongoClient, "cryptopasta")
-	zkClient := zksync.MustNewClient(context.Background())
+	mongoClient := mongo.MustNewClient(ctx, cfg.MongoUri)
+	zkClient := zksync.MustNewClient(ctx)
 	agentRegistryAddrBytes := common.HexToAddress(cfg.AgentRegistryAddr)
 
 	// missionBoard := zksync.MustNewMissionBoard(cfg.MissionBoardAddr, zkClient)
@@ -60,30 +66,33 @@ func main() {
 	register := registry.MustNew(zkClient, agentRegistryAddrBytes, privKey)
 	agentRepo := repository.NewMongoRepository(mongoClient, "cryptopasta")
 
-	_ = agent.NewService(register, agentRepo)
-
-	// j := jwt.NewService(cfg.PrivyAppID, cfg.PrivyVerificationKey)
+	// create services
+	a := agent.NewService(register, agentRepo)
+	j := jwt.NewService(cfg.PrivyAppID, cfg.PrivyVerificationKey)
 	// m := mission.NewService(llm, missionBoard, tx)
-	// p := pinata.NewService(cfg.PinataApiKey, cfg.PinataSecretKey)
+	p := pinata.NewService(cfg.PinataApiKey, cfg.PinataSecretKey)
 
 	cfg.Clear()
 
 	// create router
-	// r := app.NewRouter(
-	// // route.NewPingRoutes(),
-	// // route.NewAgentRoutes(j, a),
-	// // route.NewPinataRoutes(j, p),
-	// // route.NewMissionRoutes(a, j, m),
-	// )
+	r := app.NewRouter(
+		route.NewPingRoutes(),
+		route.NewAgentRoutes(j, a),
+		route.NewPinataRoutes(j, p),
+	// route.NewMissionRoutes(a, j, m),
+	)
 
 	// cleanup function on server shutdown
-	// cleanup := func() {
-	// 	// zkClient.Close()
-	// 	// mongoClient.Disconnect(context.Background())
+	cleanup := func() {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+		defer cancel()
 
-	// 	slog.Info("server stopped gracefully")
-	// }
+		zkClient.Close()
+		mongoClient.Disconnect(ctx)
+
+		slog.Info("server stopped gracefully")
+	}
 
 	// run server
-	// app.New(":8080", r).Run(cleanup)
+	app.New(":8080", r).Run(cleanup)
 }
