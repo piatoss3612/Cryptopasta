@@ -18,12 +18,12 @@ import (
 )
 
 type MissionRoutes struct {
-	a *agent.Service
+	a agent.Service
 	j jwt.Service
 	m *mission.Service
 }
 
-func NewMissionRoutes(a *agent.Service, j jwt.Service, m *mission.Service) *MissionRoutes {
+func NewMissionRoutes(a agent.Service, j jwt.Service, m *mission.Service) *MissionRoutes {
 	return &MissionRoutes{a: a, j: j, m: m}
 }
 

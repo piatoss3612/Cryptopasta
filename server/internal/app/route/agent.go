@@ -13,10 +13,10 @@ import (
 
 type AgentRoute struct {
 	j jwt.Service
-	r *agent.Service
+	r agent.Service
 }
 
-func NewAgentRoutes(j jwt.Service, r *agent.Service) *AgentRoute {
+func NewAgentRoutes(j jwt.Service, r agent.Service) *AgentRoute {
 	return &AgentRoute{j: j, r: r}
 }
 
