@@ -1,19 +1,9 @@
 package main
 
 import (
-	"context"
-	"cryptopasta/internal/agent"
 	"cryptopasta/internal/app"
 	"cryptopasta/internal/app/config"
-	"cryptopasta/internal/app/route"
-	"cryptopasta/internal/jwt"
-	"cryptopasta/internal/mission"
-	"cryptopasta/internal/pinata"
-	"cryptopasta/pkg/mongo"
-	"cryptopasta/pkg/zksync"
 	"log/slog"
-
-	openai "github.com/sashabaranov/go-openai"
 )
 
 //	@title			Cryptopasta API
@@ -44,32 +34,32 @@ func main() {
 	cfg := config.LoadConfig()
 
 	// create services
-	llm := openai.NewClient(cfg.OpenaiApiKey)
-	mongoClient := mongo.MustNewClient(context.Background(), cfg.MongoUri)
-	tx := mongo.NewTx(mongoClient, "cryptopasta")
-	zkClient := zksync.MustNewClient(context.Background())
-	agentRegistry := zksync.MustNewAgentRegistry(cfg.AgentRegistryAddr, zkClient)
-	missionBoard := zksync.MustNewMissionBoard(cfg.MissionBoardAddr, zkClient)
+	// llm := openai.NewClient(cfg.OpenaiApiKey)
+	// mongoClient := mongo.MustNewClient(context.Background(), cfg.MongoUri)
+	// tx := mongo.NewTx(mongoClient, "cryptopasta")
+	// zkClient := zksync.MustNewClient(context.Background())
+	// agentRegistry := zksync.MustNewAgentRegistry(cfg.AgentRegistryAddr, zkClient)
+	// missionBoard := zksync.MustNewMissionBoard(cfg.MissionBoardAddr, zkClient)
 
-	a := agent.NewService(zkClient, agentRegistry, tx, cfg.PrivateKey)
-	j := jwt.NewService(cfg.PrivyAppID, cfg.PrivyVerificationKey)
-	m := mission.NewService(llm, missionBoard, tx)
-	p := pinata.NewService(cfg.PinataApiKey, cfg.PinataSecretKey)
+	// a := agent.NewService(zkClient, agentRegistry, tx, cfg.PrivateKey)
+	// j := jwt.NewService(cfg.PrivyAppID, cfg.PrivyVerificationKey)
+	// m := mission.NewService(llm, missionBoard, tx)
+	// p := pinata.NewService(cfg.PinataApiKey, cfg.PinataSecretKey)
 
 	cfg.Clear()
 
 	// create router
 	r := app.NewRouter(
-		route.NewPingRoutes(),
-		route.NewAgentRoutes(j, a),
-		route.NewPinataRoutes(j, p),
-		route.NewMissionRoutes(a, j, m),
+	// route.NewPingRoutes(),
+	// route.NewAgentRoutes(j, a),
+	// route.NewPinataRoutes(j, p),
+	// route.NewMissionRoutes(a, j, m),
 	)
 
 	// cleanup function on server shutdown
 	cleanup := func() {
-		zkClient.Close()
-		mongoClient.Disconnect(context.Background())
+		// zkClient.Close()
+		// mongoClient.Disconnect(context.Background())
 
 		slog.Info("server stopped gracefully")
 	}
