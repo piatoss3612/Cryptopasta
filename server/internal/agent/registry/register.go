@@ -1,14 +1,13 @@
-package agent
+package registry
 
 import (
 	"context"
 	"crypto/ecdsa"
-	"cryptopasta/pkg/contracts"
+	"cryptopasta/internal/agent"
 	"errors"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -18,28 +17,41 @@ import (
 
 const TxStatusSuccess = 1
 
-var ErrAccountNotAllowed = errors.New("account is not allowed to register as an agent")
+var (
+	ErrAccountNotAllowed   = errors.New("account is not allowed to register as an agent")
+	ErrorTransactionFailed = errors.New("transaction failed")
+	ErrorEventNotFound     = errors.New("event not found")
+)
 
-var _ Registerer = (*register)(nil)
-
-type Registerer interface {
-	Register(ctx context.Context, agentAddrBytes common.Address, portraitId *big.Int) (common.Address, error)
-}
-
+// Adapter for the agent registry contract
 type register struct {
 	client          clients.Client
 	registryAddress common.Address
-	registry        *contracts.AgentRegistry
+	registry        *AgentRegistry
 	pvk             *ecdsa.PrivateKey
 }
 
-func NewRegistry(client clients.Client, registryAddress common.Address, registry *contracts.AgentRegistry, pvk *ecdsa.PrivateKey) *register {
+func New(client clients.Client, registryAddress common.Address, pvk *ecdsa.PrivateKey) (*register, error) {
+	registry, err := NewAgentRegistry(registryAddress, client)
+	if err != nil {
+		return nil, err
+	}
+
 	return &register{
 		client:          client,
 		registryAddress: registryAddress,
 		registry:        registry,
 		pvk:             pvk,
+	}, nil
+}
+
+func MustNew(client clients.Client, registryAddress common.Address, pvk *ecdsa.PrivateKey) *register {
+	r, err := New(client, registryAddress, pvk)
+	if err != nil {
+		panic(err)
 	}
+
+	return r
 }
 
 func (r *register) Register(ctx context.Context, agentAddrBytes common.Address, portraitId *big.Int) (common.Address, error) {
@@ -68,8 +80,13 @@ func (r *register) Register(ctx context.Context, agentAddrBytes common.Address, 
 	}
 
 	// Encode the data for the transaction for fee estimation
-	enc := abi.ABI{}
-	data, err := enc.Pack("register", agentAddrBytes, portraitId)
+	abi, err := AgentRegistryMetaData.GetAbi()
+	if err != nil {
+		return common.Address{}, err
+	}
+
+	// Pack the data for the fee estimation
+	data, err := abi.Pack("register", agentAddrBytes, portraitId)
 	if err != nil {
 		return common.Address{}, err
 	}
@@ -92,7 +109,7 @@ func (r *register) Register(ctx context.Context, agentAddrBytes common.Address, 
 		return common.Address{}, err
 	}
 
-	// Set the gas limit
+	// Set the gas limit dynamically
 	auth.GasLimit = fee.GasLimit.ToInt().Uint64()
 
 	// Send the transaction
@@ -109,7 +126,7 @@ func (r *register) Register(ctx context.Context, agentAddrBytes common.Address, 
 
 	// Check if the transaction was successful
 	if receipt.Status != TxStatusSuccess {
-		return common.Address{}, errors.New("transaction failed")
+		return common.Address{}, ErrorTransactionFailed
 	}
 
 	// Parse the event to get the account address
@@ -152,8 +169,8 @@ func (r *register) readyTxOpts(ctx context.Context) (*bind.TransactOpts, error) 
 	return auth, nil
 }
 
-func (r *register) parseAgentRegisteredEvent(logs []*types.Log) (*contracts.AgentRegistryAgentRegistered, error) {
-	var event *contracts.AgentRegistryAgentRegistered
+func (r *register) parseAgentRegisteredEvent(logs []*types.Log) (*AgentRegistryAgentRegistered, error) {
+	var event *AgentRegistryAgentRegistered
 	var err error
 
 	for _, log := range logs {
@@ -163,7 +180,7 @@ func (r *register) parseAgentRegisteredEvent(logs []*types.Log) (*contracts.Agen
 		}
 	}
 
-	return nil, errors.New("event not found")
+	return nil, ErrorEventNotFound
 }
 
 func callOpts(ctx context.Context) *bind.CallOpts {
@@ -171,3 +188,5 @@ func callOpts(ctx context.Context) *bind.CallOpts {
 		Context: ctx,
 	}
 }
+
+var _ agent.Registerer = (*register)(nil)

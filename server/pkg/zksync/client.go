@@ -24,20 +24,6 @@ func NewClient(ctx context.Context) (clients.Client, error) {
 	return clients.DialContext(ctx, zkSyncSepoliaRpcUrl)
 }
 
-func MustNewAgentRegistry(contractAddr string, client clients.Client) *contracts.AgentRegistry {
-	agentRegistry, err := NewAgentRegistry(contractAddr, client)
-	if err != nil {
-		log.Fatal("failed to create agent registry", "err", err)
-	}
-
-	return agentRegistry
-}
-
-func NewAgentRegistry(contractAddr string, client clients.Client) (*contracts.AgentRegistry, error) {
-	agentRegistryAddr := common.HexToAddress(contractAddr)
-	return contracts.NewAgentRegistry(agentRegistryAddr, client)
-}
-
 func MustNewMissionBoard(contractAddr string, client clients.Client) *contracts.MissionBoard {
 	missionBoard, err := NewMissionBoard(contractAddr, client)
 	if err != nil {

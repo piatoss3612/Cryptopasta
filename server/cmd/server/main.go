@@ -1,9 +1,18 @@
 package main
 
 import (
-	"cryptopasta/internal/app"
+	"context"
+	"cryptopasta/internal/agent"
+	"cryptopasta/internal/agent/registry"
+	"cryptopasta/internal/agent/repository"
 	"cryptopasta/internal/app/config"
+	"cryptopasta/pkg/db/mongo"
+	"cryptopasta/pkg/zksync"
+	"log"
 	"log/slog"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 //	@title			Cryptopasta API
@@ -35,13 +44,24 @@ func main() {
 
 	// create services
 	// llm := openai.NewClient(cfg.OpenaiApiKey)
-	// mongoClient := mongo.MustNewClient(context.Background(), cfg.MongoUri)
+	mongoClient := mongo.MustNewClient(context.Background(), cfg.MongoUri)
 	// tx := mongo.NewTx(mongoClient, "cryptopasta")
-	// zkClient := zksync.MustNewClient(context.Background())
-	// agentRegistry := zksync.MustNewAgentRegistry(cfg.AgentRegistryAddr, zkClient)
+	zkClient := zksync.MustNewClient(context.Background())
+	agentRegistryAddrBytes := common.HexToAddress(cfg.AgentRegistryAddr)
+
 	// missionBoard := zksync.MustNewMissionBoard(cfg.MissionBoardAddr, zkClient)
 
-	// a := agent.NewService(zkClient, agentRegistry, tx, cfg.PrivateKey)
+	// private key
+	privKey, err := crypto.HexToECDSA(cfg.PrivateKey)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	register := registry.MustNew(zkClient, agentRegistryAddrBytes, privKey)
+	agentRepo := repository.NewMongoRepository(mongoClient, "cryptopasta")
+
+	_ = agent.NewService(register, agentRepo)
+
 	// j := jwt.NewService(cfg.PrivyAppID, cfg.PrivyVerificationKey)
 	// m := mission.NewService(llm, missionBoard, tx)
 	// p := pinata.NewService(cfg.PinataApiKey, cfg.PinataSecretKey)
@@ -49,21 +69,21 @@ func main() {
 	cfg.Clear()
 
 	// create router
-	r := app.NewRouter(
-	// route.NewPingRoutes(),
-	// route.NewAgentRoutes(j, a),
-	// route.NewPinataRoutes(j, p),
-	// route.NewMissionRoutes(a, j, m),
-	)
+	// r := app.NewRouter(
+	// // route.NewPingRoutes(),
+	// // route.NewAgentRoutes(j, a),
+	// // route.NewPinataRoutes(j, p),
+	// // route.NewMissionRoutes(a, j, m),
+	// )
 
 	// cleanup function on server shutdown
-	cleanup := func() {
-		// zkClient.Close()
-		// mongoClient.Disconnect(context.Background())
+	// cleanup := func() {
+	// 	// zkClient.Close()
+	// 	// mongoClient.Disconnect(context.Background())
 
-		slog.Info("server stopped gracefully")
-	}
+	// 	slog.Info("server stopped gracefully")
+	// }
 
 	// run server
-	app.New(":8080", r).Run(cleanup)
+	// app.New(":8080", r).Run(cleanup)
 }

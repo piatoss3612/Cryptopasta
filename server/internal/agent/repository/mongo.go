@@ -1,39 +1,22 @@
-package agent
+package repository
 
 import (
 	"context"
+	"cryptopasta/internal/agent"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// Repository for agent.
-type Repository interface {
-	Querier
-	Commander
-}
-
-// Querier is the interface for querying agent.
-type Querier interface {
-	FindAgentByID(ctx context.Context, id string) (*Agent, error)
-	FindAgentByUserID(ctx context.Context, userID string) (*Agent, error)
-	AgentExists(ctx context.Context, userID string) (bool, error)
-}
-
-// Commander is the interface for creating agent.
-type Commander interface {
-	CreateAgent(ctx context.Context, userID, agentAddress, accountAddress string) (*Agent, error)
-}
-
 // mongoRepository is the mongo implementation of agent repository.
 type mongoRepository struct {
-	Querier
-	Commander
+	agent.Querier
+	agent.Commander
 }
 
 // NewMongoRepository creates a new agent mongo repository.
-func NewMongoRepository(client *mongo.Client, dbname string) Repository {
+func NewMongoRepository(client *mongo.Client, dbname string) *mongoRepository {
 	return &mongoRepository{
 		Querier:   NewMongoQuery(client, dbname),
 		Commander: NewMongoCommand(client, dbname),
@@ -50,7 +33,7 @@ func NewMongoQuery(client *mongo.Client, dbname string) *mongoQuery {
 	return &mongoQuery{client: client, dbname: dbname}
 }
 
-func (q *mongoQuery) FindAgentByID(ctx context.Context, id string) (*Agent, error) {
+func (q *mongoQuery) FindAgentByID(ctx context.Context, id string) (*agent.Agent, error) {
 	collection := q.client.Database(q.dbname).Collection("agents")
 
 	objID, err := primitive.ObjectIDFromHex(id)
@@ -58,7 +41,7 @@ func (q *mongoQuery) FindAgentByID(ctx context.Context, id string) (*Agent, erro
 		return nil, err
 	}
 
-	var agent Agent
+	var agent agent.Agent
 
 	filter := bson.M{"_id": objID}
 
@@ -73,10 +56,10 @@ func (q *mongoQuery) FindAgentByID(ctx context.Context, id string) (*Agent, erro
 	return &agent, nil
 }
 
-func (q *mongoQuery) FindAgentByUserID(ctx context.Context, userID string) (*Agent, error) {
+func (q *mongoQuery) FindAgentByUserID(ctx context.Context, userID string) (*agent.Agent, error) {
 	collection := q.client.Database(q.dbname).Collection("agents")
 
-	var agent Agent
+	var agent agent.Agent
 
 	filter := bson.M{"userID": userID}
 
@@ -114,10 +97,10 @@ func NewMongoCommand(client *mongo.Client, dbname string) *mongoCommand {
 	return &mongoCommand{client: client, dbname: dbname}
 }
 
-func (c *mongoCommand) CreateAgent(ctx context.Context, userID, agentAddress, accountAddress string) (*Agent, error) {
+func (c *mongoCommand) CreateAgent(ctx context.Context, userID, agentAddress, accountAddress string) (*agent.Agent, error) {
 	collection := c.client.Database(c.dbname).Collection("agents")
 
-	agent := Agent{
+	agent := agent.Agent{
 		UserID:         userID,
 		AgentAddress:   agentAddress,
 		AccountAddress: accountAddress,
@@ -131,5 +114,8 @@ func (c *mongoCommand) CreateAgent(ctx context.Context, userID, agentAddress, ac
 	return &agent, nil
 }
 
-var _ Querier = (*mongoQuery)(nil)
-var _ Commander = (*mongoCommand)(nil)
+var (
+	_ agent.Repository = (*mongoRepository)(nil)
+	_ agent.Querier    = (*mongoQuery)(nil)
+	_ agent.Commander  = (*mongoCommand)(nil)
+)
