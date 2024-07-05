@@ -31,7 +31,7 @@ func NewHttpRateLimit() func(next http.Handler) http.Handler {
 	)
 }
 
-func JwtTokenRequired(j *jwt.Service) func(next http.Handler) http.Handler {
+func JwtTokenRequired(j jwt.Service) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Add("Vary", "Authorization")
