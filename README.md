@@ -15,6 +15,7 @@
 
 ## Table of Contents
 
+- [Directory Structure](#directory-structure)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
@@ -30,6 +31,15 @@
 - [Future Work](#future-work)
 - [Team](#team)
 - [License](#license)
+
+## Directory Structure
+
+- [assets](./assets): Contains images and other assets used in the README.
+- [examples](./examples): Contains examples of Cryptopasta stories.
+- [server](./server): Contains the server code written in Go.
+- [subgraphs](./subgraphs): Contains the subgraph schemas and code.
+- [web](./web): Contains the web app code using Next.js.
+- [zksync](./zksync): Contains the smart contract code written in Solidity with Hardhat.
 
 ## Getting Started
 
@@ -56,7 +66,7 @@ $ git clone https://github.com/piatoss3612/Cryptopasta.git
 $ cd Cryptopasta
 ```
 
-3. [Deploy smart contracts](./contracts/README.md)
+3. [Deploy smart contracts](./zksync/README.md)
 
 4. [Setup the server](./server/README.md)
 
@@ -122,7 +132,7 @@ Based on these insights, I decided to create a text-based adventure game that me
   - Users can create smart contract accounts and interact with the blockchain without needing to understand the underlying technology.
   - Transaction fees can be sponsored by a Paymaster, making it easier for users to use the dApp.
   - The native account abstraction (AA) of zkSync allows transactions to be processed at the protocol level without third-party involvement.
-  - **more details**: [contracts](./contracts/README.md)
+  - **more details**: [zksync](./zksync/README.md)
 - **User-friendly Interface**: The UI is designed to be intuitive, guiding users through the game with ease.
 - **USD Pricing**: Implement USD-based pricing leveraging Chainlink Price Feeds for transactions to enhance user convenience and reduce complexity associated with cryptocurrency price fluctuations.
 
