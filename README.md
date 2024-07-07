@@ -20,6 +20,7 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [System Architecture](#system-architecture)
+- [Sequence Diagram](#sequence-diagram)
 - [Discover the Hidden Mysteries on the Blockchain with Cryptopasta](#discover-the-hidden-mysteries-on-the-blockchain-with-cryptopasta)
 - [Inspiration](#inspiration)
 - [Features](#features)
@@ -87,7 +88,51 @@ $ make up
 ## System Architecture
 
 <div align="center">
-<img src="./assets/architecture.png" width="600px" alt="architecture">
+<img src="./assets/architecture.png" width="800px" alt="architecture">
+</div>
+
+## Sequence Diagram
+
+### 1.User Login
+
+<div align="center">
+<img src="./assets/sequence/1.png" width="800px" alt="sequence-login">
+</div>
+
+### 2.Register
+
+<div align="center">
+<img src="./assets/sequence/2.png" width="800px" alt="sequence-register">
+</div>
+
+### 3.Create Story (Report)
+
+<div align="center">
+<img src="./assets/sequence/3.png" width="800px" alt="sequence-create-story">
+</div>
+
+### 4.Purchase Story (Board)
+
+<div align="center">
+<img src="./assets/sequence/4.png" width="800px" alt="sequence-purchase-story">
+</div>
+
+### 5.Create Game (Mission)
+
+<div align="center">
+<img src="./assets/sequence/5.png" width="800px" alt="sequence-create-game">
+</div>
+
+### 6.Continue Game (Mission)
+
+<div align="center">
+<img src="./assets/sequence/6.png" width="800px" alt="sequence-continue-game">
+</div>
+
+### 7.Mint Game Scene as NFT
+
+<div align="center">
+<img src="./assets/sequence/7.png" width="800px" alt="sequence-mint-nft">
 </div>
 
 ## Discover the Hidden Mysteries on the Blockchain with Cryptopasta
