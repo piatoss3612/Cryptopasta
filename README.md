@@ -18,6 +18,7 @@
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
+- [System Architecture](#system-architecture)
 - [Discover the Hidden Mysteries on the Blockchain with Cryptopasta](#discover-the-hidden-mysteries-on-the-blockchain-with-cryptopasta)
 - [Inspiration](#inspiration)
 - [Features](#features)
@@ -72,6 +73,12 @@ or
 
 $ make up
 ```
+
+## System Architecture
+
+<div align="center">
+<img src="./assets/architecture.png" width="600px" alt="architecture">
+</div>
 
 ## Discover the Hidden Mysteries on the Blockchain with Cryptopasta
 
