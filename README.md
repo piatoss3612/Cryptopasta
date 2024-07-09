@@ -20,6 +20,7 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [System Architecture](#system-architecture)
+- [Entity Relationship Diagram](#entity-relationship-diagram)
 - [Sequence Diagram](#sequence-diagram)
 - [Discover the Hidden Mysteries on the Blockchain with Cryptopasta](#discover-the-hidden-mysteries-on-the-blockchain-with-cryptopasta)
 - [Inspiration](#inspiration)
@@ -89,6 +90,12 @@ $ make up
 
 <div align="center">
 <img src="./assets/architecture.png" width="800px" alt="architecture">
+</div>
+
+## Entity Relationship Diagram
+
+<div align="center">
+<img src="./assets/erd.png" width="400px" alt="erd">
 </div>
 
 ## Sequence Diagram
