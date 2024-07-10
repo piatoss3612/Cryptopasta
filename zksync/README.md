@@ -3,6 +3,7 @@
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Architecture](#architecture)
 - [Account Abstraction](#account-abstraction)
   - [AgentAccount](#agentaccount)
   - [AgentPaymaster](#agentpaymaster)
@@ -32,6 +33,12 @@
 | MissionLog          | ERC721 token for agents to mint visual representation of their missions   |
 | MissionBoard        | Marketplace for agents to create and accept missions                      |
 | Cryptopasta         | ERC1155 token of MissionBoard for agents to trade or interact with        |
+
+## Architecture
+
+<div align="center">
+  <img src="./architecture.png" width="600px" alt="Architecture" />
+</div>
 
 ## Account Abstraction
 
