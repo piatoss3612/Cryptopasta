@@ -114,6 +114,8 @@ export type { AgentAccountFactory } from "./contracts/aa/AgentAccountFactory";
 export { AgentAccountFactory__factory } from "./factories/contracts/aa/AgentAccountFactory__factory";
 export type { AgentPaymaster } from "./contracts/aa/AgentPaymaster";
 export { AgentPaymaster__factory } from "./factories/contracts/aa/AgentPaymaster__factory";
+export type { DailyLimit } from "./contracts/aa/DailyLimit";
+export { DailyLimit__factory } from "./factories/contracts/aa/DailyLimit__factory";
 export type { Multicall } from "./contracts/aa/Multicall";
 export { Multicall__factory } from "./factories/contracts/aa/Multicall__factory";
 export type { AggregatorV3Interface } from "./contracts/chainlink/interfaces/AggregatorV3Interface";

@@ -230,6 +230,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AgentPaymaster__factory>;
     getContractFactory(
+      name: "DailyLimit",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DailyLimit__factory>;
+    getContractFactory(
       name: "Multicall",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Multicall__factory>;
@@ -561,6 +565,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.AgentPaymaster>;
     getContractAt(
+      name: "DailyLimit",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DailyLimit>;
+    getContractAt(
       name: "Multicall",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -853,6 +862,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.AgentPaymaster>;
     deployContract(
+      name: "DailyLimit",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.DailyLimit>;
+    deployContract(
       name: "Multicall",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Multicall>;
@@ -1183,6 +1196,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.AgentPaymaster>;
+    deployContract(
+      name: "DailyLimit",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.DailyLimit>;
     deployContract(
       name: "Multicall",
       args: any[],

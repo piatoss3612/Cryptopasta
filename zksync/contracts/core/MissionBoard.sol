@@ -265,6 +265,13 @@ contract MissionBoard is IMissionBoard, Ownable {
         emit ReportRated(reportId, rater, rating);
     }
 
+    /// @notice Returns if the user has report token (Cryptopasta)
+    /// @param user The user address
+    /// @param reportId The report ID
+    function hasReport(address user, uint256 reportId) external view override returns (bool) {
+        return CP.balanceOf(user, reportId) > 0;
+    }
+
     /// @notice Claims the sales of a discovery report
     /// @param reportId The report ID
     function claimSales(uint256 reportId) external {

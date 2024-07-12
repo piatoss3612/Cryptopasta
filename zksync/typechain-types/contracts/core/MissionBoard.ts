@@ -92,6 +92,7 @@ export interface MissionBoardInterface extends Interface {
       | "getSales"
       | "hasFreeTrial"
       | "hasRated"
+      | "hasReport"
       | "isAgent"
       | "owner"
       | "rateReport"
@@ -156,6 +157,10 @@ export interface MissionBoardInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "hasRated",
+    values: [AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasReport",
     values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
@@ -229,6 +234,7 @@ export interface MissionBoardInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "hasRated", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "hasReport", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isAgent", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "rateReport", data: BytesLike): Result;
@@ -479,6 +485,12 @@ export interface MissionBoard extends BaseContract {
     "view"
   >;
 
+  hasReport: TypedContractMethod<
+    [user: AddressLike, reportId: BigNumberish],
+    [boolean],
+    "view"
+  >;
+
   isAgent: TypedContractMethod<[account: AddressLike], [boolean], "view">;
 
   owner: TypedContractMethod<[], [string], "view">;
@@ -590,6 +602,13 @@ export interface MissionBoard extends BaseContract {
     nameOrSignature: "hasRated"
   ): TypedContractMethod<
     [rater: AddressLike, reportId: BigNumberish],
+    [boolean],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "hasReport"
+  ): TypedContractMethod<
+    [user: AddressLike, reportId: BigNumberish],
     [boolean],
     "view"
   >;

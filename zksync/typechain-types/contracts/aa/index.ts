@@ -4,4 +4,5 @@
 export type { AgentAccount } from "./AgentAccount";
 export type { AgentAccountFactory } from "./AgentAccountFactory";
 export type { AgentPaymaster } from "./AgentPaymaster";
+export type { DailyLimit } from "./DailyLimit";
 export type { Multicall } from "./Multicall";
