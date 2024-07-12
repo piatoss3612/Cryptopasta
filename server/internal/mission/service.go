@@ -2,7 +2,7 @@ package mission
 
 import (
 	"context"
-	"cryptopasta/pkg/contracts"
+	"cryptopasta/internal/mission/board"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,25 +15,15 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
-type Service interface {
-	GetMission(ctx context.Context, missionID string) (*Mission, error)
-	GetMissionsByAgentID(ctx context.Context, agentID, lastMissionID string, limit int) ([]Mission, error)
-	GetEntriesByMissionID(ctx context.Context, missionID string) ([]Entry, error)
-	GetEntryByID(ctx context.Context, entryID string) (*Entry, error)
-	CreateMission(ctx context.Context, agentID, reportID string, chatFn ChatMessageFunc) (*Mission, error)
-	ActOnMission(ctx context.Context, missionID, input string, chatFn ChatMessageFunc) (string, error)
-	VisualizeLatestMissionState(ctx context.Context, missionID, entryID string) (*Message, error)
-}
-
 type ChatMessageFunc func(message string) error
 
 type service struct {
 	llm  *openai.Client
-	mb   *contracts.MissionBoard
+	mb   *board.MissionBoard
 	repo Repository
 }
 
-func NewService(llm *openai.Client, mb *contracts.MissionBoard, repo Repository) *service {
+func NewService(llm *openai.Client, mb *board.MissionBoard, repo Repository) *service {
 	return &service{
 		llm:  llm,
 		mb:   mb,

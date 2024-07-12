@@ -1,7 +1,8 @@
-package mission
+package repository
 
 import (
 	"context"
+	"cryptopasta/internal/mission"
 	"errors"
 	"time"
 
@@ -19,38 +20,21 @@ var (
 	ErrInvalidUpdateFields = errors.New("no update fields provided")
 )
 
-type Repository interface {
-	Querier
-	Commander
-}
-
-type Querier interface {
-	FindMissionByID(ctx context.Context, id string) (*Mission, error)
-	FindMissionsByAgentID(ctx context.Context, agentID, lastMissionID string, limit int) ([]Mission, error)
-	MissionExists(ctx context.Context, id string) (bool, error)
-	FindEntryByID(ctx context.Context, id string) (*Entry, error)
-	FindEntriesByMissionID(ctx context.Context, missionID string, isSummary ...bool) ([]Entry, error)
-	EntityExists(ctx context.Context, id string) (bool, error)
-}
-
-type Commander interface {
-	CreateMission(ctx context.Context, title, agentID, reportID string) (*Mission, error)
-	CreateEntry(ctx context.Context, missionID string, messages []Message) (string, error)
-	UpdateEntry(ctx context.Context, id string, messages []Message) error
-}
-
+// mongoRepository is the mongo implementation of agent repository.
 type mongoRepository struct {
-	Querier
-	Commander
+	mission.Querier
+	mission.Commander
 }
 
-func NewMongoRepository(querier Querier, commander Commander) Repository {
+// NewMongoRepository creates a new agent mongo repository.
+func NewMongoRepository(client *mongo.Client, dbname string) *mongoRepository {
 	return &mongoRepository{
-		Querier:   querier,
-		Commander: commander,
+		Querier:   NewMongoQuery(client, dbname),
+		Commander: NewMongoCommand(client, dbname),
 	}
 }
 
+// mongoQuery is the mongo implementation of agent querier.
 type mongoQuery struct {
 	client *mongo.Client
 	dbname string
@@ -60,7 +44,7 @@ func NewMongoQuery(client *mongo.Client, dbname string) *mongoQuery {
 	return &mongoQuery{client: client, dbname: dbname}
 }
 
-func (q *mongoQuery) FindMissionByID(ctx context.Context, id string) (*Mission, error) {
+func (q *mongoQuery) FindMissionByID(ctx context.Context, id string) (*mission.Mission, error) {
 	collection := q.client.Database(q.dbname).Collection("missions")
 
 	objID, err := primitive.ObjectIDFromHex(id)
@@ -68,7 +52,7 @@ func (q *mongoQuery) FindMissionByID(ctx context.Context, id string) (*Mission, 
 		return nil, err
 	}
 
-	var mission Mission
+	var mission mission.Mission
 
 	filter := bson.M{"_id": objID}
 
@@ -83,7 +67,7 @@ func (q *mongoQuery) FindMissionByID(ctx context.Context, id string) (*Mission, 
 	return &mission, nil
 }
 
-func (q *mongoQuery) FindMissionsByAgentID(ctx context.Context, agentID, lastMissionID string, limit int) ([]Mission, error) {
+func (q *mongoQuery) FindMissionsByAgentID(ctx context.Context, agentID, lastMissionID string, limit int) ([]mission.Mission, error) {
 	collection := q.client.Database(q.dbname).Collection("missions")
 
 	filter := bson.M{"agentID": agentID}
@@ -111,7 +95,7 @@ func (q *mongoQuery) FindMissionsByAgentID(ctx context.Context, agentID, lastMis
 	}
 	defer cursor.Close(ctx)
 
-	var missions []Mission
+	var missions []mission.Mission
 	err = cursor.All(ctx, &missions)
 	if err != nil {
 		return nil, err
@@ -138,7 +122,7 @@ func (q *mongoQuery) MissionExists(ctx context.Context, id string) (bool, error)
 	return count > 0, nil
 }
 
-func (q *mongoQuery) FindEntryByID(ctx context.Context, id string) (*Entry, error) {
+func (q *mongoQuery) FindEntryByID(ctx context.Context, id string) (*mission.Entry, error) {
 	collection := q.client.Database(q.dbname).Collection("entries")
 
 	objID, err := primitive.ObjectIDFromHex(id)
@@ -146,7 +130,7 @@ func (q *mongoQuery) FindEntryByID(ctx context.Context, id string) (*Entry, erro
 		return nil, err
 	}
 
-	var entry Entry
+	var entry mission.Entry
 
 	filter := bson.M{"_id": objID}
 
@@ -161,7 +145,7 @@ func (q *mongoQuery) FindEntryByID(ctx context.Context, id string) (*Entry, erro
 	return &entry, nil
 }
 
-func (q *mongoQuery) FindEntriesByMissionID(ctx context.Context, missionID string, isSummary ...bool) ([]Entry, error) {
+func (q *mongoQuery) FindEntriesByMissionID(ctx context.Context, missionID string, isSummary ...bool) ([]mission.Entry, error) {
 	collection := q.client.Database(q.dbname).Collection("entries")
 
 	filter := bson.M{"missionID": missionID}
@@ -180,7 +164,7 @@ func (q *mongoQuery) FindEntriesByMissionID(ctx context.Context, missionID strin
 	}
 	defer cursor.Close(ctx)
 
-	var entries []Entry
+	var entries []mission.Entry
 	err = cursor.All(ctx, &entries)
 	if err != nil {
 		return nil, err
@@ -216,10 +200,10 @@ func NewMongoCommand(client *mongo.Client, dbname string) *mongoCommand {
 	return &mongoCommand{client: client, dbname: dbname}
 }
 
-func (c *mongoCommand) CreateMission(ctx context.Context, title, agentID, reportID string) (*Mission, error) {
+func (c *mongoCommand) CreateMission(ctx context.Context, title, agentID, reportID string) (*mission.Mission, error) {
 	collection := c.client.Database(c.dbname).Collection("missions")
 
-	mission := Mission{
+	mission := mission.Mission{
 		Title:     title,
 		AgentID:   agentID,
 		ReportID:  reportID,
@@ -238,14 +222,14 @@ func (c *mongoCommand) CreateMission(ctx context.Context, title, agentID, report
 	return &mission, nil
 }
 
-func (c *mongoCommand) CreateEntry(ctx context.Context, missionID string, messages []Message) (string, error) {
+func (c *mongoCommand) CreateEntry(ctx context.Context, missionID string, messages []mission.Message) (string, error) {
 	collection := c.client.Database(c.dbname).Collection("entries")
 
 	if len(messages) == 0 {
 		return "", ErrNoMessages
 	}
 
-	entry := Entry{
+	entry := mission.Entry{
 		MissionID: missionID,
 		Messages:  messages,
 		CreatedAt: time.Now().Unix(),
@@ -262,7 +246,7 @@ func (c *mongoCommand) CreateEntry(ctx context.Context, missionID string, messag
 	return objID.Hex(), nil
 }
 
-func (c *mongoCommand) UpdateEntry(ctx context.Context, id string, messages []Message) error {
+func (c *mongoCommand) UpdateEntry(ctx context.Context, id string, messages []mission.Message) error {
 	collection := c.client.Database(c.dbname).Collection("entries")
 
 	objID, err := primitive.ObjectIDFromHex(id)
@@ -300,6 +284,8 @@ func (c *mongoCommand) UpdateEntry(ctx context.Context, id string, messages []Me
 	return nil
 }
 
-var _ Repository = (*mongoRepository)(nil)
-var _ Querier = (*mongoQuery)(nil)
-var _ Commander = (*mongoCommand)(nil)
+var (
+	_ mission.Repository = (*mongoRepository)(nil)
+	_ mission.Querier    = (*mongoQuery)(nil)
+	_ mission.Commander  = (*mongoCommand)(nil)
+)
