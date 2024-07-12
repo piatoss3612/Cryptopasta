@@ -2,6 +2,9 @@ package mission
 
 import (
 	"context"
+	"math/big"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
 type Service interface {
@@ -9,9 +12,14 @@ type Service interface {
 	GetMissionsByAgentID(ctx context.Context, agentID, lastMissionID string, limit int) ([]Mission, error)
 	GetEntriesByMissionID(ctx context.Context, missionID string) ([]Entry, error)
 	GetEntryByID(ctx context.Context, entryID string) (*Entry, error)
-	CreateMission(ctx context.Context, agentID, reportID string, chatFn ChatMessageFunc) (*Mission, error)
+	CreateMission(ctx context.Context, agentID string, agentAccountAddress common.Address, reportID *big.Int, chatFn ChatMessageFunc) (*Mission, error)
 	ActOnMission(ctx context.Context, missionID, input string, chatFn ChatMessageFunc) (string, error)
 	VisualizeLatestMissionState(ctx context.Context, missionID, entryID string) (*Message, error)
+}
+
+type Boarder interface {
+	GetDiscoveryReportData(ctx context.Context, reportID *big.Int) (*ReportData, error)
+	HasReport(ctx context.Context, user common.Address, reportID *big.Int) (bool, error)
 }
 
 type Repository interface {
@@ -56,6 +64,12 @@ type Mission struct {
 	AgentID   string `json:"agentID" bson:"agentID"`
 	ReportID  string `json:"reportID" bson:"reportID"`
 	CreatedAt int64  `json:"createdAt" bson:"createdAt"`
+}
+
+type ReportData struct {
+	Title      string `json:"title"`
+	ContentURI string `json:"contentURI"`
+	Metadata   Metadata
 }
 
 type Metadata struct {

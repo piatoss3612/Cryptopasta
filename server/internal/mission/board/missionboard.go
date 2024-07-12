@@ -54,7 +54,7 @@ type IMissionBoardSalesStats struct {
 
 // MissionBoardMetaData contains all meta data concerning the MissionBoard contract.
 var MissionBoardMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_agent\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_usdt\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"converter_\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"rater\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"MissionBoard__AlreadyRated\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"enumIMissionBoard.PaymentMethod\",\"name\":\"paymentMethod\",\"type\":\"uint8\"}],\"name\":\"MissionBoard__InsufficientBalance\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"MissionBoard__InsufficientSalesForClaim\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"MissionBoard__InvalidETHAmount\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"MissionBoard__InvalidPaymentMethod\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"}],\"name\":\"MissionBoard__NotAgent\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"MissionBoard__NotReportOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"MissionBoard__ReportNotFound\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"MissionBoard__TransferFailed\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"OwnableInvalidOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"OwnableUnauthorizedAccount\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"reporter\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint128\",\"name\":\"priceInUSD\",\"type\":\"uint128\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"title\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"contentURI\",\"type\":\"string\"}],\"name\":\"ReportDiscovery\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"rater\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"enumIMissionBoard.Rating\",\"name\":\"rating\",\"type\":\"uint8\"}],\"name\":\"ReportRated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"buyer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"enumIMissionBoard.PaymentMethod\",\"name\":\"paymentMethod\",\"type\":\"uint8\"}],\"name\":\"ReportTaken\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amountInETH\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amountInUSDT\",\"type\":\"uint256\"}],\"name\":\"SalesClaimed\",\"type\":\"event\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"inputs\":[],\"name\":\"AGENT\",\"outputs\":[{\"internalType\":\"contractIERC721\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"CP\",\"outputs\":[{\"internalType\":\"contractCryptopasta\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"PRICE_CONVERTER\",\"outputs\":[{\"internalType\":\"contractPriceConverter\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"USDT\",\"outputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"},{\"internalType\":\"enumIMissionBoard.PaymentMethod\",\"name\":\"paymentMethod\",\"type\":\"uint8\"}],\"name\":\"buyReport\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"claimSales\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"title\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"contentURI\",\"type\":\"string\"},{\"internalType\":\"uint128\",\"name\":\"priceInUSD\",\"type\":\"uint128\"},{\"internalType\":\"enumIMissionBoard.PaymentMethod\",\"name\":\"paymentMethod\",\"type\":\"uint8\"}],\"name\":\"createReport\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"getDiscoveryReport\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"reporter\",\"type\":\"address\"},{\"internalType\":\"uint48\",\"name\":\"createdAt\",\"type\":\"uint48\"},{\"internalType\":\"uint128\",\"name\":\"priceInUSD\",\"type\":\"uint128\"},{\"internalType\":\"string\",\"name\":\"title\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"contentURI\",\"type\":\"string\"}],\"internalType\":\"structIMissionBoard.DiscoveryReport\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"getRating\",\"outputs\":[{\"components\":[{\"internalType\":\"uint128\",\"name\":\"totalCount\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"totalRating\",\"type\":\"uint128\"}],\"internalType\":\"structIMissionBoard.RatingStats\",\"name\":\"\",\"type\":\"tuple\"},{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"getSales\",\"outputs\":[{\"components\":[{\"internalType\":\"uint128\",\"name\":\"salesInETH\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"salesInUSDT\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"claimedInETH\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"claimedInUSDT\",\"type\":\"uint128\"}],\"internalType\":\"structIMissionBoard.SalesStats\",\"name\":\"\",\"type\":\"tuple\"},{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"rater\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"hasRated\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"},{\"internalType\":\"enumIMissionBoard.Rating\",\"name\":\"rating\",\"type\":\"uint8\"}],\"name\":\"rateReport\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"ratingDecimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"reportingCostInETH\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"reportingCostInUSD\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"reportingCostInUSDT\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"usdPriceDecimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"addresspayable\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"enumIMissionBoard.PaymentMethod\",\"name\":\"paymentMethod\",\"type\":\"uint8\"}],\"name\":\"withdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_agent\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_usdt\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"converter_\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"rater\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"MissionBoard__AlreadyRated\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"enumIMissionBoard.PaymentMethod\",\"name\":\"paymentMethod\",\"type\":\"uint8\"}],\"name\":\"MissionBoard__InsufficientBalance\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"MissionBoard__InsufficientSalesForClaim\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"MissionBoard__InvalidETHAmount\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"MissionBoard__InvalidPaymentMethod\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"}],\"name\":\"MissionBoard__NotAgent\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"MissionBoard__NotReportOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"MissionBoard__ReportNotFound\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"MissionBoard__TransferFailed\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"OwnableInvalidOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"OwnableUnauthorizedAccount\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"reporter\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint128\",\"name\":\"priceInUSD\",\"type\":\"uint128\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"title\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"contentURI\",\"type\":\"string\"}],\"name\":\"ReportDiscovery\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"rater\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"enumIMissionBoard.Rating\",\"name\":\"rating\",\"type\":\"uint8\"}],\"name\":\"ReportRated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"buyer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"enumIMissionBoard.PaymentMethod\",\"name\":\"paymentMethod\",\"type\":\"uint8\"}],\"name\":\"ReportTaken\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"caller\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amountInETH\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amountInUSDT\",\"type\":\"uint256\"}],\"name\":\"SalesClaimed\",\"type\":\"event\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"inputs\":[],\"name\":\"AGENT\",\"outputs\":[{\"internalType\":\"contractIERC721\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"CP\",\"outputs\":[{\"internalType\":\"contractCryptopasta\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"PRICE_CONVERTER\",\"outputs\":[{\"internalType\":\"contractPriceConverter\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"USDT\",\"outputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"},{\"internalType\":\"enumIMissionBoard.PaymentMethod\",\"name\":\"paymentMethod\",\"type\":\"uint8\"}],\"name\":\"buyReport\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"claimSales\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"title\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"contentURI\",\"type\":\"string\"},{\"internalType\":\"uint128\",\"name\":\"priceInUSD\",\"type\":\"uint128\"},{\"internalType\":\"enumIMissionBoard.PaymentMethod\",\"name\":\"paymentMethod\",\"type\":\"uint8\"}],\"name\":\"createReport\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"getBalance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"ethBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"usdtBalance\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"getDiscoveryReport\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"reporter\",\"type\":\"address\"},{\"internalType\":\"uint48\",\"name\":\"createdAt\",\"type\":\"uint48\"},{\"internalType\":\"uint128\",\"name\":\"priceInUSD\",\"type\":\"uint128\"},{\"internalType\":\"string\",\"name\":\"title\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"contentURI\",\"type\":\"string\"}],\"internalType\":\"structIMissionBoard.DiscoveryReport\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"getRating\",\"outputs\":[{\"components\":[{\"internalType\":\"uint128\",\"name\":\"totalCount\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"totalRating\",\"type\":\"uint128\"}],\"internalType\":\"structIMissionBoard.RatingStats\",\"name\":\"\",\"type\":\"tuple\"},{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"getSales\",\"outputs\":[{\"components\":[{\"internalType\":\"uint128\",\"name\":\"salesInETH\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"salesInUSDT\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"claimedInETH\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"claimedInUSDT\",\"type\":\"uint128\"}],\"internalType\":\"structIMissionBoard.SalesStats\",\"name\":\"\",\"type\":\"tuple\"},{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"hasFreeTrial\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"rater\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"hasRated\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"}],\"name\":\"hasReport\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"isAgent\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"reportId\",\"type\":\"uint256\"},{\"internalType\":\"enumIMissionBoard.Rating\",\"name\":\"rating\",\"type\":\"uint8\"}],\"name\":\"rateReport\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"ratingDecimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"reportingCostInETH\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"reportingCostInUSD\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"reportingCostInUSDT\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"interfaceId\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"usdPriceDecimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"addresspayable\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"internalType\":\"enumIMissionBoard.PaymentMethod\",\"name\":\"paymentMethod\",\"type\":\"uint8\"}],\"name\":\"withdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}]",
 }
 
 // MissionBoardABI is the input ABI used to generate the binding from.
@@ -327,6 +327,51 @@ func (_MissionBoard *MissionBoardCallerSession) USDT() (common.Address, error) {
 	return _MissionBoard.Contract.USDT(&_MissionBoard.CallOpts)
 }
 
+// GetBalance is a free data retrieval call binding the contract method 0xf8b2cb4f.
+//
+// Solidity: function getBalance(address account) view returns(uint256 ethBalance, uint256 usdtBalance)
+func (_MissionBoard *MissionBoardCaller) GetBalance(opts *bind.CallOpts, account common.Address) (struct {
+	EthBalance  *big.Int
+	UsdtBalance *big.Int
+}, error) {
+	var out []interface{}
+	err := _MissionBoard.contract.Call(opts, &out, "getBalance", account)
+
+	outstruct := new(struct {
+		EthBalance  *big.Int
+		UsdtBalance *big.Int
+	})
+	if err != nil {
+		return *outstruct, err
+	}
+
+	outstruct.EthBalance = *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+	outstruct.UsdtBalance = *abi.ConvertType(out[1], new(*big.Int)).(**big.Int)
+
+	return *outstruct, err
+
+}
+
+// GetBalance is a free data retrieval call binding the contract method 0xf8b2cb4f.
+//
+// Solidity: function getBalance(address account) view returns(uint256 ethBalance, uint256 usdtBalance)
+func (_MissionBoard *MissionBoardSession) GetBalance(account common.Address) (struct {
+	EthBalance  *big.Int
+	UsdtBalance *big.Int
+}, error) {
+	return _MissionBoard.Contract.GetBalance(&_MissionBoard.CallOpts, account)
+}
+
+// GetBalance is a free data retrieval call binding the contract method 0xf8b2cb4f.
+//
+// Solidity: function getBalance(address account) view returns(uint256 ethBalance, uint256 usdtBalance)
+func (_MissionBoard *MissionBoardCallerSession) GetBalance(account common.Address) (struct {
+	EthBalance  *big.Int
+	UsdtBalance *big.Int
+}, error) {
+	return _MissionBoard.Contract.GetBalance(&_MissionBoard.CallOpts, account)
+}
+
 // GetDiscoveryReport is a free data retrieval call binding the contract method 0x24dadad5.
 //
 // Solidity: function getDiscoveryReport(uint256 reportId) view returns((address,uint48,uint128,string,string))
@@ -422,6 +467,37 @@ func (_MissionBoard *MissionBoardCallerSession) GetSales(reportId *big.Int) (IMi
 	return _MissionBoard.Contract.GetSales(&_MissionBoard.CallOpts, reportId)
 }
 
+// HasFreeTrial is a free data retrieval call binding the contract method 0x0cf0e1a9.
+//
+// Solidity: function hasFreeTrial(address user) view returns(bool)
+func (_MissionBoard *MissionBoardCaller) HasFreeTrial(opts *bind.CallOpts, user common.Address) (bool, error) {
+	var out []interface{}
+	err := _MissionBoard.contract.Call(opts, &out, "hasFreeTrial", user)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
+}
+
+// HasFreeTrial is a free data retrieval call binding the contract method 0x0cf0e1a9.
+//
+// Solidity: function hasFreeTrial(address user) view returns(bool)
+func (_MissionBoard *MissionBoardSession) HasFreeTrial(user common.Address) (bool, error) {
+	return _MissionBoard.Contract.HasFreeTrial(&_MissionBoard.CallOpts, user)
+}
+
+// HasFreeTrial is a free data retrieval call binding the contract method 0x0cf0e1a9.
+//
+// Solidity: function hasFreeTrial(address user) view returns(bool)
+func (_MissionBoard *MissionBoardCallerSession) HasFreeTrial(user common.Address) (bool, error) {
+	return _MissionBoard.Contract.HasFreeTrial(&_MissionBoard.CallOpts, user)
+}
+
 // HasRated is a free data retrieval call binding the contract method 0xd25468b3.
 //
 // Solidity: function hasRated(address rater, uint256 reportId) view returns(bool)
@@ -451,6 +527,68 @@ func (_MissionBoard *MissionBoardSession) HasRated(rater common.Address, reportI
 // Solidity: function hasRated(address rater, uint256 reportId) view returns(bool)
 func (_MissionBoard *MissionBoardCallerSession) HasRated(rater common.Address, reportId *big.Int) (bool, error) {
 	return _MissionBoard.Contract.HasRated(&_MissionBoard.CallOpts, rater, reportId)
+}
+
+// HasReport is a free data retrieval call binding the contract method 0x63d45eb2.
+//
+// Solidity: function hasReport(address user, uint256 reportId) view returns(bool)
+func (_MissionBoard *MissionBoardCaller) HasReport(opts *bind.CallOpts, user common.Address, reportId *big.Int) (bool, error) {
+	var out []interface{}
+	err := _MissionBoard.contract.Call(opts, &out, "hasReport", user, reportId)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
+}
+
+// HasReport is a free data retrieval call binding the contract method 0x63d45eb2.
+//
+// Solidity: function hasReport(address user, uint256 reportId) view returns(bool)
+func (_MissionBoard *MissionBoardSession) HasReport(user common.Address, reportId *big.Int) (bool, error) {
+	return _MissionBoard.Contract.HasReport(&_MissionBoard.CallOpts, user, reportId)
+}
+
+// HasReport is a free data retrieval call binding the contract method 0x63d45eb2.
+//
+// Solidity: function hasReport(address user, uint256 reportId) view returns(bool)
+func (_MissionBoard *MissionBoardCallerSession) HasReport(user common.Address, reportId *big.Int) (bool, error) {
+	return _MissionBoard.Contract.HasReport(&_MissionBoard.CallOpts, user, reportId)
+}
+
+// IsAgent is a free data retrieval call binding the contract method 0x1ffbb064.
+//
+// Solidity: function isAgent(address account) view returns(bool)
+func (_MissionBoard *MissionBoardCaller) IsAgent(opts *bind.CallOpts, account common.Address) (bool, error) {
+	var out []interface{}
+	err := _MissionBoard.contract.Call(opts, &out, "isAgent", account)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
+}
+
+// IsAgent is a free data retrieval call binding the contract method 0x1ffbb064.
+//
+// Solidity: function isAgent(address account) view returns(bool)
+func (_MissionBoard *MissionBoardSession) IsAgent(account common.Address) (bool, error) {
+	return _MissionBoard.Contract.IsAgent(&_MissionBoard.CallOpts, account)
+}
+
+// IsAgent is a free data retrieval call binding the contract method 0x1ffbb064.
+//
+// Solidity: function isAgent(address account) view returns(bool)
+func (_MissionBoard *MissionBoardCallerSession) IsAgent(account common.Address) (bool, error) {
+	return _MissionBoard.Contract.IsAgent(&_MissionBoard.CallOpts, account)
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.

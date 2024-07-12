@@ -2,15 +2,12 @@ package mission
 
 import (
 	"context"
-	"cryptopasta/internal/mission/board"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
-	"net/http"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
 
 	openai "github.com/sashabaranov/go-openai"
 )
@@ -18,16 +15,16 @@ import (
 type ChatMessageFunc func(message string) error
 
 type service struct {
-	llm  *openai.Client
-	mb   *board.MissionBoard
-	repo Repository
+	llm     *openai.Client
+	boarder Boarder
+	repo    Repository
 }
 
-func NewService(llm *openai.Client, mb *board.MissionBoard, repo Repository) *service {
+func NewService(llm *openai.Client, boarder Boarder, repo Repository) *service {
 	return &service{
-		llm:  llm,
-		mb:   mb,
-		repo: repo,
+		llm:     llm,
+		boarder: boarder,
+		repo:    repo,
 	}
 }
 
@@ -47,52 +44,36 @@ func (s *service) GetEntryByID(ctx context.Context, entryID string) (*Entry, err
 	return s.repo.FindEntryByID(ctx, entryID)
 }
 
-func (s *service) CreateMission(ctx context.Context, agentID, reportID string, chatFn ChatMessageFunc) (*Mission, error) {
-	// Validate the report ID
-	reportIdBN, ok := big.NewInt(0).SetString(reportID, 10)
-	if !ok {
-		return nil, errors.New("invalid report ID")
-	}
-
-	// Get the report
-	report, err := s.mb.GetDiscoveryReport(&bind.CallOpts{Context: ctx}, reportIdBN)
+func (s *service) CreateMission(ctx context.Context, agentID string, agentAccountAddress common.Address, reportID *big.Int, chatFn ChatMessageFunc) (*Mission, error) {
+	// 1. check if the agent has report tokens
+	hasReport, err := s.boarder.HasReport(ctx, agentAccountAddress, reportID)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: check if the agent has report tokens
+	if !hasReport {
+		return nil, errors.New("agent does not have required report tokens")
+	}
+
+	// 2. Get the report
+	report, err := s.boarder.GetDiscoveryReportData(ctx, reportID)
+	if err != nil {
+		return nil, err
+	}
 
 	title := report.Title
-	uri := report.ContentURI
+	metadata := report.Metadata
 
-	// Get the content of the report
-	httpResp, err := http.DefaultClient.Get(uri)
-	if err != nil {
-		return nil, err
-	}
-
-	defer httpResp.Body.Close()
-
-	var metadata Metadata
-
-	if err := json.NewDecoder(httpResp.Body).Decode(&metadata); err != nil {
-		return nil, err
-	}
-
-	// Get the content of the report
+	// 3. Get the content of the report
 	reportContent := metadata.Description
 
-	if reportContent == "" {
-		return nil, errors.New("report content is empty")
-	}
-
-	// Create the mission
-	mission, err := s.repo.CreateMission(ctx, title, agentID, reportID)
+	// 4. Create the mission
+	mission, err := s.repo.CreateMission(ctx, title, agentID, reportID.String())
 	if err != nil {
 		return nil, err
 	}
 
-	// Initialize the mission with a message from the AI
+	// 5. Initialize the mission(game) with a message from the AI
 	req := openai.ChatCompletionRequest{
 		Model: openai.GPT4o,
 		Messages: []openai.ChatCompletionMessage{
@@ -126,7 +107,7 @@ func (s *service) CreateMission(ctx context.Context, agentID, reportID string, c
 		return nil, err
 	}
 
-	// Save the entry with the AI response
+	// 6. Save the entry with the AI response
 	_, err = s.repo.CreateEntry(ctx, mission.ID, []Message{
 		{
 			Content:  reportContent,
@@ -138,12 +119,12 @@ func (s *service) CreateMission(ctx context.Context, agentID, reportID string, c
 		}},
 	)
 
-	// Return the mission
+	// 7.Return the mission
 	return mission, err
 }
 
 func (s *service) ActOnMission(ctx context.Context, missionID, input string, chatFn ChatMessageFunc) (string, error) {
-	// Get the mission
+	// 1. Get the mission
 	mission, err := s.repo.FindMissionByID(ctx, missionID)
 	if err != nil {
 		return "", err
