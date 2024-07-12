@@ -13,7 +13,8 @@ import (
 const (
 	PinFileToIpfsUrl  = "https://api.pinata.cloud/pinning/pinFileToIPFS"
 	PinJsonToIpfsUrl  = "https://api.pinata.cloud/pinning/pinJSONToIPFS"
-	PinListUrl        = "https://api.pinata.cloud/data/pinList"
+	HeaderContentType = "Content-Type"
+	ContentTypeJson   = "application/json"
 	FormFieldNameFile = "file"
 )
 
@@ -41,23 +42,15 @@ func NewService(apiKey, secret string, client ...*http.Client) *service {
 }
 
 func (s *service) PinFileToIpfs(ctx context.Context, file io.Reader, filename string) (*PinResponse, error) {
-	body := &bytes.Buffer{} // Create a buffer to store the multipart form data.
-
-	m := multipart.NewWriter(body) // Create a new multipart writer.
-
-	part, err := m.CreateFormFile(FormFieldNameFile, filename) // Create a new form file part.
+	body, contentType, err := createFormFile(FormFieldNameFile, filename, file) // Create the form file.
 	if err != nil {
 		return nil, err
 	}
 
-	// Copy the file content to the part.
-	if _, err := io.Copy(part, file); err != nil {
-		return nil, err
-	}
+	headers := s.authorizationHeaders()         // Get the authorization headers.
+	headers.Set(HeaderContentType, contentType) // Set the content type header.
 
-	m.Close() // Close the multipart writer to write the ending boundary.
-
-	resp, err := s.doRequest(ctx, http.MethodPost, PinFileToIpfsUrl, body) // Perform the request.
+	resp, err := doRequest(ctx, s.client, http.MethodPost, PinFileToIpfsUrl, body, headers) // Perform the request.
 	if err != nil {
 		return nil, err
 	}
@@ -70,14 +63,15 @@ func (s *service) PinFileToIpfs(ctx context.Context, file io.Reader, filename st
 }
 
 func (s *service) PinJsonToIpfs(ctx context.Context, data *PinJsonToIpfsRequest) (*PinResponse, error) {
-	body := &bytes.Buffer{} // Create a buffer to store the JSON data.
-
-	// Encode the JSON data to the buffer.
-	if err := json.NewEncoder(body).Encode(data); err != nil {
+	body, err := encodeJson(data) // Encode the JSON data.
+	if err != nil {
 		return nil, err
 	}
 
-	resp, err := s.doRequest(ctx, http.MethodPost, PinJsonToIpfsUrl, body) // Perform the request.
+	headers := s.authorizationHeaders()             // Get the authorization headers.
+	headers.Set(HeaderContentType, ContentTypeJson) // Set the content type header.
+
+	resp, err := doRequest(ctx, s.client, http.MethodPost, PinJsonToIpfsUrl, body, headers) // Perform the request.
 	if err != nil {
 		return nil, err
 	}
@@ -89,19 +83,68 @@ func (s *service) PinJsonToIpfs(ctx context.Context, data *PinJsonToIpfsRequest)
 	return readPinResponse(resp) // Read the response.
 }
 
-func (s *service) doRequest(ctx context.Context, method, url string, body io.Reader) (*http.Response, error) {
+func (s *service) authorizationHeaders() http.Header {
+	headers := http.Header{} // Create a new header.
+
+	headers.Set("pinata_api_key", s.apiKey)
+	headers.Set("pinata_secret_api_key", s.secret)
+
+	return headers
+}
+
+func doRequest(ctx context.Context, client *http.Client, method, url string, body io.Reader, headers ...http.Header) (*http.Response, error) {
+	// Use the default client if none is provided.
+	if client == nil {
+		client = http.DefaultClient
+	}
+
 	// Create a new request with the provided context.
 	req, err := http.NewRequestWithContext(ctx, method, url, body) // Create a new request.
 	if err != nil {
 		return nil, err
 	}
 
-	// Set the required headers.
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("pinata_api_key", s.apiKey)
-	req.Header.Set("pinata_secret_api_key", s.secret)
+	// Set the headers.
+	for _, header := range headers {
+		for key, values := range header {
+			for _, value := range values {
+				req.Header.Add(key, value)
+			}
+		}
+	}
 
-	return s.client.Do(req) // Perform the request.
+	return client.Do(req) // Perform the request.
+}
+
+func createFormFile(fieldname, filename string, file io.Reader) (io.Reader, string, error) {
+	body := &bytes.Buffer{} // Create a buffer to store the multipart form data.
+
+	m := multipart.NewWriter(body) // Create a new multipart writer.
+
+	part, err := m.CreateFormFile(fieldname, filename) // Create a new form file part.
+	if err != nil {
+		return nil, "", err
+	}
+
+	// Copy the file content to the part.
+	if _, err := io.Copy(part, file); err != nil {
+		return nil, "", err
+	}
+
+	m.Close() // Close the multipart writer to write the ending boundary.
+
+	return body, m.FormDataContentType(), nil
+}
+
+func encodeJson(data interface{}) (io.Reader, error) {
+	body := &bytes.Buffer{} // Create a buffer to store the JSON data.
+
+	// Encode the JSON data to the buffer.
+	if err := json.NewEncoder(body).Encode(data); err != nil {
+		return nil, err
+	}
+
+	return body, nil
 }
 
 func readPinResponse(resp *http.Response) (*PinResponse, error) {
