@@ -6,17 +6,19 @@ import (
 	"cryptopasta/internal/jwt"
 	"cryptopasta/pkg/utils"
 	"log/slog"
+	"math/big"
 	"net/http"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/go-chi/chi/v5"
 )
 
 type AgentRoute struct {
-	j *jwt.Service
-	r *agent.Service
+	j jwt.Service
+	r agent.Service
 }
 
-func NewAgentRoutes(j *jwt.Service, r *agent.Service) *AgentRoute {
+func NewAgentRoutes(j jwt.Service, r agent.Service) *AgentRoute {
 	return &AgentRoute{j: j, r: r}
 }
 
@@ -64,8 +66,15 @@ func (a *AgentRoute) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	agentAddrBytes := common.HexToAddress(req.AgentAddress)
+	portraitIdBn, ok := big.NewInt(0).SetString(req.PortraitId, 10)
+	if !ok {
+		utils.WriteError(w, http.StatusBadRequest, "invalid portrait id")
+		return
+	}
+
 	// 3. register agent
-	agent, err := a.r.RegisterAgent(r.Context(), userID, req.AgentAddress, req.PortraitId)
+	agent, err := a.r.RegisterAgent(r.Context(), userID, agentAddrBytes, portraitIdBn)
 	if err != nil {
 		slog.Error("agent registration failed", "error", err)
 		utils.WriteError(w, http.StatusBadRequest, "agent registration failed")

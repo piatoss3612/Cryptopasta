@@ -65,6 +65,7 @@ interface IMissionBoard is IERC165 {
     function getSales(uint256 reportId) external view returns (SalesStats memory, uint8);
     function hasRated(address rater, uint256 reportId) external view returns (bool);
     function hasFreeTrial(address user) external view returns (bool);
+    function hasReport(address user, uint256 reportId) external view returns (bool);
     function getBalance(address account) external view returns (uint256, uint256);
     function isAgent(address account) external view returns (bool);
 

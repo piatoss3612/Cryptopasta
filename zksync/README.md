@@ -19,6 +19,7 @@
   - [6. Deploy MissionLog](#6-deploy-missionlog)
   - [7. Deploy MissionBoard](#7-deploy-missionboard)
 - [Contract Addresses on zkSync Sepolia](#contract-addresses-on-zksync-sepolia)
+- [Generate Bindings](#generate-bindings)
 
 ## Introduction
 
@@ -189,3 +190,10 @@ Done in 24.91s.
 | MissionLog          | [0x3859B26bfE58a0E9A019b76aBC051ee46D4d85eB](https://sepolia.explorer.zksync.io/address/0x3859B26bfE58a0E9A019b76aBC051ee46D4d85eB#transactions) |
 | MissionBoard        | [0x08752bD7Df05Eea6021CEbBE4181cBd9C70611F6](https://sepolia.explorer.zksync.io/address/0x08752bD7Df05Eea6021CEbBE4181cBd9C70611F6#transactions) |
 | Cryptopasta         | [0xE3291AE3eDCa1b456ec369B0Bf3aFA2E27e50c71](https://sepolia.explorer.zksync.io/address/0xE3291AE3eDCa1b456ec369B0Bf3aFA2E27e50c71#transactions) |
+
+## Generate Bindings
+
+```bash
+$ abigen --abi ./abis/MissionBoard.abi --pkg board --type MissionBoard --out ./bindings/missionboard.go
+$ abigen --abi ./abis/AgentRegistry.abi --pkg registry --type AgentRegistry --out ./bindings/agentregistry.go
+```

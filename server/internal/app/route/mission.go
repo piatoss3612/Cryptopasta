@@ -9,21 +9,22 @@ import (
 	"cryptopasta/internal/mission"
 	"cryptopasta/pkg/utils"
 	"log/slog"
+	"math/big"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/go-chi/chi/v5"
 )
 
 type MissionRoutes struct {
-	a *agent.Service
-	j *jwt.Service
-	m *mission.Service
+	a agent.Service
+	j jwt.Service
+	m mission.Service
 }
 
-func NewMissionRoutes(a *agent.Service, j *jwt.Service, m *mission.Service) *MissionRoutes {
+func NewMissionRoutes(a agent.Service, j jwt.Service, m mission.Service) *MissionRoutes {
 	return &MissionRoutes{a: a, j: j, m: m}
 }
 
@@ -55,7 +56,6 @@ func (m *MissionRoutes) Handler() http.Handler {
 //	@Tags			mission
 //	@Accept			json
 //	@Produce		json
-//	@Param			agentID			query		string				true	"Agent ID"
 //	@Param			lastMissionID	query		string				false	"Last Mission ID"
 //	@Param			limit			query		int					false	"Limit"
 //	@Success		200				{object}	GetMissionsResponse	"OK"
@@ -82,8 +82,8 @@ func (m *MissionRoutes) getMissions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 3. get query params
 	query := r.URL.Query()
-
 	lastMissionID := query.Get("lastMissionID")
 	limit := query.Get("limit")
 
@@ -97,15 +97,18 @@ func (m *MissionRoutes) getMissions(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	missions, err := m.m.GetMissionsByAgentID(r.Context(), strings.ToLower(agent.AccountAddress), lastMissionID, limitInt)
+	// 4. get missions by agent(user) id and cursor
+	missions, err := m.m.GetMissionsByAgentID(r.Context(), agent.UserID, lastMissionID, limitInt)
 	if err != nil {
 		slog.Error("error getting missions", "error", err)
 		utils.WriteError(w, http.StatusInternalServerError, "error getting missions")
 		return
 	}
 
+	// 5. prepare response
 	var cursor string
 
+	// set cursor for pagination if there are more missions
 	if len(missions) > 0 {
 		cursor = missions[len(missions)-1].ID
 	}
@@ -115,6 +118,7 @@ func (m *MissionRoutes) getMissions(w http.ResponseWriter, r *http.Request) {
 		Cursor:   cursor,
 	}
 
+	// 6. write response
 	_ = utils.WriteJSON(w, http.StatusOK, resp)
 }
 
@@ -133,8 +137,10 @@ func (m *MissionRoutes) getMissions(w http.ResponseWriter, r *http.Request) {
 //	@Router			/mission/{missionID}/entries [get]
 //	@Security		BearerAuth
 func (m *MissionRoutes) getMissionEntries(w http.ResponseWriter, r *http.Request) {
+	// 1. get mission id
 	missionID := chi.URLParam(r, "missionID")
 
+	// 2. get mission entries by mission id
 	entries, err := m.m.GetEntriesByMissionID(r.Context(), missionID)
 	if err != nil {
 		slog.Error("error getting mission entries", "error", err)
@@ -142,11 +148,13 @@ func (m *MissionRoutes) getMissionEntries(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// 3. prepare response
 	resp := GetEntriesResponse{
 		MissionID: missionID,
 		Entries:   entries,
 	}
 
+	// 4. write response
 	_ = utils.WriteJSON(w, http.StatusOK, resp)
 }
 
@@ -160,8 +168,10 @@ func (m *MissionRoutes) getMissionEntries(w http.ResponseWriter, r *http.Request
 //	@Param			token	query	string	true	"Access Token"
 //	@Router			/mission/ws [get]
 func (m *MissionRoutes) connectWebSocket(w http.ResponseWriter, r *http.Request) {
+	// 1. get jwt token from query params
 	tokenStr := r.URL.Query().Get("token")
 
+	// 2. parse and validate jwt token
 	token, err := m.j.ParseToken(tokenStr)
 	if err != nil {
 		slog.Error("error parsing token", "error", err)
@@ -176,6 +186,7 @@ func (m *MissionRoutes) connectWebSocket(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	// 3. upgrade connection to websocket
 	websocket.Serve(w, r)
 }
 
@@ -195,7 +206,23 @@ func (m *MissionRoutes) connectWebSocket(w http.ResponseWriter, r *http.Request)
 //	@Router			/mission [post]
 //	@Security		BearerAuth
 func (m *MissionRoutes) createMission(w http.ResponseWriter, r *http.Request) {
-	// 1. get user id from jwt token
+	sessionID := r.URL.Query().Get("sessionID")
+	reportID := r.URL.Query().Get("reportID")
+
+	// 2. validate session id and report id
+	id := websocket.ID(sessionID)
+	if !id.Valid() {
+		utils.WriteError(w, http.StatusBadRequest, "invalid session id")
+		return
+	}
+
+	reportIdBN, ok := new(big.Int).SetString(reportID, 10)
+	if !ok {
+		utils.WriteError(w, http.StatusBadRequest, "invalid report id")
+		return
+	}
+
+	// 2. get user id from jwt token
 	claims, ok := jwt.FromContext(r.Context())
 	if !ok || claims == nil {
 		utils.WriteError(w, http.StatusUnauthorized, "unauthorized")
@@ -204,7 +231,7 @@ func (m *MissionRoutes) createMission(w http.ResponseWriter, r *http.Request) {
 
 	userID := claims.UserId
 
-	// 2. get agent address
+	// 3. get agent by user id for checking agent existence
 	agent, err := m.a.FindAgent(r.Context(), userID)
 	if err != nil {
 		slog.Error("error finding agent", "error", err)
@@ -212,21 +239,7 @@ func (m *MissionRoutes) createMission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionID := r.URL.Query().Get("sessionID")
-	reportID := r.URL.Query().Get("reportID")
-
-	// 3. validate session id and report id
-	id := websocket.ID(sessionID)
-	if !id.Valid() {
-		utils.WriteError(w, http.StatusBadRequest, "invalid session id")
-		return
-	}
-
-	if reportID == "" {
-		utils.WriteError(w, http.StatusBadRequest, "missing report id")
-		return
-	}
-
+	// 4. create chat function for sending messages via websocket
 	chatFn := mission.ChatMessageFunc(func(message string) error {
 		websocket.Send(websocket.Message{
 			Type: websocket.EventMessage,
@@ -240,14 +253,17 @@ func (m *MissionRoutes) createMission(w http.ResponseWriter, r *http.Request) {
 		return nil
 	})
 
+	// 5. send response
 	w.WriteHeader(http.StatusOK)
 
-	// 4. create mission in background and send response via websocket
+	// 6. create mission in background and send response via websocket
 	go func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 		defer cancel()
 
-		mission, err := m.m.CreateMission(ctx, agent.AccountAddress, reportID, chatFn)
+		agentAccountAddress := common.HexToAddress(agent.AccountAddress)
+
+		mission, err := m.m.CreateMission(ctx, agent.ID, agentAccountAddress, reportIdBN, chatFn)
 		if err != nil {
 			slog.Error("error creating mission", "error", err)
 			websocket.Send(websocket.Message{

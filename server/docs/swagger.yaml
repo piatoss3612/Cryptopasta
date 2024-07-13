@@ -65,15 +65,6 @@ definitions:
     properties:
       agent_account:
         type: string
-      token_id:
-        type: string
-    type: object
-  route.CreateMissionRequest:
-    properties:
-      agent_id:
-        type: string
-      report_id:
-        type: string
     type: object
   route.GetMissionsResponse:
     properties:
@@ -145,11 +136,6 @@ paths:
       - application/json
       description: Get missions by agent id
       parameters:
-      - description: Agent ID
-        in: query
-        name: agentID
-        required: true
-        type: string
       - description: Last Mission ID
         in: query
         name: lastMissionID
@@ -192,12 +178,11 @@ paths:
         name: sessionID
         required: true
         type: string
-      - description: Create Mission Request
-        in: body
-        name: request
+      - description: Report ID
+        in: query
+        name: reportID
         required: true
-        schema:
-          $ref: '#/definitions/route.CreateMissionRequest'
+        type: string
       produces:
       - application/json
       responses:
