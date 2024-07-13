@@ -51,6 +51,8 @@ func main() {
 
 	// 1. Load config
 	cfg := config.LoadConfig()
+	dbname := "cryptopasta"
+	port := ":8080"
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
@@ -69,11 +71,13 @@ func main() {
 	zkClient := zksync.MustNewClient(ctx)
 
 	register := registry.MustNew(zkClient, agentRegistryAddress, privKey)
-	agentRepo := agentRepo.NewMongoRepository(mongoClient, "cryptopasta")
+	agentRepo := agentRepo.NewMongoRepository(mongoClient, dbname)
 
 	boarder := board.MustNew(zkClient, missionBoardAddress)
 	llmAdapter := llm.NewOpenAIAdapter(openai.NewClient(cfg.OpenaiApiKey))
-	missionRepo := missionRepo.NewMongoRepository(mongoClient, "cryptopasta")
+	missionRepo := missionRepo.NewMongoRepository(mongoClient, dbname)
+
+	tx := mongo.NewTx(mongoClient, dbname)
 
 	// 4. Create services
 	a := agent.NewService(register, agentRepo)
@@ -86,9 +90,9 @@ func main() {
 	// 5. Create router
 	r := app.NewRouter(
 		route.NewPingRoutes(),
-		route.NewAgentRoutes(j, a),
+		route.NewAgentRoutes(j, a, tx),
 		route.NewPinataRoutes(j, p),
-		route.NewMissionRoutes(a, j, m),
+		route.NewMissionRoutes(a, j, m, tx),
 	)
 
 	// 6. Setup cleanup function for graceful shutdown
@@ -103,5 +107,5 @@ func main() {
 	}
 
 	// 7. Run server
-	app.New(":8080", r).Run(cleanup)
+	app.New(port, r).Run(cleanup)
 }

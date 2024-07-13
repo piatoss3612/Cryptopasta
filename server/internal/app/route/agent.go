@@ -1,9 +1,11 @@
 package route
 
 import (
+	"context"
 	"cryptopasta/internal/agent"
 	"cryptopasta/internal/app/middleware"
 	"cryptopasta/internal/jwt"
+	"cryptopasta/pkg/db"
 	"cryptopasta/pkg/utils"
 	"log/slog"
 	"math/big"
@@ -14,12 +16,13 @@ import (
 )
 
 type AgentRoute struct {
-	j jwt.Service
-	r agent.Service
+	j  jwt.Service
+	r  agent.Service
+	tx db.Tx
 }
 
-func NewAgentRoutes(j jwt.Service, r agent.Service) *AgentRoute {
-	return &AgentRoute{j: j, r: r}
+func NewAgentRoutes(j jwt.Service, r agent.Service, tx db.Tx) *AgentRoute {
+	return &AgentRoute{j: j, r: r, tx: tx}
 }
 
 func (a *AgentRoute) Pattern() string {
@@ -54,7 +57,12 @@ func (a *AgentRoute) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID := claims.UserId // TODO: validate user id
+	userID := claims.UserId
+
+	if userID == "" {
+		utils.WriteError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
 
 	// 2. decode request body
 	var req AgentRegisterRequest
@@ -73,11 +81,21 @@ func (a *AgentRoute) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fn := func(ctx context.Context) (interface{}, error) {
+		return a.r.RegisterAgent(ctx, userID, agentAddrBytes, portraitIdBn)
+	}
+
 	// 3. register agent
-	agent, err := a.r.RegisterAgent(r.Context(), userID, agentAddrBytes, portraitIdBn)
+	result, err := a.tx.Execute(r.Context(), fn)
 	if err != nil {
-		slog.Error("agent registration failed", "error", err)
-		utils.WriteError(w, http.StatusBadRequest, "agent registration failed")
+		slog.Error("error while registering agent", "error", err)
+		utils.WriteError(w, http.StatusInternalServerError, "failed to register agent")
+		return
+	}
+
+	agent, ok := result.(*agent.Agent)
+	if !ok {
+		utils.WriteError(w, http.StatusInternalServerError, "agent not found")
 		return
 	}
 

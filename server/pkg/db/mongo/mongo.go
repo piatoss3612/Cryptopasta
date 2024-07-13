@@ -37,13 +37,19 @@ func MustNewClient(ctx context.Context, uri string) *mongo.Client {
 
 // mongoTx is a transaction adapter for mongo.
 type mongoTx struct {
-	client *mongo.Client
-	dbname string
+	client  *mongo.Client
+	dbname  string
+	options *options.TransactionOptions
 }
 
 // NewTx creates a new mongo transaction.
-func NewTx(client *mongo.Client, dbname string) *mongoTx {
-	return &mongoTx{client: client, dbname: dbname}
+func NewTx(client *mongo.Client, dbname string, options ...*options.TransactionOptions) *mongoTx {
+	tx := &mongoTx{client: client, dbname: dbname, options: nil}
+	if len(options) > 0 && options[0] != nil {
+		tx.options = options[0]
+	}
+
+	return tx
 }
 
 // Execute executes the given function in a transaction.
@@ -58,5 +64,9 @@ func (tx *mongoTx) Execute(ctx context.Context, fn db.TxFunc) (interface{}, erro
 	// Start a transaction
 	return session.WithTransaction(ctx, func(ctx mongo.SessionContext) (interface{}, error) {
 		return fn(ctx)
-	})
+	}, tx.options)
+}
+
+func (tx *mongoTx) Client() interface{} {
+	return tx.client
 }
