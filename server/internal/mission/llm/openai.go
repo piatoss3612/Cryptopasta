@@ -1,4 +1,4 @@
-package chat
+package llm
 
 import (
 	"context"
@@ -13,15 +13,15 @@ import (
 const openaiChatMaxTokens = 2048
 const openaiImagePromptMaxLen = 4000
 
-type openaiChat struct {
+type openaiAdapter struct {
 	llm *openai.Client
 }
 
-func NewOpenAIChat(llm *openai.Client) *openaiChat {
-	return &openaiChat{llm: llm}
+func NewOpenAIAdapter(llm *openai.Client) *openaiAdapter {
+	return &openaiAdapter{llm: llm}
 }
 
-func (c *openaiChat) ChatCompletion(ctx context.Context, userMsgs []string) (string, error) {
+func (c *openaiAdapter) ChatCompletion(ctx context.Context, userMsgs []string) (string, error) {
 	// Create a list of messages to send to the model
 	messages := make([]openai.ChatCompletionMessage, 0, len(userMsgs)+1)
 
@@ -66,7 +66,7 @@ func (c *openaiChat) ChatCompletion(ctx context.Context, userMsgs []string) (str
 	return builder.String(), nil
 }
 
-func (c *openaiChat) ChatCompletionStream(ctx context.Context, userMsgs []string, chatFn mission.ChatMessageFunc) error {
+func (c *openaiAdapter) ChatCompletionStream(ctx context.Context, userMsgs []string, chatFn mission.ChatMessageFunc) error {
 	// Create a list of messages to send to the model
 	messages := make([]openai.ChatCompletionMessage, 0, len(userMsgs)+1)
 
@@ -117,7 +117,7 @@ func (c *openaiChat) ChatCompletionStream(ctx context.Context, userMsgs []string
 	}
 }
 
-func (c *openaiChat) Visualize(ctx context.Context, prompt string) (*mission.MissionImage, error) {
+func (c *openaiAdapter) Visualize(ctx context.Context, prompt string) (*mission.MissionImage, error) {
 	if len(prompt) > openaiImagePromptMaxLen {
 		prompt = prompt[:openaiImagePromptMaxLen]
 	}

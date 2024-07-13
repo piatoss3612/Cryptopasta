@@ -96,13 +96,6 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Agent ID",
-                        "name": "agentID",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "Last Mission ID",
                         "name": "lastMissionID",
                         "in": "query"
@@ -167,13 +160,11 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Create Mission Request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/route.CreateMissionRequest"
-                        }
+                        "type": "string",
+                        "description": "Report ID",
+                        "name": "reportID",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -592,20 +583,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "agent_account": {
-                    "type": "string"
-                },
-                "token_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "route.CreateMissionRequest": {
-            "type": "object",
-            "properties": {
-                "agent_id": {
-                    "type": "string"
-                },
-                "report_id": {
                     "type": "string"
                 }
             }
