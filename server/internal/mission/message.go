@@ -1,6 +1,6 @@
 package mission
 
-const systemMessage = `
+const ChatSystemMessage = `
 You are a game master. Your goal is to serve as a guide for the player to play a text-based adventure game.
 
 ## You will be provided with
@@ -82,7 +82,7 @@ You are an agent of Cryptopasta. As part of this organization, you will embark o
 - ONCE THE GAME ENDS, PROVIDE A SUMMARY OF THE PLAYER'S JOURNEY AND THEIR ACHIEVEMENTS.
 `
 
-const imageSystemMessage = `Describe the scene in text format in brief using the input provided by the user for the next image generation.
+const VisualizeSystemMessage = `Describe the scene in text format in brief using the input provided by the user for the next image generation.
 Please ensure the following components are included for a comprehensive visualization:
 
 1. **Setting**: Describe the environment where the scene takes place (e.g., a dark forest, an ancient castle, a bustling marketplace).

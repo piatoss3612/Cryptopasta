@@ -12,6 +12,7 @@ type Service interface {
 	GetMissionsByAgentID(ctx context.Context, agentID, lastMissionID string, limit int) ([]Mission, error)
 	GetEntriesByMissionID(ctx context.Context, missionID string) ([]Entry, error)
 	GetEntryByID(ctx context.Context, entryID string) (*Entry, error)
+	HasReport(ctx context.Context, user common.Address, reportID *big.Int) (bool, error)
 	CreateMission(ctx context.Context, agentID string, agentAccountAddress common.Address, reportID *big.Int, chatFn ChatMessageFunc) (*Mission, error)
 	ActOnMission(ctx context.Context, missionID, input string, chatFn ChatMessageFunc) (string, error)
 	VisualizeLatestMissionState(ctx context.Context, missionID, entryID string) (*Message, error)
@@ -20,6 +21,20 @@ type Service interface {
 type Boarder interface {
 	GetDiscoveryReportData(ctx context.Context, reportID *big.Int) (*ReportData, error)
 	HasReport(ctx context.Context, user common.Address, reportID *big.Int) (bool, error)
+}
+
+type LLMAdapter interface {
+	Chatter
+	Visualizer
+}
+
+type Chatter interface {
+	ChatCompletion(ctx context.Context, userMsgs []string) (string, error)
+	ChatCompletionStream(ctx context.Context, userMsgs []string, chatFn ChatMessageFunc) error
+}
+
+type Visualizer interface {
+	Visualize(ctx context.Context, prompt string) (*MissionImage, error)
 }
 
 type Repository interface {
@@ -76,4 +91,9 @@ type Metadata struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Image       string `json:"image"`
+}
+
+type MissionImage struct {
+	URL     string `json:"url"`
+	B64JSON string `json:"b64json"`
 }

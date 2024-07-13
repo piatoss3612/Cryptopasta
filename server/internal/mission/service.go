@@ -8,22 +8,20 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
-
-	openai "github.com/sashabaranov/go-openai"
 )
 
 type ChatMessageFunc func(message string) error
 
 type service struct {
-	llm     *openai.Client
 	boarder Boarder
+	llm     LLMAdapter
 	repo    Repository
 }
 
-func NewService(llm *openai.Client, boarder Boarder, repo Repository) *service {
+func NewService(boarder Boarder, llm LLMAdapter, repo Repository) *service {
 	return &service{
-		llm:     llm,
 		boarder: boarder,
+		llm:     llm,
 		repo:    repo,
 	}
 }
@@ -44,18 +42,12 @@ func (s *service) GetEntryByID(ctx context.Context, entryID string) (*Entry, err
 	return s.repo.FindEntryByID(ctx, entryID)
 }
 
+func (s *service) HasReport(ctx context.Context, user common.Address, reportID *big.Int) (bool, error) {
+	return s.boarder.HasReport(ctx, user, reportID)
+}
+
 func (s *service) CreateMission(ctx context.Context, agentID string, agentAccountAddress common.Address, reportID *big.Int, chatFn ChatMessageFunc) (*Mission, error) {
-	// 1. check if the agent has report tokens
-	hasReport, err := s.boarder.HasReport(ctx, agentAccountAddress, reportID)
-	if err != nil {
-		return nil, err
-	}
-
-	if !hasReport {
-		return nil, errors.New("agent does not have required report tokens")
-	}
-
-	// 2. Get the report
+	// 1. Get the report
 	report, err := s.boarder.GetDiscoveryReportData(ctx, reportID)
 	if err != nil {
 		return nil, err
@@ -64,45 +56,22 @@ func (s *service) CreateMission(ctx context.Context, agentID string, agentAccoun
 	title := report.Title
 	metadata := report.Metadata
 
-	// 3. Get the content of the report
+	// 2. Get the content of the report
 	reportContent := metadata.Description
 
-	// 4. Create the mission
+	// 3. Create the mission
 	mission, err := s.repo.CreateMission(ctx, title, agentID, reportID.String())
 	if err != nil {
 		return nil, err
 	}
 
-	// 5. Initialize the mission(game) with a message from the AI
-	req := openai.ChatCompletionRequest{
-		Model: openai.GPT4o,
-		Messages: []openai.ChatCompletionMessage{
-			{
-				Role:    openai.ChatMessageRoleSystem,
-				Content: systemMessage,
-			},
-			{
-				Role:    openai.ChatMessageRoleUser,
-				Content: reportContent,
-			},
-		},
-		MaxTokens: 2048,
-	}
-
-	chatResp, err := s.llm.CreateChatCompletion(ctx, req)
+	// 4. Initialize the mission(game) with a message from the AI
+	respContent, err := s.llm.ChatCompletion(ctx, []string{reportContent})
 	if err != nil {
 		return nil, err
 	}
 
-	builder := strings.Builder{}
-	defer builder.Reset()
-
-	for _, choice := range chatResp.Choices {
-		_, _ = builder.WriteString(choice.Message.Content)
-	}
-
-	respContent := builder.String()
-
+	// 5. Save the entry with the AI response
 	if err := chatFn(respContent); err != nil {
 		return nil, err
 	}
@@ -119,7 +88,7 @@ func (s *service) CreateMission(ctx context.Context, agentID string, agentAccoun
 		}},
 	)
 
-	// 7.Return the mission
+	// 7. Return the mission
 	return mission, err
 }
 
@@ -134,7 +103,7 @@ func (s *service) ActOnMission(ctx context.Context, missionID, input string, cha
 		return "", errors.New("mission not found")
 	}
 
-	// Get the latest entries
+	// 2. Get the latest entries
 	entries, err := s.repo.FindEntriesByMissionID(ctx, missionID, true)
 	if err != nil {
 		return "", err
@@ -144,62 +113,24 @@ func (s *service) ActOnMission(ctx context.Context, missionID, input string, cha
 		return "", errors.New("no entries found")
 	}
 
-	// Generate the request content with the previous messages
-	builder := strings.Builder{}
-
-	_, _ = builder.WriteString("Previous game play context:\n\n")
-
-	for _, entry := range entries {
-		for _, message := range entry.Messages {
-			if message.IsImage {
-				continue
-			}
-
-			if message.IsUser {
-				_, _ = builder.WriteString(fmt.Sprintf("Agent: %s\n", message.Content))
-			} else {
-				_, _ = builder.WriteString(fmt.Sprintf("System: %s\n", message.Content))
-			}
-		}
-	}
-
-	_, _ = builder.WriteString(fmt.Sprintf("\nNew input from the agent: %s\n", input))
-
-	// Initialize the chat completion request
-	req := openai.ChatCompletionRequest{
-		Model: openai.GPT4o,
-		Messages: []openai.ChatCompletionMessage{
-			{
-				Role:    openai.ChatMessageRoleSystem,
-				Content: systemMessage,
-			},
-			{
-				Role:    openai.ChatMessageRoleUser,
-				Content: builder.String(),
-			},
-		},
-		MaxTokens: 2048,
-	}
-
-	chatResp, err := s.llm.CreateChatCompletion(ctx, req)
+	// 3. Build the context with the previous messages and add the user input
+	userMessage, err := buildContext(entries, input)
 	if err != nil {
 		return "", err
 	}
 
-	builder.Reset()
-	defer builder.Reset()
-
-	for _, choice := range chatResp.Choices {
-		_, _ = builder.WriteString(choice.Message.Content)
+	// 4. Initialize the chat completion request
+	respContent, err := s.llm.ChatCompletion(ctx, []string{userMessage})
+	if err != nil {
+		return "", err
 	}
 
-	respContent := builder.String()
-
+	// 5. Send the AI response to the chat function
 	if err := chatFn(respContent); err != nil {
 		return "", err
 	}
 
-	// Save the entry with the user input and the AI response
+	// 6. Save the entry with the user input and the AI response
 	return s.repo.CreateEntry(ctx, missionID, []Message{
 		{
 			Content: input,
@@ -213,7 +144,7 @@ func (s *service) ActOnMission(ctx context.Context, missionID, input string, cha
 }
 
 func (s *service) VisualizeLatestMissionState(ctx context.Context, missionID, entryID string) (*Message, error) {
-	// Check if the mission and entry exist
+	// 1. Check if the mission and entry exist
 	exists, err := s.repo.MissionExists(ctx, missionID)
 	if err != nil {
 		return nil, err
@@ -223,7 +154,7 @@ func (s *service) VisualizeLatestMissionState(ctx context.Context, missionID, en
 		return nil, errors.New("mission not found")
 	}
 
-	// Check if the entry exists
+	// 2. Check if the entry exists
 	entry, err := s.repo.FindEntryByID(ctx, entryID)
 	if err != nil {
 		return nil, err
@@ -233,7 +164,7 @@ func (s *service) VisualizeLatestMissionState(ctx context.Context, missionID, en
 		return nil, errors.New("entry not found")
 	}
 
-	// Get the latest entries
+	// 3. Get the latest entries
 	entries, err := s.repo.FindEntriesByMissionID(ctx, missionID, true)
 	if err != nil {
 		return nil, err
@@ -243,89 +174,29 @@ func (s *service) VisualizeLatestMissionState(ctx context.Context, missionID, en
 		return nil, errors.New("no entries found")
 	}
 
-	// Generate the request content with the previous messages
-	builder := strings.Builder{}
-
-	for _, entry := range entries {
-		for _, message := range entry.Messages {
-			if message.IsImage {
-				continue
-			}
-
-			if message.IsUser {
-				_, _ = builder.WriteString(fmt.Sprintf("Agent: %s\n", message.Content))
-			} else {
-				_, _ = builder.WriteString(fmt.Sprintf("System: %s\n", message.Content))
-			}
-		}
-	}
-
-	context := builder.String()
-
-	// Initialize the chat completion request
-	req := openai.ChatCompletionRequest{
-		Model: openai.GPT4o,
-		Messages: []openai.ChatCompletionMessage{
-			{
-				Role:    openai.ChatMessageRoleSystem,
-				Content: imageSystemMessage,
-			},
-			{
-				Role: openai.ChatMessageRoleUser,
-				Content: fmt.Sprintf(`Here is the latest game play context: 
-					%s
-
-					Please generate a visual representation of the scene. 
-					`, context),
-			},
-		},
-		MaxTokens: 1024,
-		Stream:    false,
-	}
-
-	// Request the chat completion
-	resp, err := s.llm.CreateChatCompletion(ctx, req)
+	// 4. Build the context with the previous messages
+	contextMessage, err := buildContext(entries)
 	if err != nil {
 		return nil, err
 	}
 
-	// Reset the builder to store the AI response
-	builder.Reset()
-	defer builder.Reset()
+	contextMessage = fmt.Sprintf(`Here is the latest game play context: %s
+		Please generate a visual representation of the scene.
+		`, contextMessage)
 
-	// Write the AI response to the builder
-	for _, choice := range resp.Choices {
-		builder.WriteString(choice.Message.Content)
-	}
-
-	// Get the summarized content
-	prompt := builder.String()
-
-	var inputPrompt string
-
-	if len(prompt) > 4000 {
-		inputPrompt = prompt[:4000]
-	} else {
-		inputPrompt = prompt
-	}
-
-	imageReq := openai.ImageRequest{
-		Model:          openai.CreateImageModelDallE3,
-		Size:           openai.CreateImageSize1024x1024,
-		ResponseFormat: openai.CreateImageResponseFormatB64JSON,
-		Prompt:         inputPrompt,
-	}
-
-	imageResp, err := s.llm.CreateImage(ctx, imageReq)
+	// 5. Get the AI response
+	prompt, err := s.llm.ChatCompletion(ctx, []string{contextMessage})
 	if err != nil {
 		return nil, err
 	}
 
-	if len(imageResp.Data) == 0 {
-		return nil, errors.New("no images found")
+	// 6. Generate the image with the AI response (prompt)
+	image, err := s.llm.Visualize(ctx, prompt)
+	if err != nil {
+		return nil, err
 	}
 
-	imageB64JSON := imageResp.Data[0].B64JSON
+	imageB64JSON := image.B64JSON
 
 	message := Message{
 		Content:  prompt,
@@ -338,10 +209,45 @@ func (s *service) VisualizeLatestMissionState(ctx context.Context, missionID, en
 	messages := entry.Messages
 	messages = append(messages, message)
 
+	// 7. Update the entry with the AI response
 	err = s.repo.UpdateEntry(ctx, entryID, messages)
 	if err != nil {
 		return nil, err
 	}
 
 	return &message, nil
+}
+
+func buildContext(entries []Entry, input ...string) (string, error) {
+	builder := strings.Builder{}
+
+	for _, entry := range entries {
+		for _, message := range entry.Messages {
+			if message.IsImage {
+				continue
+			}
+
+			var prefix string
+
+			if message.IsUser {
+				prefix = "Agent"
+			} else {
+				prefix = "System"
+			}
+
+			_, err := builder.WriteString(fmt.Sprintf("%s: %s\n", prefix, message.Content))
+			if err != nil {
+				return "", err
+			}
+		}
+	}
+
+	for _, msg := range input {
+		_, err := builder.WriteString(fmt.Sprintf("New input from the agent: %s\n", msg))
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return builder.String(), nil
 }
