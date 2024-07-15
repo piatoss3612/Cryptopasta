@@ -13,7 +13,7 @@ type Service interface {
 	GetEntriesByMissionID(ctx context.Context, missionID string) ([]Entry, error)
 	GetEntryByID(ctx context.Context, entryID string) (*Entry, error)
 	HasReport(ctx context.Context, user common.Address, reportID *big.Int) (bool, error)
-	CreateMission(ctx context.Context, agentID string, agentAccountAddress common.Address, reportID *big.Int, chatFn ChatMessageFunc) (*Mission, error)
+	CreateMission(ctx context.Context, agentID string, reportID *big.Int, chatFn ChatMessageFunc) (*Mission, error)
 	ActOnMission(ctx context.Context, missionID, input string, chatFn ChatMessageFunc) (string, error)
 	VisualizeLatestMissionState(ctx context.Context, missionID, entryID string) (*Message, error)
 }

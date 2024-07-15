@@ -318,10 +318,8 @@ func (m *MissionRoutes) createMission(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
 		defer cancel()
 
-		agentAccountAddress := common.HexToAddress(agent.AccountAddress)
-
 		fn := func(ctx context.Context) (interface{}, error) {
-			return m.m.CreateMission(ctx, agent.ID, agentAccountAddress, reportIdBN, chatFn)
+			return m.m.CreateMission(ctx, agent.ID, reportIdBN, chatFn)
 		}
 
 		result, err := m.tx.Execute(ctx, fn)

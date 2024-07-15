@@ -50,7 +50,7 @@ func main() {
 	}()
 
 	// 1. Load config
-	cfg := config.LoadConfig()
+	cfg := config.LoadConfig("config.json")
 	dbname := "cryptopasta"
 	port := ":8080"
 

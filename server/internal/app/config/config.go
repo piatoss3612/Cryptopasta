@@ -7,15 +7,15 @@ import (
 )
 
 type Config struct {
-	PrivateKey           string `json:"privateKey"`
-	AgentRegistryAddr    string `json:"agentRegistryAddr"`
-	MissionBoardAddr     string `json:"missionBoardAddr"`
-	PrivyAppID           string `json:"privyAppId"`
-	PrivyVerificationKey string `json:"privyVerificationKey"`
-	PinataApiKey         string `json:"pinataApiKey"`
-	PinataSecretKey      string `json:"pinataSecretKey"`
-	OpenaiApiKey         string `json:"openaiApiKey"`
-	MongoUri             string `json:"mongoUri"`
+	PrivateKey           string `mapstructure:"privateKey"`
+	AgentRegistryAddr    string `mapstructure:"agentRegistryAddr"`
+	MissionBoardAddr     string `mapstructure:"missionBoardAddr"`
+	PrivyAppID           string `mapstructure:"privyAppId"`
+	PrivyVerificationKey string `mapstructure:"privyVerificationKey"`
+	PinataApiKey         string `mapstructure:"pinataApiKey"`
+	PinataSecretKey      string `mapstructure:"pinataSecretKey"`
+	OpenaiApiKey         string `mapstructure:"openaiApiKey"`
+	MongoUri             string `mapstructure:"mongoUri"`
 }
 
 func (cfg *Config) Clear() {
@@ -30,9 +30,12 @@ func (cfg *Config) Clear() {
 	cfg.MongoUri = ""
 }
 
-func LoadConfig() *Config {
-	viper.SetConfigFile("config.json")
-	viper.AddConfigPath(".")
+func LoadConfig(filename string, paths ...string) *Config {
+	viper.SetConfigFile(filename)
+
+	if len(paths) > 0 {
+		viper.AddConfigPath(paths[0])
+	}
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatal(err)

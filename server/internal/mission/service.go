@@ -46,7 +46,7 @@ func (s *service) HasReport(ctx context.Context, user common.Address, reportID *
 	return s.boarder.HasReport(ctx, user, reportID)
 }
 
-func (s *service) CreateMission(ctx context.Context, agentID string, agentAccountAddress common.Address, reportID *big.Int, chatFn ChatMessageFunc) (*Mission, error) {
+func (s *service) CreateMission(ctx context.Context, agentID string, reportID *big.Int, chatFn ChatMessageFunc) (*Mission, error) {
 	// 1. Get the report
 	report, err := s.boarder.GetDiscoveryReportData(ctx, reportID)
 	if err != nil {
